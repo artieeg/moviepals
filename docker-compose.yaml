@@ -1,0 +1,15 @@
+services:
+  db:
+    container_name: moviepals-db
+    image: postgres:latest
+    ports:
+      - 5432:5432
+    volumes:
+      - moviepals-db-dev:/brainy
+    environment:
+      POSTGRES_USER: moviepals
+      POSTGRES_PASSWORD: moviepalsdev
+      PGDATA: /moviepals
+
+volumes:
+  moviepals-db-dev:

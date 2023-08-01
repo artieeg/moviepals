@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1061258612076",
+    "project_id": "moviepals-a440b",
+    "storage_bucket": "moviepals-a440b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1061258612076:android:54c948ddfe705f69e7f749",
+        "android_client_info": {
+          "package_name": "io.moviepals"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1061258612076-vpj22vq6145b0lh9965ns95i44nronso.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.moviepals",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "1061258612076-obboor1apkri3ijbiicicq5sirbacg5e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCt7VDTVHDUBr3PU3p9SRj2Nxmf5KV9sco"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1061258612076-obboor1apkri3ijbiicicq5sirbacg5e.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

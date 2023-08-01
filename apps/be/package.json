@@ -1,0 +1,22 @@
+{
+  "name": "@moviepals/be",
+  "version": "0.1.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "be:debug": "yarn with-env ts-node-dev -r tsconfig-paths/register --inspect=4321 --transpile-only src/index.ts",
+    "be:dev": "yarn with-env ts-node-dev -r tsconfig-paths/register --transpile-only src/index.ts",
+    "be:prod": "ts-node -r tsconfig-paths/register --transpile-only src/index.ts",
+    "with-env": "npx dotenv -e ../../.env --"
+  },
+  "dependencies": {
+    "@moviepals/api": "^0.1.0",
+    "@trpc/server": "^10.36.0",
+    "fastify": "^4.21.0",
+    "ts-node": "^10.9.1"
+  },
+  "devDependencies": {
+    "@dotenv/cli": "^2.2.2",
+    "@types/jsonwebtoken": "^9.0.2",
+    "ts-node-dev": "^2.0.0"
+  }
+}
