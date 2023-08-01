@@ -5,7 +5,7 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - moviepals-db-dev:/brainy
+      - moviepals-db-dev:/moviepals
     environment:
       POSTGRES_USER: moviepals
       POSTGRES_PASSWORD: moviepalsdev
