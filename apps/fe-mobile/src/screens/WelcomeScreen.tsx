@@ -1,28 +1,54 @@
-import appleAuth from "@invertase/react-native-apple-authentication";
-import { GoogleSignin } from "@react-native-google-signin/google-signin";
-import { IconButton } from "~/components/IconButton";
-import { HorrorMovie } from "~/components/icons";
-import { env } from "~/utils/env";
-import { AppleMac, GoogleCircle } from "iconoir-react-native";
 import React from "react";
 import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import appleAuth from "@invertase/react-native-apple-authentication";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import { AppleMac, GoogleCircle } from "iconoir-react-native";
+
+import { env } from "~/utils/env";
+import { IconButton } from "~/components/IconButton";
+import { HorrorMovie } from "~/components/icons";
+import { useNavigation } from "~/hooks";
+import { useOnboardingStore } from "~/stores";
 
 GoogleSignin.configure({
   webClientId: env.GOOGLE_CLIENT_ID,
 });
 
 export function WelcomeScreen() {
+  const navigation = useNavigation();
+
   async function onSignInWithGoogle() {
     const r = await GoogleSignin.signIn();
 
-    console.log(r);
+    if (!r.idToken) {
+      return;
+    }
+
+    useOnboardingStore.setState({
+      name: r.user.givenName,
+      method: {
+        provider: "google",
+        idToken: r.idToken,
+      },
+    });
   }
 
   async function onSignInWithApple() {
     const r = await appleAuth.performRequest();
 
-    console.log(r);
+    if (!r.identityToken) {
+      return;
+    }
+
+    useOnboardingStore.setState({
+      name: r.fullName?.givenName,
+      method: {
+        provider: "apple",
+        idToken: r.identityToken,
+        nonce: r.nonce,
+      },
+    });
   }
 
   return (
@@ -33,10 +59,10 @@ export function WelcomeScreen() {
       <View className="flex-1 px-8">
         <View className="space-y-6">
           <View className="space-y-2">
-            <Text className="font-primary-bold text-2xl text-neutral-1">
+            <Text className="font-primary-bold text-neutral-1 text-2xl">
               welcome to moviepals
             </Text>
-            <Text className="font-primary-regular text-base text-neutral-2">
+            <Text className="font-primary-regular text-neutral-2 text-base">
               it’s here to help you find something to watch together, please
               create an account using apple or google
             </Text>
