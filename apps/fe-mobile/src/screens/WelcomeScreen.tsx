@@ -6,9 +6,10 @@ import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { AppleMac, GoogleCircle } from "iconoir-react-native";
 
 import { env } from "~/utils/env";
-import { IconButton } from "~/components/IconButton";
 import { HorrorMovie } from "~/components/icons";
+import { IconButton } from "~/components";
 import { useNavigation } from "~/hooks";
+import { SCREEN_WHATS_YOUR_NAME } from "~/navigators/OnboardingNavigator";
 import { useOnboardingStore } from "~/stores";
 
 GoogleSignin.configure({
@@ -32,6 +33,8 @@ export function WelcomeScreen() {
         idToken: r.idToken,
       },
     });
+
+    navigation.navigate(SCREEN_WHATS_YOUR_NAME);
   }
 
   async function onSignInWithApple() {
@@ -49,6 +52,8 @@ export function WelcomeScreen() {
         nonce: r.nonce,
       },
     });
+
+    navigation.navigate(SCREEN_WHATS_YOUR_NAME);
   }
 
   return (

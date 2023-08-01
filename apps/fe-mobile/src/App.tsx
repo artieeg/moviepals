@@ -1,4 +1,5 @@
 import React from "react";
+import Toast from "react-native-toast-message";
 import { NavigationContainer } from "@react-navigation/native";
 import { IconoirProvider } from "iconoir-react-native";
 
@@ -20,6 +21,7 @@ export function App() {
           <RootNavigator />
         </NavigationContainer>
       </IconoirProvider>
+      <Toast />
     </TRPCProvider>
   );
 }

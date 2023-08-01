@@ -5,13 +5,14 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { twMerge } from "tailwind-merge";
+
 import { AnimatedTouchableOpacity } from "./AnimatedTouchableOpacity";
 
 export function IconButton({
   variant,
   children,
   ...rest
-}: TouchableOpacityProps & { variant: "like" | "dislike" | "outline" }) {
+}: TouchableOpacityProps & { variant: "primary" | "red" | "outline" }) {
   const scale = useSharedValue(1);
 
   function onPressIn() {
@@ -33,10 +34,10 @@ export function IconButton({
       <Animated.View
         style={rStyle}
         className={twMerge(
-          "w-16 h-16 rounded-full items-center justify-center",
-          variant === "like" && "bg-brand-1",
-          variant === "dislike" && "bg-red-1",
-          variant === "outline" && "border border-neutral-3"
+          "h-16 w-16 items-center justify-center rounded-full",
+          variant === "primary" && "bg-brand-1",
+          variant === "red" && "bg-red-1",
+          variant === "outline" && "border-neutral-3 border"
         )}
       >
         {children}
