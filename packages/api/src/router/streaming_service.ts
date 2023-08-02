@@ -25,7 +25,7 @@ export const streaming_service = createTRPCRouter({
       }
     }),
 
-  getStreamingService: protectedProcedure.query(async ({ ctx }) => {
+  getStreamingServices: protectedProcedure.query(async ({ ctx }) => {
     const [enabledStreamingServices, streamingServices] = await Promise.all([
       ctx.prisma.enabledStreamingService.findMany({
         where: {
@@ -35,12 +35,19 @@ export const streaming_service = createTRPCRouter({
       ctx.prisma.streamingService.findMany(),
     ]);
 
-    return streamingServices.map((streamingService) => ({
+    const services = streamingServices.map((streamingService) => ({
       ...streamingService,
       enabled: enabledStreamingServices.some(
         (enabledStreamingService) =>
           enabledStreamingService.streamingServiceId === streamingService.id
       ),
     }));
+
+    return {
+      /** If user doens't have any services enabled, he's using any service by default */
+      useAnyService: enabledStreamingServices.length === 0,
+
+      services,
+    };
   }),
 });

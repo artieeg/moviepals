@@ -8,21 +8,47 @@ import { createTRPCRouter, publicProcedure } from "../trpc";
 import { env } from "../utils/env";
 import { createToken } from "../utils/jwt";
 
+const signInMethodSchema = z.discriminatedUnion("provider", [
+  z.object({ provider: z.literal("google"), idToken: z.string() }),
+  z.object({
+    provider: z.literal("apple"),
+    idToken: z.string(),
+    nonce: z.string(),
+  }),
+]);
+
 export const user = createTRPCRouter({
+  findExistingUser: publicProcedure
+    .input(z.object({ method: signInMethodSchema }))
+    .query(async ({ input: { method }, ctx }) => {
+      const email =
+        method.provider === "google"
+          ? await getEmailFromGoogleToken(method.idToken)
+          : await getEmailFromAppleToken({
+              idToken: method.idToken,
+              nonce: method.nonce,
+            });
+
+      const existingUser = await ctx.prisma.user.findUnique({
+        where: { email },
+      });
+
+      if (existingUser) {
+        const token = createToken({ user: existingUser.id });
+
+        return { token, user: existingUser };
+      } else {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+    }),
+
   createNewAccount: publicProcedure
     .input(
       z.object({
         username: z.string(),
         name: z.string(),
-        method: z.discriminatedUnion("provider", [
-          z.object({ provider: z.literal("google"), idToken: z.string() }),
-          z.object({
-            provider: z.literal("apple"),
-            idToken: z.string(),
-            nonce: z.string(),
-          }),
-        ]),
-      }),
+        method: signInMethodSchema,
+      })
     )
     .mutation(async ({ input, ctx }) => {
       const { name, username, method } = input;

@@ -10,7 +10,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import { ArrowRight } from "iconoir-react-native";
 
-import { api } from "~/utils/api";
+import { api, setAuthToken } from "~/utils/api";
 import { IconButton } from "~/components/IconButton";
 import { useNavigation } from "~/hooks";
 import { NAVIGATOR_MAIN } from "~/navigators/RootNavigator";
@@ -20,7 +20,9 @@ export function WhatsYourNameScreen() {
   const navigation = useNavigation();
 
   const createNewAccount = api.user.createNewAccount.useMutation({
-    onSuccess() {
+    async onSuccess({ token }) {
+      await setAuthToken(token);
+
       navigation.navigate(NAVIGATOR_MAIN);
     },
     onError(e) {

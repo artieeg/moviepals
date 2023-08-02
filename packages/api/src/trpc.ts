@@ -53,7 +53,8 @@ export const createTRPCContext = async ({
 }: {
   authorization?: string;
 }) => {
-  const claims = authorization ? verifyToken(authorization) : null;
+  const token = authorization?.split(" ")[1];
+  const claims = token ? verifyToken(token) : null;
 
   return createInnerTRPCContext({
     user: claims?.user ?? null,
