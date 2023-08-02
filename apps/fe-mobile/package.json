@@ -22,6 +22,7 @@
     "@trpc/client": "^10.36.0",
     "@trpc/react-query": "^10.36.0",
     "iconoir-react-native": "^6.10.0",
+    "immer": "^10.0.2",
     "nativewind": "^2.0.11",
     "react": "18.2.0",
     "react-native": "0.72.3",

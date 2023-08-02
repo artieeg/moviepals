@@ -8,7 +8,9 @@ import {
 } from "react-native";
 import FastImage from "react-native-fast-image";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { NavArrowRight } from "iconoir-react-native";
+import { Check, NavArrowRight } from "iconoir-react-native";
+import { produce } from "immer";
+import { twJoin, twMerge } from "tailwind-merge";
 
 import { api } from "~/utils/api";
 import { useNavigation } from "~/hooks";
@@ -32,7 +34,29 @@ function MainLayout({ children }: PropsWithChildren) {
 }
 
 export function PrepareSwipeScreen() {
+  const ctx = api.useContext();
+
   const genres = api.genres.fetchUserGenres.useQuery();
+  const toggleGenre = api.genres.toggleGenre.useMutation({
+    onMutate({ genre, enabled }) {
+      ctx.genres.fetchUserGenres.setData(
+        undefined,
+        produce((data) => {
+          const item = data?.find((g) => g.id === genre);
+
+          if (!item) {
+            return data;
+          }
+
+          item.enabled = enabled;
+        })
+      );
+    },
+  });
+
+  function onToggleGenre(id: number, enabled: boolean) {
+    toggleGenre.mutate({ genre: id, enabled });
+  }
 
   return (
     <MainLayout>
@@ -52,7 +76,8 @@ export function PrepareSwipeScreen() {
         ItemSeparatorComponent={() => <View className="h-4" />}
         renderItem={({ item }) => (
           <GenreItem
-            onToggle={() => {}}
+            onToggle={onToggleGenre}
+            enabled={item.enabled}
             id={item.id}
             title={item.name}
             emoji={item.emoji}
@@ -69,14 +94,20 @@ function GenreItem({
   id,
   title,
   emoji,
+  enabled,
 }: {
-  onToggle: () => void;
-  id: string | number;
+  onToggle: (id: any, enabled: boolean) => void;
+  id: any;
   title: string;
   emoji: string;
+  enabled: boolean;
 }) {
   return (
-    <TouchableOpacity className="flex-row items-center justify-between">
+    <TouchableOpacity
+      activeOpacity={0.8}
+      onPress={() => onToggle(id, !enabled)}
+      className="flex-row items-center justify-between"
+    >
       <View className="flex-row items-center space-x-3">
         <View className="bg-neutral-2-10 h-16 w-16 items-center justify-center rounded-full">
           <Text className="text-3.5xl">{emoji}</Text>
@@ -85,14 +116,29 @@ function GenreItem({
           {title}
         </Text>
       </View>
-      <Checkbox />
+      <Checkbox checked={enabled} onToggle={() => onToggle(id, !enabled)} />
     </TouchableOpacity>
   );
 }
 
-function Checkbox() {
+function Checkbox({
+  checked,
+  onToggle,
+}: {
+  checked: boolean;
+  onToggle: (enabled: boolean) => void;
+}) {
   return (
-    <TouchableOpacity className="border-neutral-4 h-6 w-6 rounded-lg border bg-white"></TouchableOpacity>
+    <TouchableOpacity
+      activeOpacity={0.8}
+      onPress={() => onToggle(!checked)}
+      className={twMerge(
+        "border-neutral-4 h-6 w-6 items-center justify-center rounded-lg border bg-white",
+        checked ? "bg-brand-1 border-brand-1" : "border-neutral-4 bg-white"
+      )}
+    >
+      {checked && <Check width="16" height="16" color="white" />}
+    </TouchableOpacity>
   );
 }
 

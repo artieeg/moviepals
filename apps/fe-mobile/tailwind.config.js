@@ -8,7 +8,7 @@ module.exports = {
         "primary-bold": "Nunito-Bold",
       },
       fontSize: {
-        "3.5xl": "32",
+        "3.5xl": "32px",
       },
       colors: {
         "neutral-1": "#0E0C10",
