@@ -26,6 +26,8 @@ model EnabledStreamingService {
 
   streamingServiceId String
   streamingService   StreamingService @relation(fields: [streamingServiceId], references: [id])
+
+  @@unique([userId, streamingServiceId])
 }
 
 model StreamingService {
