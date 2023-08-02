@@ -4,6 +4,7 @@ import {
   Text,
   Touchable,
   TouchableOpacity,
+  TouchableOpacityProps,
   View,
 } from "react-native";
 import FastImage from "react-native-fast-image";
@@ -62,11 +63,13 @@ export function PrepareSwipeScreen() {
     <MainLayout>
       <FlatList
         className="-mx-8 flex-1"
-        contentContainerStyle={{ paddingHorizontal: 32 }}
+        contentContainerStyle={{ paddingHorizontal: 32, paddingBottom: 64 }}
         ListHeaderComponent={() => {
           return (
             <View className="space-y-6 pb-3">
               <MyStreamingServicesSection />
+              <CastFilter />
+              <DirectorFilter />
               <Text className="font-primary-bold text-neutral-1 text-xl">
                 genres
               </Text>
@@ -85,7 +88,24 @@ export function PrepareSwipeScreen() {
         )}
         data={genres.data}
       />
+      <Button className="absolute bottom-0 left-0 right-0">
+        start swiping
+      </Button>
     </MainLayout>
+  );
+}
+
+function Button({
+  children,
+  ...rest
+}: TouchableOpacityProps & { children: string }) {
+  return (
+    <TouchableOpacity
+      className="bg-brand-1 h-12 items-center justify-center rounded-full"
+      {...rest}
+    >
+      <Text className="font-primary-bold text-base text-white">{children}</Text>
+    </TouchableOpacity>
   );
 }
 
@@ -137,12 +157,14 @@ function Checkbox({
         checked ? "bg-brand-1 border-brand-1" : "border-neutral-4 bg-white"
       )}
     >
-      {checked && <Check width="16" height="16" color="white" />}
+      {checked && (
+        <Check strokeWidth={4} width="16" height="16" color="white" />
+      )}
     </TouchableOpacity>
   );
 }
 
-function MyStreamingServicesSection() {
+function MyStreamingServicesSection(props: TouchableOpacityProps) {
   const navigation = useNavigation();
 
   const streamingServices =
@@ -154,8 +176,9 @@ function MyStreamingServicesSection() {
 
   return (
     <TouchableOpacity
-      onPress={onPress}
       className="flex-row items-center justify-between"
+      {...props}
+      onPress={onPress}
     >
       <View>
         <Text className="font-primary-bold text-neutral-1 text-xl">
@@ -181,6 +204,48 @@ function MyStreamingServicesSection() {
         </View>
       </View>
       <NavArrowRight />
+    </TouchableOpacity>
+  );
+}
+
+function CastFilter(props: TouchableOpacityProps) {
+  return (
+    <TouchableOpacity
+      className="flex-row items-center justify-between"
+      {...props}
+    >
+      <View>
+        <Text className="font-primary-bold text-neutral-1 text-xl">
+          cast filter
+        </Text>
+
+        <View className="h-6 flex-row items-center space-x-1">
+          <Text className="font-primary-regular text-neutral-2 text-base">
+            coming soon
+          </Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+function DirectorFilter(props: TouchableOpacityProps) {
+  return (
+    <TouchableOpacity
+      className="flex-row items-center justify-between"
+      {...props}
+    >
+      <View>
+        <Text className="font-primary-bold text-neutral-1 text-xl">
+          director filter
+        </Text>
+
+        <View className="h-6 flex-row items-center space-x-1">
+          <Text className="font-primary-regular text-neutral-2 text-base">
+            coming soon
+          </Text>
+        </View>
+      </View>
     </TouchableOpacity>
   );
 }
