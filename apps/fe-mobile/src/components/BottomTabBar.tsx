@@ -29,7 +29,7 @@ export function BottomTabBar(props: BottomTabBarProps) {
     >
       <Pressable
         onPress={() => navigation.navigate(NAVIGATOR_SWIPE)}
-        className="flex-1 items-center justify-center pt-4"
+        className="flex-1 items-center justify-center space-y-1 pt-4"
       >
         <CinemaOld
           width="24"
@@ -48,7 +48,7 @@ export function BottomTabBar(props: BottomTabBarProps) {
 
       <Pressable
         onPress={() => navigation.navigate(NAVIGATOR_FRIENDS)}
-        className="flex-1 items-center justify-center pt-4"
+        className="flex-1 items-center justify-center space-y-1 pt-4"
       >
         <Group
           width="24"
@@ -67,7 +67,7 @@ export function BottomTabBar(props: BottomTabBarProps) {
 
       <Pressable
         onPress={() => navigation.navigate(NAVIGATOR_EVENTS)}
-        className="flex-1 items-center justify-center pt-4"
+        className="flex-1 items-center justify-center space-y-1 pt-4"
       >
         <Bell
           color={isEventsNavigator ? "#0E0C10" : "#71707B"}
@@ -86,7 +86,7 @@ export function BottomTabBar(props: BottomTabBarProps) {
 
       <Pressable
         onPress={() => navigation.navigate(NAVIGATOR_ME)}
-        className="flex-1 items-center justify-center pt-4"
+        className="flex-1 items-center justify-center space-y-1 pt-4"
       >
         <PeopleTag
           color={isMeNavigator ? "#0E0C10" : "#71707B"}

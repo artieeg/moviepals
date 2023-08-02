@@ -15,4 +15,22 @@ model User {
   name     String
   email    String @unique()
   username String @unique()
+
+  EnabledStreamingService EnabledStreamingService[]
+}
+
+model EnabledStreamingService {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  streamingServiceId String
+  streamingService   StreamingService @relation(fields: [streamingServiceId], references: [id])
+}
+
+model StreamingService {
+  id                      String                    @id @default(cuid())
+  name                    String
+  image                   String
+  EnabledStreamingService EnabledStreamingService[]
 }
