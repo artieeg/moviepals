@@ -32,10 +32,13 @@ function MainLayout({ children }: PropsWithChildren) {
 }
 
 export function PrepareSwipeScreen() {
+  const genres = api.genres.fetchUserGenres.useQuery();
+
   return (
     <MainLayout>
       <FlatList
-        className="flex-1"
+        className="-mx-8 flex-1"
+        contentContainerStyle={{ paddingHorizontal: 32 }}
         ListHeaderComponent={() => {
           return (
             <View className="space-y-6 pb-3">
@@ -46,15 +49,16 @@ export function PrepareSwipeScreen() {
             </View>
           );
         }}
-        renderItem={() => (
+        ItemSeparatorComponent={() => <View className="h-4" />}
+        renderItem={({ item }) => (
           <GenreItem
             onToggle={() => {}}
-            id="adventure"
-            title="adventure"
-            emoji="🌍"
+            id={item.id}
+            title={item.name}
+            emoji={item.emoji}
           />
         )}
-        data={[""]}
+        data={genres.data}
       />
     </MainLayout>
   );
@@ -67,7 +71,7 @@ function GenreItem({
   emoji,
 }: {
   onToggle: () => void;
-  id: string;
+  id: string | number;
   title: string;
   emoji: string;
 }) {

@@ -17,6 +17,14 @@ model User {
   username String @unique()
 
   EnabledStreamingService EnabledStreamingService[]
+  EnabledGenre            EnabledGenre[]
+}
+
+model EnabledGenre {
+  id      String @id @default(cuid())
+  genreId Int
+  userId  String
+  user    User   @relation(fields: [userId], references: [id])
 }
 
 model EnabledStreamingService {
