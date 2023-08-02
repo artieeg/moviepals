@@ -1,5 +1,11 @@
 import React, { PropsWithChildren } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import {
+  FlatList,
+  Text,
+  Touchable,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import FastImage from "react-native-fast-image";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { NavArrowRight } from "iconoir-react-native";
@@ -28,8 +34,61 @@ function MainLayout({ children }: PropsWithChildren) {
 export function PrepareSwipeScreen() {
   return (
     <MainLayout>
-      <MyStreamingServicesSection />
+      <FlatList
+        className="flex-1"
+        ListHeaderComponent={() => {
+          return (
+            <View className="space-y-6 pb-3">
+              <MyStreamingServicesSection />
+              <Text className="font-primary-bold text-neutral-1 text-xl">
+                genres
+              </Text>
+            </View>
+          );
+        }}
+        renderItem={() => (
+          <GenreItem
+            onToggle={() => {}}
+            id="adventure"
+            title="adventure"
+            emoji="🌍"
+          />
+        )}
+        data={[""]}
+      />
     </MainLayout>
+  );
+}
+
+function GenreItem({
+  onToggle,
+  id,
+  title,
+  emoji,
+}: {
+  onToggle: () => void;
+  id: string;
+  title: string;
+  emoji: string;
+}) {
+  return (
+    <TouchableOpacity className="flex-row items-center justify-between">
+      <View className="flex-row items-center space-x-3">
+        <View className="bg-neutral-2-10 h-16 w-16 items-center justify-center rounded-full">
+          <Text className="text-3.5xl">{emoji}</Text>
+        </View>
+        <Text className="font-primary-bold text-neutral-1 text-xl">
+          {title}
+        </Text>
+      </View>
+      <Checkbox />
+    </TouchableOpacity>
+  );
+}
+
+function Checkbox() {
+  return (
+    <TouchableOpacity className="border-neutral-4 h-6 w-6 rounded-lg border bg-white"></TouchableOpacity>
   );
 }
 
@@ -53,7 +112,7 @@ function MyStreamingServicesSection() {
           my streaming services
         </Text>
 
-        <View className="h-6 flex-row items-center">
+        <View className="h-6 flex-row items-center space-x-1">
           {streamingServices.data?.useAnyService ? (
             <Text className="font-primary-regular text-neutral-2 text-base">
               using any service
