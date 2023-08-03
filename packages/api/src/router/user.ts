@@ -4,6 +4,7 @@ import appleSignInAuth from "apple-signin-auth";
 import { OAuth2Client } from "google-auth-library";
 import { z } from "zod";
 
+import { getCountryFromIP } from "../services";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 import { env } from "../utils/env";
 import { createToken } from "../utils/jwt";
@@ -48,9 +49,15 @@ export const user = createTRPCRouter({
         username: z.string(),
         name: z.string(),
         method: signInMethodSchema,
-      })
+      }),
     )
     .mutation(async ({ input, ctx }) => {
+      let country = "US";
+
+      try {
+        country = await getCountryFromIP(ctx.ip);
+      } catch {}
+
       const { name, username, method } = input;
 
       const email =
@@ -63,6 +70,7 @@ export const user = createTRPCRouter({
 
       const user = await ctx.prisma.user.create({
         data: {
+          country,
           name,
           username,
           email,

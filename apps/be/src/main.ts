@@ -19,8 +19,9 @@ server.register(fastifyTRPCPlugin, {
     router: appRouter,
     createContext: (opts: CreateFastifyContextOptions) => {
       const { authorization } = opts.req.headers;
+      const ip = opts.req.headers["x-forwarded-for"] ?? opts.req.ip;
 
-      return createTRPCContext({ authorization });
+      return createTRPCContext({ authorization, ip: ip as string });
     },
   },
 });

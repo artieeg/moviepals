@@ -15,6 +15,7 @@
     "@trpc/client": "^10.36.0",
     "@trpc/server": "^10.36.0",
     "apple-signin-auth": "^1.7.5",
+    "axios": "^1.4.0",
     "google-auth-library": "^9.0.0",
     "jsonwebtoken": "^9.0.1",
     "superjson": "1.13.1",

@@ -25,6 +25,7 @@ import { verifyToken } from "./utils/jwt";
  */
 interface CreateContextOptions {
   user: string | null;
+  ip: string;
 }
 
 /**
@@ -38,7 +39,7 @@ interface CreateContextOptions {
  */
 const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
-    user: opts.user,
+    ...opts,
     prisma,
   };
 };
@@ -50,14 +51,17 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
  */
 export const createTRPCContext = async ({
   authorization,
+  ip,
 }: {
   authorization?: string;
+  ip: string;
 }) => {
   const token = authorization?.split(" ")[1];
   const claims = token ? verifyToken(token) : null;
 
   return createInnerTRPCContext({
     user: claims?.user ?? null,
+    ip,
   });
 };
 
@@ -113,6 +117,7 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
   }
   return next({
     ctx: {
+      ...ctx,
       user: ctx.user as string,
     },
   });

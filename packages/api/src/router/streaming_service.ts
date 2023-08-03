@@ -1,10 +1,11 @@
 import { z } from "zod";
 
+import { getStreamingServices } from "../services";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const streaming_service = createTRPCRouter({
   toggleStreamingService: protectedProcedure
-    .input(z.object({ streamingServiceId: z.string(), enabled: z.boolean() }))
+    .input(z.object({ streamingServiceId: z.number(), enabled: z.boolean() }))
     .mutation(async ({ ctx, input }) => {
       if (input.enabled) {
         await ctx.prisma.enabledStreamingService.create({
@@ -26,20 +27,21 @@ export const streaming_service = createTRPCRouter({
     }),
 
   getStreamingServices: protectedProcedure.query(async ({ ctx }) => {
-    const [enabledStreamingServices, streamingServices] = await Promise.all([
-      ctx.prisma.enabledStreamingService.findMany({
+    const streamingServices = await getStreamingServices("US");
+
+    const enabledStreamingServices =
+      await ctx.prisma.enabledStreamingService.findMany({
         where: {
           userId: ctx.user,
         },
-      }),
-      ctx.prisma.streamingService.findMany(),
-    ]);
+      });
 
     const services = streamingServices.map((streamingService) => ({
       ...streamingService,
       enabled: enabledStreamingServices.some(
         (enabledStreamingService) =>
-          enabledStreamingService.streamingServiceId === streamingService.id
+          enabledStreamingService.streamingServiceId ===
+          streamingService.provider_id
       ),
     }));
 
