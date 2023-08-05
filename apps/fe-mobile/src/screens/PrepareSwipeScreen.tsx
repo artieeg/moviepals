@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   TouchableOpacityProps,
   View,
+  ViewProps,
 } from "react-native";
 import FastImage from "react-native-fast-image";
 import { Check, NavArrowRight } from "iconoir-react-native";
@@ -12,9 +13,10 @@ import { produce } from "immer";
 import { twMerge } from "tailwind-merge";
 
 import { api } from "~/utils/api";
+import { Checkbox, ListItem } from "~/components";
 import { useNavigation } from "~/hooks";
+import { SCREEN_STREAMING_SERVICE_LIST } from "~/navigators/SwipeNavigator";
 import { MainLayout } from "./layouts/MainLayout";
-import {SCREEN_STREAMING_SERVICE_LIST} from "~/navigators/SwipeNavigator";
 
 export function PrepareSwipeScreen() {
   const ctx = api.useContext();
@@ -32,7 +34,7 @@ export function PrepareSwipeScreen() {
           }
 
           item.enabled = enabled;
-        })
+        }),
       );
     },
   });
@@ -105,44 +107,14 @@ function GenreItem({
   enabled: boolean;
 }) {
   return (
-    <TouchableOpacity
-      activeOpacity={0.8}
-      onPress={() => onToggle(id, !enabled)}
-      className="flex-row items-center justify-between"
-    >
-      <View className="flex-row items-center space-x-3">
-        <View className="bg-neutral-2-10 h-16 w-16 items-center justify-center rounded-full">
-          <Text className="text-3.5xl">{emoji}</Text>
-        </View>
-        <Text className="font-primary-bold text-neutral-1 text-xl">
-          {title}
-        </Text>
-      </View>
-      <Checkbox checked={enabled} onToggle={() => onToggle(id, !enabled)} />
-    </TouchableOpacity>
-  );
-}
-
-function Checkbox({
-  checked,
-  onToggle,
-}: {
-  checked: boolean;
-  onToggle: (enabled: boolean) => void;
-}) {
-  return (
-    <TouchableOpacity
-      activeOpacity={0.8}
-      onPress={() => onToggle(!checked)}
-      className={twMerge(
-        "border-neutral-4 h-6 w-6 items-center justify-center rounded-lg border bg-white",
-        checked ? "bg-brand-1 border-brand-1" : "border-neutral-4 bg-white"
-      )}
-    >
-      {checked && (
-        <Check strokeWidth={4} width="16" height="16" color="white" />
-      )}
-    </TouchableOpacity>
+    <ListItem
+      id={id}
+      icon={emoji}
+      title={title}
+      checkbox
+      onToggle={onToggle}
+      checked={enabled}
+    />
   );
 }
 

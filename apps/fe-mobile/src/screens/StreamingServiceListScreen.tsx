@@ -1,12 +1,15 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { Text, TouchableOpacity, View, ViewProps } from "react-native";
 import CountryPicker, {
   Country,
   CountryCode,
 } from "react-native-country-picker-modal";
+import { Search } from "iconoir-react-native";
 import { produce } from "immer";
+import countries from "world-countries";
 
 import { api } from "~/utils/api";
+import { Input, ListItem } from "~/components";
 import { MainLayout } from "./layouts/MainLayout";
 
 export function StreamingServiceList() {
@@ -48,14 +51,18 @@ export function StreamingServiceList() {
 
 function StreamingServicesHeader(props: ViewProps) {
   return (
-    <View className="space-y-1" {...props}>
-      <Text className="font-primary-bold text-neutral-1 text-xl">
-        streaming services
-      </Text>
-      <Text className="font-primary-regular text-neutral-2 text-base">
-        select the services you use, this will make the app more relevant to you
-        & your friends
-      </Text>
+    <View className="space-y-6">
+      <View className="space-y-1" {...props}>
+        <Text className="font-primary-bold text-neutral-1 text-xl">
+          streaming services
+        </Text>
+        <Text className="font-primary-regular text-neutral-2 text-base">
+          select the services you use, this will make the app more relevant to
+          you & your friends
+        </Text>
+      </View>
+
+      <Input icon={<Search />} placeholder="search" />
     </View>
   );
 }
@@ -70,38 +77,57 @@ function YourCountry({
 }) {
   const [showCountryPicker, setShowCountryPicker] = React.useState(false);
 
-  return (
-    <TouchableOpacity
-      onPress={() => {
-        setShowCountryPicker(true);
-      }}
-      className="space-y-3"
-      {...props}
-    >
-      <View className="space-y-1">
-        <Text className="font-primary-bold text-neutral-1 text-xl">
-          your country
-        </Text>
-        <Text className="font-primary-regular text-neutral-2 text-base">
-          we will fetch a list of streaming services for this country
-        </Text>
-      </View>
+  const countryData = useMemo(
+    () => countries.find((c) => c.cca2 === country),
+    [country],
+  );
 
-      <CountryPicker
-        theme={{
-          fontFamily: "Nunito-Regular",
-          flagSizeButton: 32,
-          fontSize: 20,
+  return (
+    <View>
+      <TouchableOpacity
+        onPress={() => {
+          setShowCountryPicker(true);
         }}
-        withFilter
-        countryCode={country as CountryCode}
-        withEmoji
-        onClose={() => {
-          setShowCountryPicker(false);
-        }}
-        onSelect={onChangeCountry}
-        visible={showCountryPicker}
-      />
-    </TouchableOpacity>
+        className="space-y-3"
+        {...props}
+      >
+        <View className="space-y-1">
+          <Text className="font-primary-bold text-neutral-1 text-xl">
+            your country
+          </Text>
+          <Text className="font-primary-regular text-neutral-2 text-base">
+            we will fetch a list of streaming services for this country
+          </Text>
+        </View>
+
+        <ListItem
+          disabled
+          checkbox={false}
+          id={country}
+          title={countryData?.name.common ?? "..."}
+          icon={countryData?.flag}
+        />
+      </TouchableOpacity>
+
+      <View className="absolute">
+        <CountryPicker
+          theme={{
+            fontFamily: "Nunito-Regular",
+            flagSizeButton: 32,
+            fontSize: 20,
+          }}
+          withFilter
+          countryCode={country as CountryCode}
+          withCountryNameButton={false}
+          withFlagButton={false}
+          withEmoji={false}
+          onClose={() => {
+            setShowCountryPicker(false);
+          }}
+          onSelect={onChangeCountry}
+          visible={showCountryPicker}
+        />
+      </View>
+    </View>
   );
 }

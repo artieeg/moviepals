@@ -85,7 +85,7 @@ export function WhatsYourNameScreen() {
               onChangeText={onChangeName}
             />
             <Input
-              icon={<AtSign width="24" height="24" color="#71707B" />}
+              icon={<AtSign />}
               autoCapitalize="none"
               placeholder="username"
               onChangeText={setUsername}
