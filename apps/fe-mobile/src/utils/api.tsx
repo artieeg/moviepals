@@ -60,7 +60,16 @@ export async function signOut() {
  */
 
 export function TRPCProvider(props: { children: React.ReactNode }) {
-  const [queryClient] = React.useState(() => new QueryClient());
+  const [queryClient] = React.useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            retry: false,
+          },
+        },
+      }),
+  );
   const [trpcClient] = React.useState(() =>
     api.createClient({
       transformer: superjson,
@@ -76,7 +85,7 @@ export function TRPCProvider(props: { children: React.ReactNode }) {
           },
         }),
       ],
-    })
+    }),
   );
 
   return (
