@@ -11,7 +11,7 @@ import { Checkbox } from "./Checkbox";
 
 export function ListItem(
   props: TouchableOpacityProps & {
-    id: string;
+    itemId: any;
     title: string;
     icon: string | React.ReactNode;
   } & (
@@ -19,7 +19,7 @@ export function ListItem(
       | {
           checkbox: true;
           checked: boolean;
-          onToggle: (id: string, enabled: boolean) => void;
+          onToggle: (id: any, enabled: boolean) => void;
         }
     ),
 ) {
@@ -28,14 +28,14 @@ export function ListItem(
       activeOpacity={0.8}
       onPress={() => {
         if (props.checkbox === true) {
-          props.onToggle(props.id, !props.checked);
+          props.onToggle(props.itemId, !props.checked);
         }
       }}
       className="flex-row items-center justify-between"
       {...props}
     >
       <View className="flex-row items-center space-x-3">
-        <View className="bg-neutral-2-10 h-16 w-16 items-center justify-center rounded-full">
+        <View className="bg-neutral-2-10 h-16 w-16 items-center justify-center overflow-hidden rounded-full">
           {typeof props.icon === "string" ? (
             <Text className="text-3.5xl">{props.icon}</Text>
           ) : (

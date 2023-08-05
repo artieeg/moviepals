@@ -108,7 +108,7 @@ function GenreItem({
 }) {
   return (
     <ListItem
-      id={id}
+      itemId={id}
       icon={emoji}
       title={title}
       checkbox

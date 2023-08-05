@@ -1,15 +1,24 @@
-import React, { useCallback, useMemo } from "react";
-import { Text, TouchableOpacity, View, ViewProps } from "react-native";
+import React, { useCallback, useMemo, useState } from "react";
+import {
+  FlatList,
+  Text,
+  TouchableOpacity,
+  View,
+  ViewProps,
+} from "react-native";
 import CountryPicker, {
   Country,
   CountryCode,
 } from "react-native-country-picker-modal";
+import FastImage from "react-native-fast-image";
 import { Search } from "iconoir-react-native";
 import { produce } from "immer";
+import { useDebounce } from "use-debounce";
 import countries from "world-countries";
 
 import { api } from "~/utils/api";
-import { Input, ListItem } from "~/components";
+import { getTMDBStaticUrl } from "~/utils/uri";
+import { Input, ListItem, LoadingIndicator } from "~/components";
 import { MainLayout } from "./layouts/MainLayout";
 
 export function StreamingServiceList() {
@@ -28,42 +37,102 @@ export function StreamingServiceList() {
       );
     },
   });
+
   const user = api.user.getUserData.useQuery();
 
   const onChangeCountry = useCallback((country: Country) => {
     setUserCountry.mutate({ country: country.cca2 });
   }, []);
 
+  const [search, setSearch] = useState("");
+  const [debouncedSearch] = useDebounce(search, 300);
+
+  function onToggleStreamingService(id: string, enabled: boolean) {}
+
+  const streamingServices = api.streaming_service.getStreamingServices.useQuery(
+    { country: user.data?.country as string },
+    {
+      enabled: user.isSuccess && !!user.data.country,
+      select: (result) => {
+        if (debouncedSearch.length > 0) {
+          return result.services.filter((item) =>
+            item.provider_name
+              .toLowerCase()
+              .includes(debouncedSearch.toLowerCase()),
+          );
+        } else {
+          return result.services;
+        }
+      },
+    },
+  );
+
   return (
     <MainLayout canGoBack title="services">
-      <View className="space-y-8">
-        {user.isSuccess && (
-          <YourCountry
-            country={user.data.country}
-            onChangeCountry={onChangeCountry}
-          />
-        )}
-        <StreamingServicesHeader />
-      </View>
+      <FlatList
+        className="-mx-4 flex-1"
+        data={streamingServices.data}
+        contentContainerStyle={{ paddingHorizontal: 20 }}
+        ItemSeparatorComponent={() => <View className="h-3" />}
+        renderItem={({ item }) => {
+          return (
+            <ListItem
+              icon={
+                <FastImage
+                  className="h-full w-full"
+                  source={{ uri: getTMDBStaticUrl(item.logo_path) }}
+                />
+              }
+              itemId={item.provider_id}
+              title={item.provider_name}
+              checkbox
+              checked={item.enabled}
+              onToggle={onToggleStreamingService}
+            />
+          );
+        }}
+        ListFooterComponent={() => {
+          if (!streamingServices.isLoading) {
+            return null;
+          }
+
+          return (
+            <View className="py-12">
+              <LoadingIndicator />
+            </View>
+          );
+        }}
+        ListHeaderComponent={
+          <View className="mb-4 space-y-8">
+            {user.isSuccess && (
+              <YourCountry
+                country={user.data.country}
+                onChangeCountry={onChangeCountry}
+              />
+            )}
+
+            <View className="space-y-6">
+              <View className="space-y-1">
+                <Text className="font-primary-bold text-neutral-1 text-xl">
+                  streaming services
+                </Text>
+                <Text className="font-primary-regular text-neutral-2 text-base">
+                  select the services you use, this will make the app more
+                  relevant to you & your friends
+                </Text>
+              </View>
+
+              <Input
+                icon={<Search />}
+                placeholder="search"
+                value={search}
+                onChangeText={(v) => setSearch(v)}
+              />
+            </View>
+          </View>
+        }
+      />
     </MainLayout>
-  );
-}
-
-function StreamingServicesHeader(props: ViewProps) {
-  return (
-    <View className="space-y-6">
-      <View className="space-y-1" {...props}>
-        <Text className="font-primary-bold text-neutral-1 text-xl">
-          streaming services
-        </Text>
-        <Text className="font-primary-regular text-neutral-2 text-base">
-          select the services you use, this will make the app more relevant to
-          you & your friends
-        </Text>
-      </View>
-
-      <Input icon={<Search />} placeholder="search" />
-    </View>
   );
 }
 

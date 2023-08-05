@@ -26,30 +26,32 @@ export const streaming_service = createTRPCRouter({
       }
     }),
 
-  getStreamingServices: protectedProcedure.query(async ({ ctx }) => {
-    const streamingServices = await getStreamingServices("US");
+  getStreamingServices: protectedProcedure
+    .input(z.object({ country: z.string() }))
+    .query(async ({ ctx, input: { country } }) => {
+      const streamingServices = await getStreamingServices(country);
 
-    const enabledStreamingServices =
-      await ctx.prisma.enabledStreamingService.findMany({
-        where: {
-          userId: ctx.user,
-        },
-      });
+      const enabledStreamingServices =
+        await ctx.prisma.enabledStreamingService.findMany({
+          where: {
+            userId: ctx.user,
+          },
+        });
 
-    const services = streamingServices.map((streamingService) => ({
-      ...streamingService,
-      enabled: enabledStreamingServices.some(
-        (enabledStreamingService) =>
-          enabledStreamingService.streamingServiceId ===
-          streamingService.provider_id
-      ),
-    }));
+      const services = streamingServices.map((streamingService) => ({
+        ...streamingService,
+        enabled: enabledStreamingServices.some(
+          (enabledStreamingService) =>
+            enabledStreamingService.streamingServiceId ===
+            streamingService.provider_id,
+        ),
+      }));
 
-    return {
-      /** If user doens't have any services enabled, he's using any service by default */
-      useAnyService: enabledStreamingServices.length === 0,
+      return {
+        /** If user doens't have any services enabled, he's using any service by default */
+        useAnyService: enabledStreamingServices.length === 0,
 
-      services,
-    };
-  }),
+        services,
+      };
+    }),
 });
