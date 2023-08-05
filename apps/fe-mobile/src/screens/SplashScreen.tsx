@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Text, View } from "react-native";
+import { Toast } from "react-native-toast-message/lib/src/Toast";
 import Rive from "rive-react-native";
 
-import { loadAuthToken } from "~/utils/api";
+import { api, loadAuthToken } from "~/utils/api";
 import { useNavigation } from "~/hooks";
 import {
   NAVIGATOR_MAIN,
@@ -16,13 +17,30 @@ export function SplashScreen() {
   >();
   const [animationFinished, setAnimationFinished] = useState(false);
 
+  const userData = api.user.getUserData.useQuery();
+
   useEffect(() => {
     loadAuthToken().then((fetched) =>
-      setTokenStatus(fetched ? "available" : "not-available")
+      setTokenStatus(fetched ? "available" : "not-available"),
     );
   }, []);
 
   useEffect(() => {
+    if (userData.isLoading) {
+      return;
+    }
+
+    if (userData.isError) {
+      if (userData.error.data?.code === "NOT_FOUND") {
+        return navigation.navigate(NAVIGATOR_ONBOARDING);
+      } else {
+        return Toast.show({
+          type: "error",
+          text1: "Something went wrong, please try again",
+        });
+      }
+    }
+
     if (animationFinished && tokenStatus) {
       if (tokenStatus === "available") {
         navigation.navigate(NAVIGATOR_MAIN);
@@ -30,7 +48,7 @@ export function SplashScreen() {
         navigation.navigate(NAVIGATOR_ONBOARDING);
       }
     }
-  }, [animationFinished, tokenStatus]);
+  }, [animationFinished, tokenStatus, userData.isError, userData.isLoading]);
 
   return (
     <View className="flex-1 items-center justify-center bg-white">

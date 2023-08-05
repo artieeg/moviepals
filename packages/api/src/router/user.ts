@@ -1,11 +1,12 @@
 import crypto from "crypto";
+import { TRPCUntypedClient } from "@trpc/client";
 import { TRPCError } from "@trpc/server";
 import appleSignInAuth from "apple-signin-auth";
 import { OAuth2Client } from "google-auth-library";
 import { z } from "zod";
 
 import { getCountryFromIP } from "../services";
-import { createTRPCRouter, publicProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { env } from "../utils/env";
 import { createToken } from "../utils/jwt";
 
@@ -19,6 +20,18 @@ const signInMethodSchema = z.discriminatedUnion("provider", [
 ]);
 
 export const user = createTRPCRouter({
+  getUserData: protectedProcedure.query(async ({ ctx }) => {
+    const user = await ctx.prisma.user.findUnique({
+      where: { id: ctx.user },
+    });
+
+    if (!user) {
+      throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+    }
+
+    return user;
+  }),
+
   findExistingUser: publicProcedure
     .input(z.object({ method: signInMethodSchema }))
     .query(async ({ input: { method }, ctx }) => {

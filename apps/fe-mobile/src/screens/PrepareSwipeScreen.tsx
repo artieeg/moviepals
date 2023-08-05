@@ -1,38 +1,20 @@
-import React, { PropsWithChildren } from "react";
+import React from "react";
 import {
   FlatList,
   Text,
-  Touchable,
   TouchableOpacity,
   TouchableOpacityProps,
   View,
 } from "react-native";
 import FastImage from "react-native-fast-image";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Check, NavArrowRight } from "iconoir-react-native";
 import { produce } from "immer";
-import { twJoin, twMerge } from "tailwind-merge";
+import { twMerge } from "tailwind-merge";
 
 import { api } from "~/utils/api";
 import { useNavigation } from "~/hooks";
-
-function MainLayout({ children }: PropsWithChildren) {
-  return (
-    <SafeAreaView edges={["top", "left", "right"]} className="flex-1 bg-white">
-      <View className="flex-1 px-8">
-        {/* HEADER */}
-        <View className="flex-row items-center justify-center py-4">
-          <Text className="font-primary-bold text-neutral-1 text-2xl">
-            movies
-          </Text>
-        </View>
-
-        {/* CONTENT */}
-        <View className="flex-1">{children}</View>
-      </View>
-    </SafeAreaView>
-  );
-}
+import { MainLayout } from "./layouts/MainLayout";
+import {SCREEN_STREAMING_SERVICE_LIST} from "~/navigators/SwipeNavigator";
 
 export function PrepareSwipeScreen() {
   const ctx = api.useContext();
@@ -60,7 +42,7 @@ export function PrepareSwipeScreen() {
   }
 
   return (
-    <MainLayout>
+    <MainLayout title="movies">
       <FlatList
         className="-mx-8 flex-1"
         contentContainerStyle={{ paddingHorizontal: 32, paddingBottom: 64 }}
@@ -88,7 +70,7 @@ export function PrepareSwipeScreen() {
         )}
         data={genres.data}
       />
-      <Button className="absolute bottom-0 left-0 right-0">
+      <Button className="absolute bottom-0 left-8 right-8">
         start swiping
       </Button>
     </MainLayout>
@@ -171,7 +153,7 @@ function MyStreamingServicesSection(props: TouchableOpacityProps) {
     api.streaming_service.getStreamingServices.useQuery();
 
   function onPress() {
-    //navigation.navigate
+    navigation.navigate(SCREEN_STREAMING_SERVICE_LIST);
   }
 
   return (
@@ -195,7 +177,7 @@ function MyStreamingServicesSection(props: TouchableOpacityProps) {
               <FastImage
                 resizeMode="contain"
                 source={{
-                  uri: service.image,
+                  uri: service.logo_path,
                 }}
                 className="h-8 w-8 rounded-lg"
               />

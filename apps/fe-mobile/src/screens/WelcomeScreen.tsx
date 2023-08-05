@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import appleAuth from "@invertase/react-native-apple-authentication";
@@ -38,7 +38,7 @@ export function WelcomeScreen() {
 
         navigation.navigate(NAVIGATOR_MAIN);
       },
-    }
+    },
   );
 
   async function onSignInWithGoogle() {
