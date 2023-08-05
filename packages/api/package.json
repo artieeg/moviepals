@@ -18,6 +18,8 @@
     "axios": "^1.4.0",
     "google-auth-library": "^9.0.0",
     "jsonwebtoken": "^9.0.1",
+    "pino": "^8.15.0",
+    "pino-pretty": "^10.2.0",
     "superjson": "1.13.1",
     "zod": "^3.21.4"
   },

@@ -1,10 +1,10 @@
 import crypto from "crypto";
-import { TRPCUntypedClient } from "@trpc/client";
 import { TRPCError } from "@trpc/server";
 import appleSignInAuth from "apple-signin-auth";
 import { OAuth2Client } from "google-auth-library";
 import { z } from "zod";
 
+import { logger } from "../logger";
 import { getCountryFromIP } from "../services";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { env } from "../utils/env";
@@ -42,6 +42,8 @@ export const user = createTRPCRouter({
               idToken: method.idToken,
               nonce: method.nonce,
             });
+
+      logger.info({ method, email }, "Data from social sign-in provider");
 
       const existingUser = await ctx.prisma.user.findUnique({
         where: { email },

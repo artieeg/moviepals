@@ -28,7 +28,7 @@ export function SplashScreen() {
   }, []);
 
   useEffect(() => {
-    if (userData.isLoading) {
+    if (tokenStatus === "available" && userData.isLoading) {
       return;
     }
 

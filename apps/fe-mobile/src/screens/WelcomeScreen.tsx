@@ -2,6 +2,7 @@ import React from "react";
 import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import appleAuth from "@invertase/react-native-apple-authentication";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { AppleMac, GoogleCircle } from "iconoir-react-native";
 
@@ -61,18 +62,34 @@ export function WelcomeScreen() {
 
   async function onSignInWithApple() {
     try {
-      const r = await appleAuth.performRequest();
+      let appleAuthResponse = await appleAuth.performRequest({
+        requestedOperation: appleAuth.Operation.LOGIN,
+        requestedScopes: [appleAuth.Scope.FULL_NAME, appleAuth.Scope.EMAIL],
+      });
 
-      if (!r.identityToken) {
+      if (!appleAuthResponse.email) {
+        const storedAppleAuth = await AsyncStorage.getItem("@apple-auth");
+
+        if (storedAppleAuth) {
+          appleAuthResponse = JSON.parse(storedAppleAuth);
+        }
+      } else {
+        console.log("saving to async storage");
+        AsyncStorage.setItem("@apple-auth", JSON.stringify(appleAuthResponse));
+      }
+
+      console.log(appleAuthResponse);
+
+      if (!appleAuthResponse.identityToken) {
         return;
       }
 
       useOnboardingStore.setState({
-        name: r.fullName?.givenName,
+        name: appleAuthResponse.fullName?.givenName,
         method: {
           provider: "apple",
-          idToken: r.identityToken,
-          nonce: r.nonce,
+          idToken: appleAuthResponse.identityToken,
+          nonce: appleAuthResponse.nonce,
         },
       });
     } catch {}

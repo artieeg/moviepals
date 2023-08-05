@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
-import { ArrowRight } from "iconoir-react-native";
+import { ArrowRight, AtSign } from "iconoir-react-native";
 
 import { api, setAuthToken } from "~/utils/api";
 import { IconButton } from "~/components/IconButton";
@@ -84,6 +84,7 @@ export function WhatsYourNameScreen() {
               onChangeText={onChangeName}
             />
             <Input
+              icon={<AtSign width="24" height="24" color="#71707B" />}
               autoCapitalize="none"
               placeholder="username"
               onChangeText={setUsername}
@@ -102,11 +103,19 @@ export function WhatsYourNameScreen() {
   );
 }
 
-function Input({ style, ...rest }: TextInputProps) {
+function Input({
+  style,
+  icon,
+  ...rest
+}: TextInputProps & { icon?: React.ReactNode }) {
   return (
-    <View style={style} className="bg-neutral-2-10 h-12 rounded-full">
+    <View
+      style={style}
+      className="bg-neutral-2-10 h-12 flex-row space-x-2 rounded-full px-4"
+    >
+      {icon && <View className="items-center justify-center ">{icon}</View>}
       <TextInput
-        className="font-primary-bold h-full w-full px-4"
+        className="font-primary-bold h-full flex-1 "
         placeholderTextColor="#71707B"
         {...rest}
       />
