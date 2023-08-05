@@ -2,6 +2,7 @@ import crypto from "crypto";
 import { TRPCError } from "@trpc/server";
 import appleSignInAuth from "apple-signin-auth";
 import { OAuth2Client } from "google-auth-library";
+import countries from "world-countries";
 import { z } from "zod";
 
 import { logger } from "../logger";
@@ -58,6 +59,17 @@ export const user = createTRPCRouter({
       }
     }),
 
+  setUserCountry: protectedProcedure
+    .input(z.object({ country: z.string().refine(isValidCountry) }))
+    .mutation(async ({ ctx, input: { country } }) => {
+      const user = await ctx.prisma.user.update({
+        where: { id: ctx.user },
+        data: { country },
+      });
+
+      return user;
+    }),
+
   createNewAccount: publicProcedure
     .input(
       z.object({
@@ -71,6 +83,10 @@ export const user = createTRPCRouter({
 
       try {
         country = await getCountryFromIP(ctx.ip);
+
+        if (!isValidCountry(country)) {
+          country = "US";
+        }
       } catch {}
 
       const { name, username, method } = input;
@@ -131,4 +147,8 @@ async function getEmailFromGoogleToken(googleIdToken: string) {
   }
 
   return email;
+}
+
+function isValidCountry(country: string) {
+  return countries.some((c) => c.cca2 === country);
 }
