@@ -43,7 +43,6 @@ model Connection {
   secondUserId String
   firstUser    User   @relation("connection_first_user", fields: [firstUserId], references: [id])
   secondUser   User   @relation("connection_second_user", fields: [secondUserId], references: [id])
-  status       String
 
   @@unique([firstUserId, secondUserId])
   @@map("Friend")
