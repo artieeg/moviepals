@@ -1,12 +1,19 @@
 import React from "react";
-import { TextInput, TextInputProps, View } from "react-native";
-import { IconoirProvider } from "iconoir-react-native";
+import {
+  TextInput,
+  TextInputProps,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import { Cancel, IconoirProvider } from "iconoir-react-native";
 
 export function Input({
   style,
   icon,
+  showClearButton,
   ...rest
-}: TextInputProps & { icon?: React.ReactNode }) {
+}: TextInputProps & { icon?: React.ReactNode; showClearButton?: boolean }) {
   return (
     <View
       style={style}
@@ -27,10 +34,20 @@ export function Input({
         </View>
       )}
       <TextInput
-        className="font-primary-bold h-full flex-1 text-base "
+        className="font-primary-bold h-full flex-1 text-base"
         placeholderTextColor="#71707B"
         {...rest}
       />
+      {showClearButton && rest.value && (
+        <Animated.View entering={FadeIn} exiting={FadeOut}>
+          <TouchableOpacity
+            onPress={() => rest.onChangeText?.("")}
+            className="h-full items-center justify-center"
+          >
+            <Cancel width="24" height="24" color="#0E0C10" strokeWidth={2} />
+          </TouchableOpacity>
+        </Animated.View>
+      )}
     </View>
   );
 }
