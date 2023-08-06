@@ -25,6 +25,9 @@ import { MainLayout } from "./layouts/MainLayout";
 export function StreamingServiceList() {
   const ctx = api.useContext();
 
+  const [search, setSearch] = useState("");
+  const [debouncedSearch] = useDebounce(search, 300);
+
   const user = api.user.getUserData.useQuery();
 
   const enableStreamingServices =
@@ -34,10 +37,17 @@ export function StreamingServiceList() {
 
   function onSaveData() {
     const user = ctx.user.getUserData.getData();
-    const streamingServices =
-      ctx.streaming_service.getStreamingServices.getData();
 
-    if (!user || !streamingServices) {
+    if (!user) {
+      return;
+    }
+
+    const streamingServices =
+      ctx.streaming_service.getStreamingServices.getData({
+        country: user.country,
+      });
+
+    if (!streamingServices) {
       return;
     }
 
@@ -67,9 +77,6 @@ export function StreamingServiceList() {
     );
   }, []);
 
-  const [search, setSearch] = useState("");
-  const [debouncedSearch] = useDebounce(search, 300);
-
   /**
    * This function only updates the list locally.
    * */
@@ -87,6 +94,7 @@ export function StreamingServiceList() {
           return draft;
         }
 
+        draft.useAnyService = false;
         item.enabled = enabled;
       }),
     );
@@ -98,23 +106,47 @@ export function StreamingServiceList() {
       enabled: user.isSuccess && !!user.data.country,
       select: (result) => {
         if (debouncedSearch.length > 0) {
-          return result.services.filter((item) =>
-            item.provider_name
-              .toLowerCase()
-              .includes(debouncedSearch.toLowerCase()),
-          );
+          return {
+            services: result.services.filter((item) =>
+              item.provider_name
+                .toLowerCase()
+                .includes(debouncedSearch.toLowerCase()),
+            ),
+            useAnyService: result.useAnyService,
+          };
         } else {
-          return result.services;
+          return {
+            services: result.services,
+            useAnyService: result.useAnyService,
+          };
         }
       },
     },
   );
 
+  const anyService = streamingServices.data?.useAnyService;
+
+  function onToggleAnyService() {
+    ctx.streaming_service.getStreamingServices.setData(
+      { country: user.data?.country as string },
+      produce((draft) => {
+        if (!draft) {
+          return draft;
+        }
+
+        draft.useAnyService = !draft.useAnyService;
+        draft.services.forEach((item) => {
+          item.enabled = false;
+        });
+      }),
+    );
+  }
+
   return (
     <MainLayout onGoBack={onSaveData} canGoBack title="services">
       <FlatList
         className="-mx-8 flex-1"
-        data={streamingServices.data}
+        data={streamingServices.data?.services}
         contentContainerStyle={{ paddingHorizontal: 32, paddingBottom: 128 }}
         ItemSeparatorComponent={() => <View className="h-3" />}
         renderItem={({ item }) => {
@@ -172,6 +204,15 @@ export function StreamingServiceList() {
                 onChangeText={(v) => setSearch(v)}
                 showClearButton
               />
+
+              <ListItem
+                itemId="any-service"
+                icon="💡"
+                title="any service"
+                checkbox
+                checked={!!anyService}
+                onToggle={onToggleAnyService}
+              />
             </View>
           </View>
         }
@@ -216,7 +257,7 @@ function YourCountry({
         <ListItem
           disabled
           checkbox={false}
-          id={country}
+          itemId={country}
           title={countryData?.name.common ?? "..."}
           icon={countryData?.flag}
         />

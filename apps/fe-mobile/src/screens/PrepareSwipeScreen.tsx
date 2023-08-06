@@ -1,22 +1,19 @@
 import React, { useMemo } from "react";
 import {
   FlatList,
-  ScrollView,
   Text,
   TouchableOpacity,
   TouchableOpacityProps,
   View,
-  ViewProps,
 } from "react-native";
 import FastImage from "react-native-fast-image";
-import { FlashList } from "@shopify/flash-list";
-import { Check, NavArrowRight } from "iconoir-react-native";
+import { NavArrowRight } from "iconoir-react-native";
 import { produce } from "immer";
-import { twMerge } from "tailwind-merge";
+import { twJoin } from "tailwind-merge";
 
 import { api } from "~/utils/api";
 import { getTMDBStaticUrl } from "~/utils/uri";
-import { Checkbox, ListItem } from "~/components";
+import { ListItem } from "~/components";
 import { useNavigation } from "~/hooks";
 import { SCREEN_STREAMING_SERVICE_LIST } from "~/navigators/SwipeNavigator";
 import { MainLayout } from "./layouts/MainLayout";
@@ -25,6 +22,12 @@ export function PrepareSwipeScreen() {
   const ctx = api.useContext();
 
   const genres = api.genres.fetchUserGenres.useQuery();
+
+  const enabledGenres = useMemo(
+    () => genres.data?.filter((g) => g.enabled),
+    [genres.data],
+  );
+
   const toggleGenre = api.genres.toggleGenre.useMutation({
     onMutate({ genre, enabled }) {
       ctx.genres.fetchUserGenres.setData(
@@ -45,6 +48,8 @@ export function PrepareSwipeScreen() {
   function onToggleGenre(id: number, enabled: boolean) {
     toggleGenre.mutate({ genre: id, enabled });
   }
+
+  function onStartSwiping() {}
 
   return (
     <MainLayout title="movies">
@@ -75,7 +80,11 @@ export function PrepareSwipeScreen() {
         )}
         data={genres.data}
       />
-      <Button className="absolute bottom-0 left-8 right-8">
+      <Button
+        onPress={onStartSwiping}
+        disabled={enabledGenres?.length === 0}
+        className="absolute bottom-0 left-8 right-8"
+      >
         start swiping
       </Button>
     </MainLayout>
@@ -88,7 +97,11 @@ function Button({
 }: TouchableOpacityProps & { children: string }) {
   return (
     <TouchableOpacity
-      className="bg-brand-1 h-12 items-center justify-center rounded-full"
+      activeOpacity={0.9}
+      className={twJoin(
+        "h-12 items-center justify-center rounded-full",
+        rest.disabled ? "bg-neutral-4" : "bg-brand-1",
+      )}
       {...rest}
     >
       <Text className="font-primary-bold text-base text-white">{children}</Text>
@@ -160,10 +173,10 @@ function MyStreamingServicesSection(props: TouchableOpacityProps) {
             </Text>
           ) : (
             <View className="mt-2">
-              <FlashList
+              <FlatList
                 horizontal
                 ItemSeparatorComponent={() => <View className="w-2" />}
-                data={streamingServices.data?.services}
+                data={enabledStreamingServices}
                 renderItem={({ item }) => {
                   return (
                     <FastImage
