@@ -24,6 +24,7 @@ model User {
   connectionSecondUser        Connection[]        @relation("connection_second_user")
   connectionRequestFirstUser  ConnectionRequest[] @relation("connection_request_first_user")
   connectionRequestSecondUser ConnectionRequest[] @relation("connection_request_second_user")
+  Swipe                       Swipe[]
 }
 
 model ConnectionRequest {
@@ -36,7 +37,6 @@ model ConnectionRequest {
   secondUser User @relation("connection_request_second_user", fields: [secondUserId], references: [id])
 
   createdAt DateTime @default(now())
-
 
   @@unique([firstUserId, secondUserId])
 }
@@ -71,4 +71,16 @@ model EnabledStreamingService {
   streamingServiceId Int
 
   @@unique([userId, streamingServiceId])
+}
+
+model Swipe {
+  id String @id @default(cuid())
+
+  movieId Int
+  rating  Boolean
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
 }
