@@ -36,6 +36,9 @@ model ConnectionRequest {
   secondUser User @relation("connection_request_second_user", fields: [secondUserId], references: [id])
 
   createdAt DateTime @default(now())
+
+
+  @@unique([firstUserId, secondUserId])
 }
 
 model Connection {
