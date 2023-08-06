@@ -1,16 +1,14 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import {logger} from "../logger";
 
+import { logger } from "../logger";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const connection_requests = createTRPCRouter({
   postConnectionRequest: protectedProcedure
     .input(z.object({ user: z.string() }))
     .mutation(async ({ ctx, input: { user } }) => {
-      logger.info(
-        `postConnectionRequest: ${ctx.user} -> ${user}`
-      )
+      logger.info(`postConnectionRequest: ${ctx.user} -> ${user}`);
 
       const request = await ctx.prisma.connectionRequest.create({
         data: {
@@ -21,6 +19,29 @@ export const connection_requests = createTRPCRouter({
 
       return { request };
     }),
+
+  listConnectionRequests: protectedProcedure.query(async ({ ctx }) => {
+    const requests = await ctx.prisma.connectionRequest.findMany({
+      where: {
+        secondUserId: ctx.user,
+      },
+      include: {
+        firstUser: true,
+      },
+    });
+
+    return { requests };
+  }),
+
+  countConnectionRequests: protectedProcedure.query(async ({ ctx }) => {
+    const count = await ctx.prisma.connectionRequest.count({
+      where: {
+        secondUserId: ctx.user,
+      },
+    });
+
+    return { count };
+  }),
 
   deleteConnectionRequest: protectedProcedure
     .input(z.object({ user: z.string() }))
