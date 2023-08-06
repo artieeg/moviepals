@@ -8,7 +8,15 @@ import {
 
 import { Checkbox } from "./Checkbox";
 
-export function ListItem(
+export const ListItem = React.memo(_ListItem, (prev, next) => {
+  if (prev.checkbox && next.checkbox) {
+    return prev.checked === next.checked;
+  } else {
+    return false;
+  }
+});
+
+function _ListItem(
   props: TouchableOpacityProps & {
     itemId: any;
     title: string;
