@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   FlatList,
+  ScrollView,
   Text,
   TouchableOpacity,
   TouchableOpacityProps,
@@ -8,11 +9,13 @@ import {
   ViewProps,
 } from "react-native";
 import FastImage from "react-native-fast-image";
+import { FlashList } from "@shopify/flash-list";
 import { Check, NavArrowRight } from "iconoir-react-native";
 import { produce } from "immer";
 import { twMerge } from "tailwind-merge";
 
 import { api } from "~/utils/api";
+import { getTMDBStaticUrl } from "~/utils/uri";
 import { Checkbox, ListItem } from "~/components";
 import { useNavigation } from "~/hooks";
 import { SCREEN_STREAMING_SERVICE_LIST } from "~/navigators/SwipeNavigator";
@@ -121,8 +124,19 @@ function GenreItem({
 function MyStreamingServicesSection(props: TouchableOpacityProps) {
   const navigation = useNavigation();
 
-  const streamingServices =
-    api.streaming_service.getStreamingServices.useQuery();
+  const user = api.user.getUserData.useQuery();
+
+  const streamingServices = api.streaming_service.getStreamingServices.useQuery(
+    { country: user.data?.country as string },
+    {
+      enabled: !!user.data?.country,
+    },
+  );
+
+  const enabledStreamingServices = useMemo(
+    () => streamingServices.data?.services.filter((service) => service.enabled),
+    [streamingServices.data],
+  );
 
   function onPress() {
     navigation.navigate(SCREEN_STREAMING_SERVICE_LIST);
@@ -134,26 +148,35 @@ function MyStreamingServicesSection(props: TouchableOpacityProps) {
       {...props}
       onPress={onPress}
     >
-      <View>
+      <View className="flex-1">
         <Text className="font-primary-bold text-neutral-1 text-xl">
           my streaming services
         </Text>
 
-        <View className="h-6 flex-row items-center space-x-1">
+        <View className="flex-row items-center">
           {streamingServices.data?.useAnyService ? (
             <Text className="font-primary-regular text-neutral-2 text-base">
               using any service
             </Text>
           ) : (
-            streamingServices.data?.services.map((service) => (
-              <FastImage
-                resizeMode="contain"
-                source={{
-                  uri: service.logo_path,
+            <View className="mt-2">
+              <FlashList
+                horizontal
+                ItemSeparatorComponent={() => <View className="w-2" />}
+                data={streamingServices.data?.services}
+                renderItem={({ item }) => {
+                  return (
+                    <FastImage
+                      resizeMode="contain"
+                      source={{
+                        uri: getTMDBStaticUrl(item.logo_path),
+                      }}
+                      className="h-8 w-8 rounded-lg"
+                    />
+                  );
                 }}
-                className="h-8 w-8 rounded-lg"
               />
-            ))
+            </View>
           )}
         </View>
       </View>
