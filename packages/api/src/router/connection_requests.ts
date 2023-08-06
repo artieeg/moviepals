@@ -74,7 +74,7 @@ export const connection_requests = createTRPCRouter({
       //]);
     }),
 
-  confirm: protectedProcedure
+  acceptConnectionRequest: protectedProcedure
     .input(
       z.object({
         connectionRequestId: z.string(),

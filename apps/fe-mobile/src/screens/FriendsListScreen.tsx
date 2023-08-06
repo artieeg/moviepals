@@ -7,18 +7,22 @@ import {
   View,
   ViewProps,
 } from "react-native";
-import { FlashList } from "@shopify/flash-list";
-import { MoreHoriz, Search } from "iconoir-react-native";
+import { MoreHoriz, NavArrowRight, Search } from "iconoir-react-native";
 import { produce } from "immer";
 import { useDebounce } from "use-debounce";
 
 import { api } from "~/utils/api";
 import { Input, ListItem } from "~/components";
+import { useNavigation } from "~/hooks";
+import { SCREEN_FRIEND_REQUEST_LIST } from "~/navigators/FriendsNavigator";
 import { MainLayout } from "./layouts/MainLayout";
 
 export function FriendsListScreen() {
   const user = api.user.getUserData.useQuery();
   const friends = api.connection.listConnections.useQuery();
+
+  const connectionRequestsCount =
+    api.connection_requests.countConnectionRequests.useQuery();
 
   const ctx = api.useContext();
 
@@ -72,6 +76,8 @@ export function FriendsListScreen() {
       },
     });
 
+  const navigation = useNavigation();
+
   const userSearch = api.user.search.useQuery(
     {
       query: debouncedQuery,
@@ -96,13 +102,30 @@ export function FriendsListScreen() {
   return (
     <MainLayout title="friends">
       <View className="flex-1 space-y-8">
-        <Input
-          onChangeText={setQuery}
-          value={query}
-          placeholder="search"
-          showClearButton
-          icon={<Search />}
-        />
+        <View className="space-y-2">
+          <Input
+            onChangeText={setQuery}
+            value={query}
+            placeholder="search"
+            showClearButton
+            icon={<Search />}
+          />
+
+          {connectionRequestsCount.data?.count && (
+            <TouchableOpacity
+              onPress={() => navigation.navigate(SCREEN_FRIEND_REQUEST_LIST)}
+              className="flex-row justify-end"
+            >
+              <View className="flex-row items-center justify-center space-x-1">
+                <Text className="text-brand-1 font-primary-bold text-base">
+                  {connectionRequestsCount.data?.count} requests
+                </Text>
+                <NavArrowRight width="16" height="16" color="#6356E4" />
+              </View>
+            </TouchableOpacity>
+          )}
+        </View>
+
         <View className="flex-1">
           {userSearch.data && user.isSuccess && friends.isSuccess && (
             <FlatList

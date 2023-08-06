@@ -9,6 +9,7 @@ export function MainLayout({
   children,
   title,
   onGoBack,
+  canGoBack,
 }: PropsWithChildren & {
   title: string;
   /** Override default "go back" behavior */
@@ -30,9 +31,11 @@ export function MainLayout({
       <View className="flex-1">
         {/* HEADER */}
         <View className="flex-row items-center justify-center">
-          <TouchableOpacity onPress={_onGoBack} className="absolute left-6">
-            <NavArrowLeft />
-          </TouchableOpacity>
+          {canGoBack && (
+            <TouchableOpacity onPress={_onGoBack} className="absolute left-6">
+              <NavArrowLeft />
+            </TouchableOpacity>
+          )}
           <View className="flex-row items-center justify-center py-4">
             <Text className="font-primary-bold text-neutral-1 text-2xl">
               {title}
