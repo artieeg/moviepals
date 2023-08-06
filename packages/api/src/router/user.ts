@@ -101,6 +101,31 @@ export const user = createTRPCRouter({
 
       return { token, user };
     }),
+
+  search: protectedProcedure
+    .input(z.object({ query: z.string() }))
+    .query(async ({ input: { query }, ctx }) => {
+      const users = await ctx.prisma.user.findMany({
+        where: {
+          OR: [
+            {
+              name: {
+                contains: query,
+                mode: "insensitive",
+              },
+            },
+            {
+              username: {
+                contains: query,
+                mode: "insensitive",
+              },
+            },
+          ],
+        },
+      });
+
+      return users;
+    }),
 });
 
 async function getEmailFromAppleToken({
@@ -137,4 +162,3 @@ async function getEmailFromGoogleToken(googleIdToken: string) {
 
   return email;
 }
-
