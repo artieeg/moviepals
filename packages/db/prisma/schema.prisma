@@ -14,6 +14,8 @@ model User {
   username String @unique()
   country  String
 
+  emoji String @default("🐵")
+
   EnabledStreamingService EnabledStreamingService[]
   EnabledGenre            EnabledGenre[]
 
