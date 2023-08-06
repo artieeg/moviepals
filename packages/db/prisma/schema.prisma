@@ -16,6 +16,37 @@ model User {
 
   EnabledStreamingService EnabledStreamingService[]
   EnabledGenre            EnabledGenre[]
+
+  createdAt                   DateTime            @default(now())
+  connectionFirstUser         Connection[]        @relation("connection_first_user")
+  connectionSecondUser        Connection[]        @relation("connection_second_user")
+  connectionRequestFirstUser  ConnectionRequest[] @relation("connection_request_first_user")
+  connectionRequestSecondUser ConnectionRequest[] @relation("connection_request_second_user")
+}
+
+model ConnectionRequest {
+  id String @id @default(cuid())
+
+  firstUserId  String
+  secondUserId String
+
+  firstUser  User @relation("connection_request_first_user", fields: [firstUserId], references: [id])
+  secondUser User @relation("connection_request_second_user", fields: [secondUserId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model Connection {
+  id String @id @default(cuid())
+
+  firstUserId  String
+  secondUserId String
+  firstUser    User   @relation("connection_first_user", fields: [firstUserId], references: [id])
+  secondUser   User   @relation("connection_second_user", fields: [secondUserId], references: [id])
+  status       String
+
+  @@unique([firstUserId, secondUserId])
+  @@map("Friend")
 }
 
 model EnabledGenre {
