@@ -9,7 +9,7 @@ import {
 import { Checkbox } from "./Checkbox";
 
 export const ListItem = React.memo(_ListItem, (prev, next) => {
-  if (prev.checkbox && next.checkbox) {
+  if (prev.right === "checkbox" && next.right === "checkbox") {
     return prev.checked === next.checked;
   } else {
     return false;
@@ -20,11 +20,13 @@ function _ListItem(
   props: TouchableOpacityProps & {
     itemId: any;
     title: string;
+    subtitle: string;
     icon: string | React.ReactNode;
   } & (
-      | { checkbox: false }
+      | { right: undefined }
+      | { right: "component"; rightComponent: React.ReactNode }
       | {
-          checkbox: true;
+          right: "checkbox";
           checked: boolean;
           onToggle: (id: any, enabled: boolean) => void;
         }
@@ -34,7 +36,7 @@ function _ListItem(
     <TouchableOpacity
       activeOpacity={0.8}
       onPress={() => {
-        if (props.checkbox === true) {
+        if (props.right === "checkbox") {
           props.onToggle(props.itemId, !props.checked);
         }
       }}
@@ -57,7 +59,10 @@ function _ListItem(
           {props.title}
         </Text>
       </View>
-      {props.checkbox && (
+      {props.right === "component" && (
+        <View className="ml-2">{props.rightComponent}</View>
+      )}
+      {props.right === "checkbox" && (
         <View className="ml-2">
           <Checkbox
             checked={props.checked}

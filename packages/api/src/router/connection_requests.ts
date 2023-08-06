@@ -1,20 +1,56 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import {logger} from "../logger";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const connection_requests = createTRPCRouter({
-  request: protectedProcedure
+  postConnectionRequest: protectedProcedure
     .input(z.object({ user: z.string() }))
     .mutation(async ({ ctx, input: { user } }) => {
-      const request = ctx.prisma.connectionRequest.create({
+      logger.info(
+        `postConnectionRequest: ${ctx.user} -> ${user}`
+      )
+
+      const request = await ctx.prisma.connectionRequest.create({
         data: {
           firstUserId: ctx.user,
           secondUserId: user,
         },
       });
 
-      return {request}
+      return { request };
+    }),
+
+  deleteConnectionRequest: protectedProcedure
+    .input(z.object({ user: z.string() }))
+    .mutation(async ({ ctx, input: { user } }) => {
+      //getting hacky here, cant use transaction because prisma throws if not found
+      //cant use OR with unique indexes, so we have to do two queries
+
+      //await ctx.prisma.$transaction([
+      try {
+        await ctx.prisma.connectionRequest.delete({
+          where: {
+            firstUserId_secondUserId: {
+              firstUserId: ctx.user,
+              secondUserId: user,
+            },
+          },
+        });
+      } catch {}
+
+      try {
+        await ctx.prisma.connectionRequest.delete({
+          where: {
+            firstUserId_secondUserId: {
+              firstUserId: user,
+              secondUserId: ctx.user,
+            },
+          },
+        });
+      } catch {}
+      //]);
     }),
 
   confirm: protectedProcedure
@@ -42,8 +78,8 @@ export const connection_requests = createTRPCRouter({
           },
           include: {
             firstUser: true,
-            secondUser: true
-          }
+            secondUser: true,
+          },
         }),
         ctx.prisma.connectionRequest.delete({
           where: {
@@ -52,6 +88,6 @@ export const connection_requests = createTRPCRouter({
         }),
       ]);
 
-      return {friendship};
+      return { friendship };
     }),
 });

@@ -5,6 +5,8 @@ import type {AppRouter} from "./src/router/root";
 export {appRouter, type AppRouter} from "./src/router/root";
 export {createTRPCContext} from "./src/trpc";
 
+export * from "@prisma/client";
+
 /**
  * Inference helpers for input types
  * @example type HelloInput = RouterInputs['example']['hello']

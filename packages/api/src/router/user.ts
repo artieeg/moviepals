@@ -102,11 +102,53 @@ export const user = createTRPCRouter({
       return { token, user };
     }),
 
+  /**
+   * Searches a user by name or username
+   *
+   * If two users have already connected, they won't appear in each other's search results
+   * */
   search: protectedProcedure
     .input(z.object({ query: z.string() }))
     .query(async ({ input: { query }, ctx }) => {
+      const [alreadyConnected, connectionRequests] =
+        await ctx.prisma.$transaction([
+          ctx.prisma.connection.findMany({
+            where: {
+              OR: [
+                {
+                  firstUserId: ctx.user,
+                },
+                {
+                  secondUserId: ctx.user,
+                },
+              ],
+            },
+          }),
+          ctx.prisma.connectionRequest.findMany({
+            where: {
+              OR: [
+                {
+                  firstUserId: ctx.user,
+                },
+                {
+                  secondUserId: ctx.user,
+                },
+              ],
+            },
+          }),
+        ]);
+
+      const alreadyConnectedUserIds = alreadyConnected.map((connection) =>
+        connection.firstUserId === ctx.user
+          ? connection.secondUserId
+          : connection.firstUserId,
+      );
+
       const users = await ctx.prisma.user.findMany({
         where: {
+          id: {
+            notIn: alreadyConnectedUserIds,
+          },
           OR: [
             {
               name: {
@@ -122,9 +164,18 @@ export const user = createTRPCRouter({
             },
           ],
         },
+        take: 50,
       });
 
-      return users;
+      return users.map((user) => ({
+        ...user,
+
+        requested: connectionRequests.some(
+          (connectionRequest) =>
+            connectionRequest.firstUserId === user.id ||
+            connectionRequest.secondUserId === user.id,
+        ),
+      }));
     }),
 });
 
