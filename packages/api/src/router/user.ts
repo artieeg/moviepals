@@ -6,7 +6,7 @@ import countries from "world-countries";
 import { z } from "zod";
 
 import { logger } from "../logger";
-import { getCountryFromIP } from "../services";
+import { getCountryFromIP, isValidCountry } from "../services";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { env } from "../utils/env";
 import { createToken } from "../utils/jwt";
@@ -57,17 +57,6 @@ export const user = createTRPCRouter({
       } else {
         throw new TRPCError({ code: "NOT_FOUND" });
       }
-    }),
-
-  setUserCountry: protectedProcedure
-    .input(z.object({ country: z.string().refine(isValidCountry) }))
-    .mutation(async ({ ctx, input: { country } }) => {
-      const user = await ctx.prisma.user.update({
-        where: { id: ctx.user },
-        data: { country },
-      });
-
-      return user;
     }),
 
   createNewAccount: publicProcedure
@@ -149,6 +138,3 @@ async function getEmailFromGoogleToken(googleIdToken: string) {
   return email;
 }
 
-function isValidCountry(country: string) {
-  return countries.some((c) => c.cca2 === country);
-}

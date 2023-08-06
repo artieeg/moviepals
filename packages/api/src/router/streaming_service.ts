@@ -1,29 +1,35 @@
 import { z } from "zod";
 
-import { getStreamingServices } from "../services";
+import { getStreamingServices, isValidCountry } from "../services";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const streaming_service = createTRPCRouter({
-  toggleStreamingService: protectedProcedure
-    .input(z.object({ streamingServiceId: z.number(), enabled: z.boolean() }))
+  enableStreamingServices: protectedProcedure
+    .input(
+      z.object({
+        country: z.string().refine(isValidCountry),
+        streamingServiceIds: z.array(z.number()),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
-      if (input.enabled) {
-        await ctx.prisma.enabledStreamingService.create({
-          data: {
-            userId: ctx.user,
-            streamingServiceId: input.streamingServiceId,
-          },
-        });
-      } else {
-        await ctx.prisma.enabledStreamingService.delete({
+      await ctx.prisma.$transaction([
+        ctx.prisma.user.update({
+          where: { id: ctx.user },
+          data: { country: input.country },
+          select: null,
+        }),
+        ctx.prisma.enabledStreamingService.deleteMany({
           where: {
-            userId_streamingServiceId: {
-              userId: ctx.user,
-              streamingServiceId: input.streamingServiceId,
-            },
+            userId: ctx.user,
           },
-        });
-      }
+        }),
+        ctx.prisma.enabledStreamingService.createMany({
+          data: input.streamingServiceIds.map((streamingServiceId) => ({
+            userId: ctx.user,
+            streamingServiceId,
+          })),
+        }),
+      ]);
     }),
 
   getStreamingServices: protectedProcedure

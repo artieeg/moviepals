@@ -8,11 +8,21 @@ import { useNavigation } from "~/hooks";
 export function MainLayout({
   children,
   title,
-}: PropsWithChildren & { title: string; canGoBack?: boolean }) {
+  onGoBack,
+}: PropsWithChildren & {
+  title: string;
+  /** Override default "go back" behavior */
+  onGoBack?: () => void;
+  canGoBack?: boolean;
+}) {
   const navigation = useNavigation();
 
-  function onGoBack() {
-    navigation.goBack();
+  function _onGoBack() {
+    if (onGoBack) {
+      onGoBack();
+    } else {
+      navigation.goBack();
+    }
   }
 
   return (
@@ -20,7 +30,7 @@ export function MainLayout({
       <View className="flex-1">
         {/* HEADER */}
         <View className="flex-row items-center justify-center">
-          <TouchableOpacity onPress={onGoBack} className="absolute left-6">
+          <TouchableOpacity onPress={_onGoBack} className="absolute left-6">
             <NavArrowLeft />
           </TouchableOpacity>
           <View className="flex-row items-center justify-center py-4">

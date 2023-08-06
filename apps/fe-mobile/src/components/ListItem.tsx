@@ -4,7 +4,6 @@ import {
   TouchableOpacity,
   TouchableOpacityProps,
   View,
-  ViewProps,
 } from "react-native";
 
 import { Checkbox } from "./Checkbox";

@@ -19,35 +19,78 @@ import countries from "world-countries";
 import { api } from "~/utils/api";
 import { getTMDBStaticUrl } from "~/utils/uri";
 import { Input, ListItem, LoadingIndicator } from "~/components";
+import { useNavigation } from "~/hooks";
 import { MainLayout } from "./layouts/MainLayout";
 
 export function StreamingServiceList() {
   const ctx = api.useContext();
-  const setUserCountry = api.user.setUserCountry.useMutation({
-    onMutate({ country }) {
-      ctx.user.getUserData.setData(
-        undefined,
-        produce((draft) => {
-          if (!draft) {
-            return draft;
-          }
-
-          draft.country = country;
-        }),
-      );
-    },
-  });
 
   const user = api.user.getUserData.useQuery();
 
+  const enableStreamingServices =
+    api.streaming_service.enableStreamingServices.useMutation();
+
+  const navigation = useNavigation();
+
+  function onSaveData() {
+    const user = ctx.user.getUserData.getData();
+    const streamingServices =
+      ctx.streaming_service.getStreamingServices.getData();
+
+    if (!user || !streamingServices) {
+      return;
+    }
+
+    const country = user.country;
+    const streamingServiceIds = streamingServices.services
+      .filter((item) => item.enabled)
+      .map((item) => item.provider_id);
+
+    enableStreamingServices.mutate({ country, streamingServiceIds });
+
+    navigation.goBack();
+  }
+
+  /**
+   * This function only updates the country locally
+   * */
   const onChangeCountry = useCallback((country: Country) => {
-    setUserCountry.mutate({ country: country.cca2 });
+    ctx.user.getUserData.setData(
+      undefined,
+      produce((draft) => {
+        if (!draft) {
+          return draft;
+        }
+
+        draft.country = country.cca2;
+      }),
+    );
   }, []);
 
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebounce(search, 300);
 
-  function onToggleStreamingService(id: string, enabled: boolean) {}
+  /**
+   * This function only updates the list locally.
+   * */
+  function onToggleStreamingService(id: number, enabled: boolean) {
+    if (!user.data?.country) {
+      return;
+    }
+
+    ctx.streaming_service.getStreamingServices.setData(
+      { country: user.data.country },
+      produce((draft) => {
+        const item = draft?.services.find((s) => s.provider_id === id);
+
+        if (!item) {
+          return draft;
+        }
+
+        item.enabled = enabled;
+      }),
+    );
+  }
 
   const streamingServices = api.streaming_service.getStreamingServices.useQuery(
     { country: user.data?.country as string },
@@ -68,11 +111,11 @@ export function StreamingServiceList() {
   );
 
   return (
-    <MainLayout canGoBack title="services">
+    <MainLayout onGoBack={onSaveData} canGoBack title="services">
       <FlatList
-        className="-mx-4 flex-1"
+        className="-mx-8 flex-1"
         data={streamingServices.data}
-        contentContainerStyle={{ paddingHorizontal: 20 }}
+        contentContainerStyle={{ paddingHorizontal: 32, paddingBottom: 128 }}
         ItemSeparatorComponent={() => <View className="h-3" />}
         renderItem={({ item }) => {
           return (
@@ -127,6 +170,7 @@ export function StreamingServiceList() {
                 placeholder="search"
                 value={search}
                 onChangeText={(v) => setSearch(v)}
+                showClearButton
               />
             </View>
           </View>
