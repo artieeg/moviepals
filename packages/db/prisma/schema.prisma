@@ -72,15 +72,3 @@ model EnabledStreamingService {
 
   @@unique([userId, streamingServiceId])
 }
-
-model Swipe {
-  id String @id @default(cuid())
-
-  movieId Int
-  rating  Boolean
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
-
-  createdAt DateTime @default(now())
-}
