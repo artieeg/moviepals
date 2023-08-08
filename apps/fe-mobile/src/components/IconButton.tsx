@@ -37,7 +37,7 @@ export function IconButton({
           "h-16 w-16 items-center justify-center rounded-full",
           variant === "primary" && "bg-brand-1",
           variant === "red" && "bg-red-1",
-          variant === "outline" && "border-neutral-3 border"
+          variant === "outline" && "border-neutral-3 border",
         )}
       >
         {children}

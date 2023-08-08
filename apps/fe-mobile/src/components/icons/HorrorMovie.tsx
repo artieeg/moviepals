@@ -1,5 +1,5 @@
-import * as React from 'react';
-import Svg, {Circle, Ellipse, G, Path, SvgProps} from 'react-native-svg';
+import * as React from "react";
+import Svg, { Circle, Ellipse, G, Path, SvgProps } from "react-native-svg";
 
 const SvgHorrorMovie = (props: SvgProps) => (
   <Svg
@@ -8,7 +8,8 @@ const SvgHorrorMovie = (props: SvgProps) => (
     width={1022}
     height={795}
     viewBox="0 0 1022 795"
-    {...props}>
+    {...props}
+  >
     <Path
       d="M829 105.37v425.26A105.34 105.34 0 0 1 723.63 636H298.37a105 105 0 0 1-65.55-22.86 106.41 106.41 0 0 1-20.26-21.34A105.38 105.38 0 0 1 193 530.63V105.37q0-4.23.33-8.37a104 104 0 0 1 2.51-16A105.4 105.4 0 0 1 298.37 0h425.26a105.4 105.4 0 0 1 102.53 81 104 104 0 0 1 2.51 16q.33 4.14.33 8.37Z"
       fill="#6356e4"

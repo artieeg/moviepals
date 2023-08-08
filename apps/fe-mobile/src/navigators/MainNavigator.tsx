@@ -1,7 +1,7 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 import { BottomTabBar } from "~/components";
-import {FriendsListScreen} from "~/screens";
+import { FriendsListScreen } from "~/screens";
 import FriendsNavigator from "./FriendsNavigator";
 import { options } from "./options";
 import SwipeNavigator from "./SwipeNavigator";

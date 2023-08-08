@@ -141,7 +141,6 @@ function FriendRequestItem({
         <TouchableOpacity onPress={() => onAcceptRequest(connectionId)}>
           <Text className="text-brand-1 font-primary-bold text-lg">accept</Text>
         </TouchableOpacity>
-
       </View>
     </View>
   );

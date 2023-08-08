@@ -3,24 +3,12 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "~/*": [
-        "./src/*"
-      ]
+      "~/*": ["./src/*"]
     },
-    "typeRoots": [
-      "node_modules/@types",
-      "./src/types"
-    ],
+    "typeRoots": ["node_modules/@types", "./src/types"],
     "jsx": "react-native",
-    "types": [
-      "nativewind/types"
-    ]
+    "types": ["nativewind/types"]
   },
-  "include": [
-    "src"
-  ],
-  "exclude": [
-    "node_modules",
-    "*.config.js"
-  ]
+  "include": ["src"],
+  "exclude": ["node_modules", "*.config.js"]
 }

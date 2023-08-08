@@ -1,4 +1,4 @@
-const {getDefaultConfig} = require("@react-native/metro-config");
+const { getDefaultConfig } = require("@react-native/metro-config");
 const path = require("path");
 
 const projectRoot = __dirname;

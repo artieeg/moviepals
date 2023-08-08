@@ -11,6 +11,7 @@ import superjson from "superjson";
 import { ZodError } from "zod";
 
 import { prisma } from "@moviepals/db";
+import { dbMovieSwipe } from "@moviepals/dbmovieswipe";
 
 import { verifyToken } from "./utils/jwt";
 
@@ -41,6 +42,7 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
     ...opts,
     prisma,
+    dbMovieSwipe,
   };
 };
 

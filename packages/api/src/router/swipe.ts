@@ -1,4 +1,3 @@
-import {createTRPCRouter} from "../trpc";
+import { createTRPCRouter } from "../trpc";
 
-export const swipe = createTRPCRouter({
-})
+export const swipe = createTRPCRouter({});

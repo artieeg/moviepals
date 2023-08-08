@@ -39,7 +39,7 @@ export function BottomTabBar(props: BottomTabBarProps) {
         <Text
           className={twJoin(
             "font-primary-bold",
-            isSwipeNavigator ? "text-neutral-1" : "text-neutral-2"
+            isSwipeNavigator ? "text-neutral-1" : "text-neutral-2",
           )}
         >
           movies
@@ -58,7 +58,7 @@ export function BottomTabBar(props: BottomTabBarProps) {
         <Text
           className={twJoin(
             "font-primary-bold",
-            isFriendsNavigator ? "text-neutral-1" : "text-neutral-2"
+            isFriendsNavigator ? "text-neutral-1" : "text-neutral-2",
           )}
         >
           friends
@@ -77,7 +77,7 @@ export function BottomTabBar(props: BottomTabBarProps) {
         <Text
           className={twJoin(
             "font-primary-bold",
-            isEventsNavigator ? "text-neutral-1" : "text-neutral-2"
+            isEventsNavigator ? "text-neutral-1" : "text-neutral-2",
           )}
         >
           events
@@ -96,7 +96,7 @@ export function BottomTabBar(props: BottomTabBarProps) {
         <Text
           className={twJoin(
             "font-primary-bold",
-            isMeNavigator ? "text-neutral-1" : "text-neutral-2"
+            isMeNavigator ? "text-neutral-1" : "text-neutral-2",
           )}
         >
           me

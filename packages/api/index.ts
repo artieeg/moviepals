@@ -1,11 +1,12 @@
-import type {inferRouterInputs, inferRouterOutputs} from "@trpc/server";
+import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 
-import type {AppRouter} from "./src/router/root";
+import type { AppRouter } from "./src/router/root";
 
-export {appRouter, type AppRouter} from "./src/router/root";
-export {createTRPCContext} from "./src/trpc";
+export { appRouter, type AppRouter } from "./src/router/root";
+export { createTRPCContext } from "./src/trpc";
 
-export * from "@prisma/client";
+export * from "@moviepals/db";
+export * from "@moviepals/dbmovieswipe";
 
 /**
  * Inference helpers for input types

@@ -1,8 +1,4 @@
-import { 
-  API_BASE,
-  GOOGLE_CLIENT_ID,
-  TMDB_IMAGE_BASE
-} from "@env";
+import { API_BASE, GOOGLE_CLIENT_ID, TMDB_IMAGE_BASE } from "@env";
 import { z } from "zod";
 
 const envSchema = z.object({
@@ -14,5 +10,5 @@ const envSchema = z.object({
 export const env = envSchema.parse({
   GOOGLE_CLIENT_ID,
   API_BASE,
-  TMDB_IMAGE_BASE
+  TMDB_IMAGE_BASE,
 });

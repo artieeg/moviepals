@@ -1,1 +1,1 @@
-export {default as HorrorMovie} from './HorrorMovie';
+export { default as HorrorMovie } from "./HorrorMovie";

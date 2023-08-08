@@ -1,1 +1,1 @@
-export const options = {headerShown: false}
+export const options = { headerShown: false };
