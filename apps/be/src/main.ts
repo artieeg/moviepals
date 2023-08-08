@@ -4,7 +4,12 @@ import {
 } from "@trpc/server/adapters/fastify";
 import fastify from "fastify";
 
-import { appRouter, createTRPCContext } from "@moviepals/api";
+import {
+  appRouter,
+  createTRPCContext,
+  dbMovieSwipe,
+  prisma,
+} from "@moviepals/api";
 
 import { env } from "./env";
 
@@ -27,5 +32,7 @@ server.register(fastifyTRPCPlugin, {
 });
 
 export async function main() {
+  await Promise.all([prisma.$connect(), dbMovieSwipe.connect()]);
+
   await server.listen({ port: env.PORT, host: "0.0.0.0" });
 }

@@ -1,4 +1,11 @@
 services:
+  movie-swipe-db:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - movie-swipe-db-data:/data/db
+
   db:
     container_name: moviepals-db
     image: postgres:latest
@@ -13,3 +20,4 @@ services:
 
 volumes:
   moviepals-db-dev:
+  movie-swipe-db-data:

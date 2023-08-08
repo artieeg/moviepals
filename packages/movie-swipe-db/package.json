@@ -1,0 +1,10 @@
+{
+  "name": "@moviepals/dbmovieswipe",
+  "version": "0.1.0",
+  "description": "Store information about movies and user swipes",
+  "main": "index.ts",
+  "dependencies": {
+    "mongodb": "^5.7.0",
+    "zod": "^3.21.4"
+  }
+}
