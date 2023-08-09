@@ -1,11 +1,13 @@
 import { z } from "zod";
 
-import { PrismaClient } from "@moviepals/db";
-import { movieSchema } from "@moviepals/dbmovieswipe";
+import { Movie, movieSchema } from "@moviepals/dbmovieswipe";
 
 import { tmdb } from "../services";
-import { cachify } from "../services/cache";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
+
+const TMDB_DISCOVER_MOVIE_COUNT = 20;
+const MOVIES_PER_PAGE = 40;
+const MIX_IN_MOVIES_COUNT = 10;
 
 export const movie_feed = createTRPCRouter({
   getMovieFeed: protectedProcedure
@@ -16,13 +18,14 @@ export const movie_feed = createTRPCRouter({
         genres: z.array(z.number()),
         next: z.object({
           /** Represent the page */
-          tmdbPage: z.number(),
-          appPage: z.number()
-        })
+          tmdbNextPage: z.number(),
+          tmdbStartFromMovieIdx: z.number(),
+          appPage: z.number(),
+        }),
       }),
     )
     .query(
-      async ({ ctx, input: { page, genres, region, watchProviderIds } }) => {
+      async ({ ctx, input: { next, genres, region, watchProviderIds } }) => {
         const connections = await ctx.prisma.connection.findMany({
           where: {
             OR: [
@@ -65,16 +68,31 @@ export const movie_feed = createTRPCRouter({
           })
         ).map(({ movieId }) => movieId);
 
-        const movieIdsToMixIn = pickRandomIds(swipesByFriends, 10);
+        const movieIdsToMixIn = pickRandomIds(
+          swipesByFriends,
+          MIX_IN_MOVIES_COUNT,
+        );
 
-        const tmdbMoviePage = await getMovies({
-          watch_region: region,
-          with_watch_providers: watchProviderIds.join(","),
-          with_genres: genres.join(","),
-          page,
-        });
+        const moviesLeftToFetch = MOVIES_PER_PAGE - movieIdsToMixIn.length;
+        const tmdbPagesToFetch = Math.ceil(
+          moviesLeftToFetch / TMDB_DISCOVER_MOVIE_COUNT,
+        );
 
-        const feed = [].slice(0, 20);
+        const tmdbPromises: ReturnType<typeof getMovies>[] = [];
+
+        for (
+          let currentPage = 0;
+          currentPage < tmdbPagesToFetch;
+          currentPage++
+        ) {
+          tmdbPromises.push(getMovies({}));
+        }
+
+        const nextTmdbStartFromMovieIdx =
+          TMDB_DISCOVER_MOVIE_COUNT - next.tmdbStartFromMovieIdx;
+        const nextTmdbPage = next.tmdbNextPage + tmdbPagesToFetch;
+
+        const feed = [].slice(0, MOVIES_PER_PAGE);
 
         const shuffled = feed.sort(() => Math.random() - 0.5);
 
@@ -97,16 +115,3 @@ async function fetchMovieDetails(id: number) {
   return movie;
 }
 
-const getMoviesSchema = z.object({
-  results: z.array(movieSchema),
-});
-
-async function getMovies(params: unknown) {
-  const r = await tmdb.get("discover/movie", {
-    params,
-  });
-
-  const { results: movies } = getMoviesSchema.parse(r.data);
-
-  return movies;
-}

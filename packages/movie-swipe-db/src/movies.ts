@@ -21,6 +21,6 @@ export const movieSchema = z
   })
   .strip();
 
-type MovieDocument = z.infer<typeof movieSchema>;
+export type Movie = z.infer<typeof movieSchema>;
 
-export const movies = db.collection<MovieDocument>("movies");
+export const movies = db.collection<Movie>("movies");

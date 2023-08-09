@@ -1,3 +1,4 @@
+import {movieSchema} from "@moviepals/dbmovieswipe";
 import axios from "axios";
 import { z } from "zod";
 
@@ -38,3 +39,17 @@ const streamingServicesResponseSchema = z.object({
     }),
   ),
 });
+
+const getMoviesSchema = z.object({
+  results: z.array(movieSchema),
+});
+
+export async function getMovies(params: unknown) {
+  const r = await tmdb.get("discover/movie", {
+    params,
+  });
+
+  const { results: movies } = getMoviesSchema.parse(r.data);
+
+  return movies;
+}

@@ -13,6 +13,6 @@ export const swipeSchema = z.object({
   language: z.string(),
 });
 
-type SwipeDocument = z.infer<typeof swipeSchema>;
+export type Swipe = z.infer<typeof swipeSchema>;
 
-export const swipes = db.collection<SwipeDocument>("swipes");
+export const swipes = db.collection<Swipe>("swipes");
