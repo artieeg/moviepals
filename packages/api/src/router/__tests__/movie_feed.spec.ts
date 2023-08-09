@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { fetchMissingMovies } from "../fetchMissingMovies";
+import { fetchMissingMovies } from "../movie_feed";
 
 describe("fetchMissingMovies", () => {
   it("should fetch movies", async () => {

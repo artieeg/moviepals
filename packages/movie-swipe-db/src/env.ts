@@ -4,6 +4,7 @@ export const envSchema = z.object({
   MOVIE_SWIPE_DATABASE_URL: z.string(),
   MOVIE_SWIPE_MOVIE_COLLECTION_NAME: z.string(),
   MOVIE_SWIPE_SWIPE_COLLECTION_NAME: z.string(),
+  MOVIE_SWIPE_REVIEW_STATE_COLLECTION_NAME: z.string(),
   MOVIE_SWIPE_DB_NAME: z.string(),
 });
 
