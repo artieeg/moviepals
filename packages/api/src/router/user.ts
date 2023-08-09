@@ -2,7 +2,6 @@ import crypto from "crypto";
 import { TRPCError } from "@trpc/server";
 import appleSignInAuth from "apple-signin-auth";
 import { OAuth2Client } from "google-auth-library";
-import countries from "world-countries";
 import { z } from "zod";
 
 import { logger } from "../logger";
