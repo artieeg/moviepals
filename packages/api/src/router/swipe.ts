@@ -11,7 +11,7 @@ export const swipe = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input: { watch_providers, genres } }) => {
-      await ctx.dbMovieSwipe.swipes.deleteMany({
+      const deleteSwipes = ctx.dbMovieSwipe.swipes.deleteMany({
         userId: ctx.user,
         movie_genre_ids: { $in: genres },
         movie_watch_providers:
@@ -19,6 +19,17 @@ export const swipe = createTRPCRouter({
             ? { $in: watch_providers }
             : { $exists: true },
       });
+
+      const deleteReviewState = ctx.dbMovieSwipe.reviewState.deleteMany({
+        userId: ctx.user,
+        movie_genre_ids: { $in: genres },
+        movie_watch_providers:
+          watch_providers.length > 0
+            ? { $in: watch_providers }
+            : { $exists: true },
+      });
+
+      await Promise.all([deleteSwipes, deleteReviewState]);
     }),
 
   swipe: protectedProcedure
