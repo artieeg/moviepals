@@ -24,7 +24,6 @@ model User {
   connectionSecondUser        Connection[]        @relation("connection_second_user")
   connectionRequestFirstUser  ConnectionRequest[] @relation("connection_request_first_user")
   connectionRequestSecondUser ConnectionRequest[] @relation("connection_request_second_user")
-  Swipe                       Swipe[]
 }
 
 model ConnectionRequest {

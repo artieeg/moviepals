@@ -13,6 +13,7 @@ import { ZodError } from "zod";
 import { prisma } from "@moviepals/db";
 import { dbMovieSwipe } from "@moviepals/dbmovieswipe";
 
+import { logger } from "./logger";
 import { verifyToken } from "./utils/jwt";
 
 /**
@@ -101,15 +102,6 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
 export const createTRPCRouter = t.router;
 
 /**
- * Public (unauthed) procedure
- *
- * This is the base piece you use to build new queries and mutations on your
- * tRPC API. It does not guarantee that a user querying is authorized, but you
- * can still access user session data if they are logged in
- */
-export const publicProcedure = t.procedure;
-
-/**
  * Reusable middleware that enforces users are logged in before running the
  * procedure
  */
@@ -124,6 +116,51 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
     },
   });
 });
+
+/**
+ * Logger middleware
+ */
+export const loggerMiddleware = t.middleware(async ({ ctx, input, next }) => {
+  try {
+    logger.info({
+      request: {
+        ctx: {
+          ip: ctx.ip,
+          user: ctx.user,
+        },
+        input,
+      },
+    });
+
+    const response = await next({
+      ctx: {
+        ...ctx,
+        user: ctx.user as string,
+      },
+    });
+
+    logger.info({
+      response: {
+        data: (response as any)?.data,
+      },
+    });
+
+    return response;
+  } catch (e) {
+    logger.error(e);
+
+    throw e;
+  }
+});
+
+/**
+ * Public (unauthed) procedure
+ *
+ * This is the base piece you use to build new queries and mutations on your
+ * tRPC API. It does not guarantee that a user querying is authorized, but you
+ * can still access user session data if they are logged in
+ */
+export const publicProcedure = t.procedure;
 
 /**
  * Protected (authed) procedure

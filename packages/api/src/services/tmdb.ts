@@ -51,5 +51,10 @@ export async function getMovies(params: unknown) {
 
   const { results: movies } = getMoviesSchema.parse(r.data);
 
+  /** Replace the poster urls with full path  */
+  movies.forEach((movie) => {
+    movie.poster_path = `https://image.tmdb.org/t/p/original${movie.poster_path}`;
+  });
+
   return movies;
 }
