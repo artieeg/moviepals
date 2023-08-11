@@ -89,6 +89,20 @@ export function SwipeScreen() {
     movieDetailsRef.current?.open(url);
   }
 
+  const currentMovieCard = useRef<MovieCardRef>(null);
+
+  function onLike() {
+    currentMovieCard.current?.swipeRight();
+
+    setTimeout(() => setCurrentMovieIdx((prev) => prev + 1), 200);
+  }
+
+  function onDislike() {
+    currentMovieCard.current?.swipeLeft();
+
+    setTimeout(() => setCurrentMovieIdx((prev) => prev + 1), 200);
+  }
+
   return (
     <>
       <MainLayout title="swipe" canGoBack>
@@ -102,6 +116,7 @@ export function SwipeScreen() {
                 totalNumberOfCards={3}
               >
                 <MovieCard
+                  ref={idx === 0 ? currentMovieCard : undefined}
                   onSwipe={() => {
                     setCurrentMovieIdx((prev) => prev + 1);
                   }}
@@ -112,7 +127,7 @@ export function SwipeScreen() {
         </View>
 
         <View className="mt-8 flex-1 flex-row items-center justify-between space-x-3 px-8">
-          <IconButton variant="red">
+          <IconButton variant="red" onPress={onDislike}>
             <Cancel color="white" />
           </IconButton>
 
@@ -123,7 +138,7 @@ export function SwipeScreen() {
             <Text className="font-primary-bold text-neutral-1">details</Text>
           </TouchableOpacity>
 
-          <IconButton variant="primary">
+          <IconButton variant="primary" onPress={onLike}>
             <Heart fill="white" color="white" />
           </IconButton>
         </View>
@@ -173,16 +188,30 @@ function MovieCardContainer({
   );
 }
 
-function MovieCard({
-  movie,
-  onSwipe,
-}: {
-  onSwipe: () => void;
-  movie: RouterOutputs["movie_feed"]["getMovieFeed"]["feed"][number];
-}) {
-  const { width, height } = useWindowDimensions();
+type MovieCardRef = {
+  swipeRight: () => void;
+  swipeLeft: () => void;
+};
+
+const MovieCard = React.forwardRef<
+  MovieCardRef,
+  {
+    onSwipe: () => void;
+    movie: RouterOutputs["movie_feed"]["getMovieFeed"]["feed"][number];
+  }
+>(({ movie, onSwipe }, ref) => {
+  const { width } = useWindowDimensions();
   const tx = useSharedValue(0);
   const ty = useSharedValue(0);
+
+  useImperativeHandle(ref, () => ({
+    swipeRight() {
+      tx.value = withSpring(width * 1.5);
+    },
+    swipeLeft() {
+      tx.value = withSpring(-width * 1.5);
+    },
+  }));
 
   const handler = useAnimatedGestureHandler<
     GestureEvent<PanGestureHandlerEventPayload>,
@@ -291,7 +320,7 @@ function MovieCard({
       </Animated.View>
     </PanGestureHandler>
   );
-}
+});
 
 type MovieDetailsBottomSheetRef = {
   open(url: string): void;
