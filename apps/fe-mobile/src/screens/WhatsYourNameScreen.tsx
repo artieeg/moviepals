@@ -65,8 +65,8 @@ export function WhatsYourNameScreen() {
   }
 
   return (
-    <KeyboardAvoidingView behavior="padding" className="flex-1">
-      <SafeAreaView className="flex-1 bg-white px-8">
+    <KeyboardAvoidingView behavior="padding" className="flex-1 bg-white">
+      <SafeAreaView className="flex-1 px-8">
         <View className="flex-1 space-y-6">
           <View className="space-y-2">
             <Text className="font-primary-bold text-neutral-1 pt-8 text-2xl">

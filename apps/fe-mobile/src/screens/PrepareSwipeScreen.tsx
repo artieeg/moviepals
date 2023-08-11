@@ -15,10 +15,14 @@ import { api } from "~/utils/api";
 import { getTMDBStaticUrl } from "~/utils/uri";
 import { ListItem } from "~/components";
 import { useNavigation } from "~/hooks";
-import { SCREEN_STREAMING_SERVICE_LIST } from "~/navigators/SwipeNavigator";
+import {
+  SCREEN_STREAMING_SERVICE_LIST,
+  SCREEN_SWIPE,
+} from "~/navigators/SwipeNavigator";
 import { MainLayout } from "./layouts/MainLayout";
 
 export function PrepareSwipeScreen() {
+  const navigation = useNavigation();
   const ctx = api.useContext();
 
   const genres = api.genres.fetchUserGenres.useQuery();
@@ -49,7 +53,9 @@ export function PrepareSwipeScreen() {
     toggleGenre.mutate({ genre: id, enabled });
   }
 
-  function onStartSwiping() {}
+  function onStartSwiping() {
+    navigation.navigate(SCREEN_SWIPE);
+  }
 
   return (
     <MainLayout title="movies">
@@ -127,7 +133,7 @@ function GenreItem({
       itemId={id}
       icon={emoji}
       title={title}
-      checkbox
+      right="checkbox"
       onToggle={onToggle}
       checked={enabled}
     />

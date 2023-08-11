@@ -1,4 +1,4 @@
-package com.moviepals;
+package io.moviepals;
 
 import android.os.Bundle;
 import com.facebook.react.ReactActivity;

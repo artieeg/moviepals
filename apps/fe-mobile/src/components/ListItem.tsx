@@ -20,7 +20,7 @@ function _ListItem(
   props: TouchableOpacityProps & {
     itemId: any;
     title: string;
-    subtitle: string;
+    subtitle?: string;
     icon: string | React.ReactNode;
   } & (
       | { right: undefined }
