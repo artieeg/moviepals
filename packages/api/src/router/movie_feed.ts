@@ -5,11 +5,7 @@ import { DbMovieSwipe, Movie, ReviewState } from "@moviepals/dbmovieswipe";
 
 import { logger } from "../logger";
 import { getMovies } from "../services";
-import {
-  createTRPCRouter,
-  loggerMiddleware,
-  protectedProcedure,
-} from "../trpc";
+import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 /** Number of movies that TMDB returns */
 const MOVIES_PER_TMDB_PAGE = 20;
@@ -127,19 +123,38 @@ export const movie_feed = createTRPCRouter({
 
         logger.info(movies);
 
-        await ctx.dbMovieSwipe.reviewState.updateOne(
-          {
-            userId: ctx.user,
-            genre_ids: genres,
-            watch_providers: watchProviderIds,
-          },
-          {
-            $set: {
-              remoteApiPage: nextPageToStartFrom,
-              remoteApiResponseMovieIdx: nextMovieToStartFrom,
-            },
-          },
+        const expectedRemoteApiRequestCount = Math.floor(
+          MOVIES_PER_PAGE / MOVIES_PER_TMDB_PAGE,
         );
+
+        /**
+         * Only update review state if we had to fetch more movies than we expected
+         *
+         * This allows us to let user continue their review from the movie they left off
+         * in a simple way (though we end up making a redundant API call sometimes)
+         * */
+        if (
+          nextPageToStartFrom - reviewState.remoteApiPage >=
+          expectedRemoteApiRequestCount * 2
+        ) {
+          await ctx.dbMovieSwipe.reviewState.updateOne(
+            {
+              userId: ctx.user,
+              genre_ids: genres,
+              watch_providers: watchProviderIds,
+            },
+            {
+              $set: {
+                //If the user hasn't finished the deck, this will
+                //allow to continue from where they left off (more or less)
+                remoteApiPage:
+                  nextPageToStartFrom -
+                  Math.ceil(expectedRemoteApiRequestCount / 2),
+                remoteApiResponseMovieIdx: nextMovieToStartFrom,
+              },
+            },
+          );
+        }
 
         const feed = [...movies, ...mixInMovies].map((movie) => {
           return {
@@ -277,9 +292,11 @@ async function getReviewState(
       userId: params.userId,
       genre_ids: params.genre_ids,
       watch_providers: params.watch_providers,
-      remoteApiPage: 1,
+      remoteApiPage: 0,
       remoteApiResponseMovieIdx: 0,
     };
+
+    await db.reviewState.insertOne(reviewState);
 
     return reviewState;
   }
