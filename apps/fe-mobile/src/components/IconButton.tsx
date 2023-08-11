@@ -1,12 +1,10 @@
-import { Alert, Pressable, TouchableOpacityProps } from "react-native";
+import { Pressable, TouchableOpacityProps } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
 import { twMerge } from "tailwind-merge";
-
-import { AnimatedTouchableOpacity } from "./AnimatedTouchableOpacity";
 
 export function IconButton({
   variant,

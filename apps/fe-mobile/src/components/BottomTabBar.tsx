@@ -1,4 +1,5 @@
 import { Pressable, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { Bell, CinemaOld, Group, PeopleTag } from "iconoir-react-native";
 import { twJoin } from "tailwind-merge";
@@ -20,10 +21,12 @@ export function BottomTabBar(props: BottomTabBarProps) {
   const isEventsNavigator = currentRoute === NAVIGATOR_EVENTS;
   const isMeNavigator = currentRoute === NAVIGATOR_ME;
 
+  const { bottom } = useSafeAreaInsets();
+
   return (
     <View
       style={{
-        paddingBottom: props.insets.bottom,
+        paddingBottom: bottom ? bottom : 12
       }}
       className="flex-row justify-between bg-white px-4"
     >

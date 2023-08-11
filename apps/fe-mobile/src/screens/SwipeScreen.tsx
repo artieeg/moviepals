@@ -1,21 +1,45 @@
-import React from "react";
+import React, {
+  PropsWithChildren,
+  useCallback,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   Text,
   TouchableOpacity,
   useWindowDimensions,
   View,
+  ViewProps,
 } from "react-native";
 import FastImage from "react-native-fast-image";
-import { PanGestureHandler } from "react-native-gesture-handler";
+import {
+  GestureEvent,
+  PanGestureHandler,
+  PanGestureHandlerEventPayload,
+} from "react-native-gesture-handler";
 import LinearGradient from "react-native-linear-gradient";
 import Animated, {
+  FadeIn,
+  FadeOut,
+  runOnJS,
   useAnimatedGestureHandler,
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
+import WebView from "react-native-webview";
+import BottomSheet, {
+  BottomSheetBackdrop,
+  BottomSheetBackdropProps,
+  BottomSheetProps,
+} from "@gorhom/bottom-sheet";
+import { Cancel, Heart } from "iconoir-react-native";
 
 import { api, RouterOutputs } from "~/utils/api";
+import { IconButton } from "~/components";
 import { MainLayout } from "./layouts/MainLayout";
 
 export function SwipeScreen() {
@@ -49,35 +73,139 @@ export function SwipeScreen() {
     },
   );
 
+  const [currentMovieIdx, setCurrentMovieIdx] = useState(0);
+
+  const deck = useMemo(() => {
+    const currentPage = result.data?.pages[result.data.pages.length - 1];
+
+    return currentPage?.feed.slice(currentMovieIdx, currentMovieIdx + 3);
+  }, [result.data?.pages, currentMovieIdx]);
+
+  const movieDetailsRef = useRef<MovieDetailsBottomSheetRef>(null);
+
+  function onOpenMovieDetails() {
+    const url = `https://www.themoviedb.org/movie/${deck![0].id}`;
+
+    movieDetailsRef.current?.open(url);
+  }
+
   return (
-    <MainLayout title="swipe" canGoBack>
-      {result.isSuccess && (
-        <MovieCard
-          movie={result.data.pages[result.data.pages.length - 1].feed[0]}
-        />
-      )}
-    </MainLayout>
+    <>
+      <MainLayout title="swipe" canGoBack>
+        <View className="aspect-[2/3] translate-y-8">
+          {result.isSuccess &&
+            deck &&
+            deck.map((movie, idx) => (
+              <MovieCardContainer
+                key={movie.id}
+                idx={idx}
+                totalNumberOfCards={3}
+              >
+                <MovieCard
+                  onSwipe={() => {
+                    setCurrentMovieIdx((prev) => prev + 1);
+                  }}
+                  movie={movie}
+                />
+              </MovieCardContainer>
+            ))}
+        </View>
+
+        <View className="mt-8 flex-1 flex-row items-center justify-between space-x-3 px-8">
+          <IconButton variant="red">
+            <Cancel color="white" />
+          </IconButton>
+
+          <TouchableOpacity
+            onPress={onOpenMovieDetails}
+            className="bg-neutral-2-10 h-16 flex-1 items-center justify-center rounded-full"
+          >
+            <Text className="font-primary-bold text-neutral-1">details</Text>
+          </TouchableOpacity>
+
+          <IconButton variant="primary">
+            <Heart fill="white" color="white" />
+          </IconButton>
+        </View>
+      </MainLayout>
+      <MovieDetailsBottomSheet ref={movieDetailsRef} />
+    </>
+  );
+}
+
+function MovieCardContainer({
+  idx,
+  totalNumberOfCards,
+  children,
+}: PropsWithChildren<{
+  idx: number;
+  totalNumberOfCards: number;
+}>) {
+  const scale = useDerivedValue(() => {
+    return withSpring(1 - idx * 0.05);
+  }, [idx, totalNumberOfCards]);
+
+  const translateY = useDerivedValue(() => {
+    return withSpring(-idx * 20);
+  }, [idx, totalNumberOfCards]);
+
+  const rContainerStyle = useAnimatedStyle(() => ({
+    zIndex: totalNumberOfCards - idx,
+    transform: [
+      {
+        translateY: translateY.value,
+      },
+      {
+        scale: scale.value,
+      },
+    ],
+  }));
+
+  return (
+    <Animated.View
+      entering={FadeIn}
+      exiting={FadeOut}
+      style={rContainerStyle}
+      className="absolute bottom-0 left-0 right-0 top-0"
+    >
+      <View className="flex-1">{children}</View>
+    </Animated.View>
   );
 }
 
 function MovieCard({
   movie,
+  onSwipe,
 }: {
+  onSwipe: () => void;
   movie: RouterOutputs["movie_feed"]["getMovieFeed"]["feed"][number];
 }) {
   const { width, height } = useWindowDimensions();
   const tx = useSharedValue(0);
   const ty = useSharedValue(0);
 
-  const handler = useAnimatedGestureHandler({
+  const handler = useAnimatedGestureHandler<
+    GestureEvent<PanGestureHandlerEventPayload>,
+    { vx: number; vy: number }
+  >({
     onStart() {},
-    onActive(event) {
+    onActive(event, ctx) {
       tx.value = event.translationX;
       ty.value = event.translationY;
+
+      ctx.vx = event.velocityX;
+      ctx.vy = event.velocityY;
     },
-    onEnd() {
-      tx.value = withSpring(0);
-      ty.value = withSpring(0);
+    onEnd(_, ctx) {
+      if (tx.value > width / 4 || tx.value < -width / 4) {
+        tx.value = withSpring(tx.value + 3 * ctx.vx);
+        ty.value = withSpring(ty.value + 3 * ctx.vy);
+
+        runOnJS(onSwipe)();
+      } else {
+        tx.value = withSpring(0);
+        ty.value = withSpring(0);
+      }
     },
   });
 
@@ -104,6 +232,7 @@ function MovieCard({
             className="flex-1"
             source={{ uri: movie.poster_path }}
           />
+
           <View className="absolute bottom-0 left-0 right-0 top-0 justify-end ">
             <LinearGradient
               colors={["#000000FF", "#00000000"]}
@@ -111,7 +240,7 @@ function MovieCard({
               end={{ x: 0, y: 0.6 }}
               className="absolute bottom-0 left-0 right-0 top-0"
             />
-            <View className="space-y-3 p-4">
+            <View className="space-y-3 px-4 pb-8">
               <View className="space-y-1">
                 <Text
                   numberOfLines={2}
@@ -133,7 +262,7 @@ function MovieCard({
                   <Text
                     numberOfLines={3}
                     ellipsizeMode="tail"
-                    className="font-primary-bold text-sm opacity-70 text-white"
+                    className="font-primary-bold text-sm text-white opacity-70"
                   >
                     {movie.overview}
                   </Text>
@@ -163,3 +292,58 @@ function MovieCard({
     </PanGestureHandler>
   );
 }
+
+type MovieDetailsBottomSheetRef = {
+  open(url: string): void;
+  close(): void;
+};
+
+const MovieDetailsBottomSheet = React.forwardRef<
+  MovieDetailsBottomSheetRef,
+  {}
+>((_, ref) => {
+  const bottomSheetRef = useRef<BottomSheet>(null);
+
+  const [url, setUrl] = useState<string | null>(null);
+
+  useImperativeHandle(ref, () => ({
+    open(url) {
+      setUrl(url);
+      bottomSheetRef.current?.expand();
+    },
+    close() {
+      setUrl(null);
+      bottomSheetRef.current?.collapse();
+    },
+  }));
+
+  const renderBackdrop = useCallback(
+    (props: BottomSheetBackdropProps) => (
+      <BottomSheetBackdrop
+        {...props}
+        disappearsOnIndex={-1}
+        appearsOnIndex={0}
+      />
+    ),
+    [],
+  );
+
+  const { height } = useWindowDimensions();
+
+  function onClose() {
+    setUrl(null);
+  }
+
+  return (
+    <BottomSheet
+      ref={bottomSheetRef}
+      index={-1}
+      snapPoints={[height * 0.8]}
+      onClose={onClose}
+      enablePanDownToClose
+      backdropComponent={renderBackdrop}
+    >
+      {url && <WebView className="flex-1" source={{ uri: url }} />}
+    </BottomSheet>
+  );
+});

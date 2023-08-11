@@ -11,6 +11,7 @@
     "svgr": "svgr ./assets/svg -d ./src/components/icons --native --typescript --ignore-existing --svgo-config .svgorc.json"
   },
   "dependencies": {
+    "@gorhom/bottom-sheet": "^4",
     "@invertase/react-native-apple-authentication": "^2.2.2",
     "@react-native-async-storage/async-storage": "^1.19.1",
     "@react-native-firebase/app": "^18.3.0",
@@ -38,6 +39,7 @@
     "react-native-screens": "^3.22.1",
     "react-native-svg": "^13.10.0",
     "react-native-toast-message": "^2.1.6",
+    "react-native-webview": "^13.3.1",
     "rive-react-native": "^4.1.2",
     "superjson": "^1.13.1",
     "tailwind-merge": "^1.14.0",
