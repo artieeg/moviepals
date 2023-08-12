@@ -8,12 +8,10 @@ import {
 } from "react-native";
 import FastImage from "react-native-fast-image";
 import { NavArrowRight } from "iconoir-react-native";
-import { produce } from "immer";
-import { twJoin } from "tailwind-merge";
 
 import { api } from "~/utils/api";
 import { getTMDBStaticUrl } from "~/utils/uri";
-import { Button, ListItem } from "~/components";
+import { Button, Switch } from "~/components";
 import { useNavigation } from "~/hooks";
 import {
   SCREEN_GENRE_FILTER,
@@ -23,6 +21,8 @@ import {
 import { MainLayout } from "./layouts/MainLayout";
 
 export function PrepareSwipeScreen() {
+  const [quickMatch, setQuickMatch] = React.useState(true);
+
   const navigation = useNavigation();
   const ctx = api.useContext();
 
@@ -41,9 +41,19 @@ export function PrepareSwipeScreen() {
     <MainLayout title="movies">
       <View className="space-y-6 pb-3">
         <MyStreamingServicesSection />
-        <CastFilter />
-        <DirectorFilter />
+
         <GenreFilter />
+
+        <CastFilter />
+
+        <DirectorFilter />
+
+        <QuickMatchMode
+          enabled={quickMatch}
+          onToggle={(v) => {
+            setQuickMatch(v);
+          }}
+        />
       </View>
 
       <Button
@@ -54,6 +64,38 @@ export function PrepareSwipeScreen() {
         start swiping
       </Button>
     </MainLayout>
+  );
+}
+
+function QuickMatchMode({
+  enabled,
+  onToggle,
+  ...rest
+}: {
+  enabled: boolean;
+  onToggle(enabled: boolean): void;
+}) {
+  return (
+    <TouchableOpacity
+      className="flex-row items-center justify-between"
+      {...rest}
+    >
+      <View className="flex-1">
+        <Text className="font-primary-bold text-neutral-1 text-xl">
+          quick match mode
+        </Text>
+
+        <View className="flex-row items-center">
+          <Text className="font-primary-regular text-neutral-2 text-base">
+            include friend movies even if they don't match your filters
+          </Text>
+        </View>
+      </View>
+
+      <View className="w-14">
+        <Switch enabled={enabled} onToggle={onToggle} />
+      </View>
+    </TouchableOpacity>
   );
 }
 

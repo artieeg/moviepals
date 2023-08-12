@@ -4,26 +4,20 @@ import { genres as genreDefinitions } from "../genres";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const genres = createTRPCRouter({
-  toggleGenre: protectedProcedure
-    .input(z.object({ genre: z.number(), enabled: z.boolean() }))
-    .mutation(async ({ ctx, input: { genre, enabled } }) => {
-      if (enabled) {
-        await ctx.prisma.enabledGenre.create({
-          data: {
-            userId: ctx.user,
-            genreId: genre,
-          },
-        });
-      } else {
-        await ctx.prisma.enabledGenre.delete({
-          where: {
-            userId_genreId: {
-              userId: ctx.user,
-              genreId: genre,
-            },
-          },
-        });
-      }
+  enableGenres: protectedProcedure
+    .input(z.object({ genres: z.array(z.number()) }))
+    .mutation(async ({ ctx, input: { genres } }) => {
+      const disableUserGenres = ctx.prisma.enabledGenre.delete({
+        where: {
+          userId: ctx.user,
+        },
+      });
+      await ctx.prisma.enabledGenre.create({
+        data: {
+          userId: ctx.user,
+          genreId: genre,
+        },
+      });
     }),
 
   fetchUserGenres: protectedProcedure.query(async ({ ctx }) => {

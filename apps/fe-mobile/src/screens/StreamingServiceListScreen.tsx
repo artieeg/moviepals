@@ -85,12 +85,15 @@ export function StreamingServiceList() {
       return;
     }
 
+    /**
+      * Modify the data locally
+      * */
     ctx.streaming_service.getStreamingServices.setData(
       { country: user.data.country },
       produce((draft) => {
         const item = draft?.services.find((s) => s.provider_id === id);
 
-        if (!item) {
+        if (!item || !draft) {
           return draft;
         }
 
@@ -159,7 +162,7 @@ export function StreamingServiceList() {
                 />
               }
               itemId={item.provider_id}
-              title={item.provider_name}
+              title={item.provider_name.toLowerCase()}
               right="checkbox"
               checked={item.enabled}
               onToggle={onToggleStreamingService}
@@ -209,7 +212,7 @@ export function StreamingServiceList() {
                 itemId="any-service"
                 icon="💡"
                 title="any service"
-                right="checkbox"
+                right="radio"
                 checked={!!anyService}
                 onToggle={onToggleAnyService}
               />

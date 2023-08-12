@@ -6,7 +6,7 @@ import {
   View,
 } from "react-native";
 
-import { Checkbox } from "./Checkbox";
+import { Selectable } from "./Selectable";
 
 export const ListItem = React.memo(_ListItem, (prev, next) => {
   if (prev.right === "checkbox" && next.right === "checkbox") {
@@ -26,6 +26,11 @@ function _ListItem(
       | { right: undefined }
       | { right: "component"; rightComponent: React.ReactNode }
       | {
+          right: "radio";
+          checked: boolean;
+          onToggle: (id: any, enabled: boolean) => void;
+        }
+      | {
           right: "checkbox";
           checked: boolean;
           onToggle: (id: any, enabled: boolean) => void;
@@ -36,7 +41,7 @@ function _ListItem(
     <TouchableOpacity
       activeOpacity={0.8}
       onPress={() => {
-        if (props.right === "checkbox") {
+        if (props.right === "checkbox" || props.right === "radio") {
           props.onToggle(props.itemId, !props.checked);
         }
       }}
@@ -62,9 +67,10 @@ function _ListItem(
       {props.right === "component" && (
         <View className="ml-2">{props.rightComponent}</View>
       )}
-      {props.right === "checkbox" && (
+      {(props.right === "checkbox" || props.right === "radio") && (
         <View className="ml-2">
-          <Checkbox
+          <Selectable
+            mode={props.right}
             checked={props.checked}
             onToggle={() => props.onToggle(props.itemId, !props.checked)}
           />

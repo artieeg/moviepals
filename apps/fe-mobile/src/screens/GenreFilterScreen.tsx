@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { FlatList, View } from "react-native";
 import { produce } from "immer";
 
@@ -11,6 +11,10 @@ export function GenreFilterScreen() {
   const navigation = useNavigation();
   const ctx = api.useContext();
   const genres = api.genres.fetchUserGenres.useQuery();
+
+  const anyGenre = useMemo(() => {
+    return genres.data?.filter((d) => d.enabled).length === 0;
+  }, [genres.data]);
 
   const toggleGenre = api.genres.toggleGenre.useMutation({
     onMutate({ genre, enabled }) {
@@ -37,11 +41,27 @@ export function GenreFilterScreen() {
     navigation.goBack();
   }
 
+  function onToggleAnyGenre() {
+
+  }
+
   return (
     <MainLayout canGoBack title="genre filter">
       <FlatList
         className="-mx-8 flex-1"
         contentContainerStyle={{ paddingHorizontal: 32, paddingBottom: 64 }}
+        ListHeaderComponent={() => {
+          return (
+            <ListItem
+              itemId="any-service"
+              icon="💡"
+              title="any service"
+              right="radio"
+              checked={anyGenre}
+              onToggle={onToggleAnyGenre}
+            />
+          );
+        }}
         ItemSeparatorComponent={() => <View className="h-4" />}
         renderItem={({ item }) => (
           <GenreItem

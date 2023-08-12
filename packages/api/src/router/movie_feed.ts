@@ -24,10 +24,14 @@ export const movie_feed = createTRPCRouter({
         watchProviderIds: z.array(z.number()),
         genres: z.array(z.number()),
         cursor: z.number().nullish(),
+        quick_match_mode: z.boolean(),
       }),
     )
     .query(
-      async ({ ctx, input: { genres, cursor, region, watchProviderIds } }) => {
+      async ({
+        ctx,
+        input: { genres, quick_match_mode, cursor, region, watchProviderIds },
+      }) => {
         const reviewState = await getReviewState(ctx.dbMovieSwipe, {
           genre_ids: genres,
           watch_providers: watchProviderIds,
@@ -74,18 +78,23 @@ export const movie_feed = createTRPCRouter({
         /**
          * Fetch movies that friends have swiped on
          *
-         * Make sure the genres and movie providers overlap
+         * Make sure the genres and movie providers overlap,
+         * unless quick match mode is enabled
          * */
         const friendSwipes = await ctx.dbMovieSwipe.swipes
           .find({
             userId: { $in: connectedUserIds },
             movieId: { $nin: excludeMovieIds },
-            movie_genre_ids: { $in: genres },
+            liked: true,
+
+            movie_genre_ids: quick_match_mode
+              ? { $exists: true }
+              : { $in: genres },
+
             watch_providers:
-              watchProviderIds.length > 0
+              watchProviderIds.length > 0 && !quick_match_mode
                 ? { $in: watchProviderIds }
                 : { $exists: true },
-            liked: true,
           })
           .toArray();
 
@@ -224,7 +233,7 @@ export async function fetchMissingMovies({
   let nextMovieToStartFrom: number = nextTmdbStartFromMovieIdx;
   let nextPageToStartFrom: number = nextTmdbPage;
 
-  let attempts = 20;//tmdbPagesToFetch * 2;
+  let attempts = 20; //tmdbPagesToFetch * 2;
 
   while (attempts--) {
     const promises: Promise<Movie[]>[] = [];
