@@ -10,7 +10,7 @@ export const swipeSchema = z.object({
   /** All of the genre ids of the swiped movie */
   movie_genre_ids: z.array(z.number()),
 
-  /** Current list of watch providers the user has */
+  /** Current list of watch providers the user had when he swiped on this */
   watch_providers: z.array(z.number()),
 
   /** User's watch region */

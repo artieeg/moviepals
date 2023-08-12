@@ -56,8 +56,13 @@ export const movie_feed = createTRPCRouter({
         const userSwipes = await ctx.dbMovieSwipe.swipes
           .find({
             userId: ctx.user,
-            movie_genre_ids: { $in: genres },
-            movie_watch_providers:
+
+            //genres should overlap
+            movie_genre_ids:
+              genres.length > 0 ? { $in: genres } : { $exists: true },
+
+            // movie providers should overlap
+            watch_providers:
               watchProviderIds.length > 0
                 ? { $in: watchProviderIds }
                 : { $exists: true },
@@ -76,7 +81,7 @@ export const movie_feed = createTRPCRouter({
             userId: { $in: connectedUserIds },
             movieId: { $nin: excludeMovieIds },
             movie_genre_ids: { $in: genres },
-            movie_watch_providers:
+            watch_providers:
               watchProviderIds.length > 0
                 ? { $in: watchProviderIds }
                 : { $exists: true },
@@ -101,7 +106,7 @@ export const movie_feed = createTRPCRouter({
           moviesPerTmdbPage: MOVIES_PER_TMDB_PAGE,
           nextTmdbPage: reviewState.remoteApiPage,
           nextTmdbStartFromMovieIdx: reviewState.remoteApiResponseMovieIdx,
-          mixInMovieCount: MIX_IN_MOVIES_COUNT,
+          mixInMovieCount: selectedFriendSwipeMovieIds.length,
           fetch: getMovies,
           fetchParams: {
             region,
@@ -120,8 +125,6 @@ export const movie_feed = createTRPCRouter({
           { movies, nextPageToStartFrom, nextMovieToStartFrom },
           mixInMovies,
         ] = await Promise.all([missingMoviesPromise, mixInMoviesPromise]);
-
-        logger.info(movies);
 
         const expectedRemoteApiRequestCount = Math.floor(
           MOVIES_PER_PAGE / MOVIES_PER_TMDB_PAGE,
@@ -226,10 +229,11 @@ export async function fetchMissingMovies({
   while (attempts--) {
     const promises: Promise<Movie[]>[] = [];
 
-    for (; pageOffset < batch; pageOffset++) {
+    for (let p = 0; p < batch; pageOffset++, p++) {
       promises.push(
         fetch({
           ...fetchParams,
+          genres: fetchParams.genres.join(","),
           page: nextTmdbPage + pageOffset + 1,
         }),
       );

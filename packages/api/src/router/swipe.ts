@@ -43,7 +43,7 @@ export const swipe = createTRPCRouter({
         movie_language: z.string(),
       }),
     )
-    .query(
+    .mutation(
       async ({
         ctx,
         input: {
