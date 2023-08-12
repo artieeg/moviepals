@@ -5,3 +5,4 @@ export * from "./PrepareSwipeScreen";
 export * from "./FriendsListScreen";
 export * from "./FriendRequestListScreen";
 export * from "./SwipeScreen";
+export * from "./GenreFilterScreen";

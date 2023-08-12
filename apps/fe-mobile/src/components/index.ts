@@ -6,3 +6,4 @@ export * from "./ListItem";
 export * from "./LoadingIndicator";
 export * from "./MovieDetailsBottomSheet";
 export * from "./MovieCard";
+export * from "./Button";

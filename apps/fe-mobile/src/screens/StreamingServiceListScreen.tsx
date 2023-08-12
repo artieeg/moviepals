@@ -160,7 +160,7 @@ export function StreamingServiceList() {
               }
               itemId={item.provider_id}
               title={item.provider_name}
-              checkbox
+              right="checkbox"
               checked={item.enabled}
               onToggle={onToggleStreamingService}
             />
@@ -209,7 +209,7 @@ export function StreamingServiceList() {
                 itemId="any-service"
                 icon="💡"
                 title="any service"
-                checkbox
+                right="checkbox"
                 checked={!!anyService}
                 onToggle={onToggleAnyService}
               />
@@ -255,8 +255,8 @@ function YourCountry({
         </View>
 
         <ListItem
+          right={undefined}
           disabled
-          checkbox={false}
           itemId={country}
           title={countryData?.name.common ?? "..."}
           icon={countryData?.flag}

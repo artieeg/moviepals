@@ -13,9 +13,10 @@ import { twJoin } from "tailwind-merge";
 
 import { api } from "~/utils/api";
 import { getTMDBStaticUrl } from "~/utils/uri";
-import { ListItem } from "~/components";
+import { Button, ListItem } from "~/components";
 import { useNavigation } from "~/hooks";
 import {
+  SCREEN_GENRE_FILTER,
   SCREEN_STREAMING_SERVICE_LIST,
   SCREEN_SWIPE,
 } from "~/navigators/SwipeNavigator";
@@ -32,60 +33,19 @@ export function PrepareSwipeScreen() {
     [genres.data],
   );
 
-  const toggleGenre = api.genres.toggleGenre.useMutation({
-    onMutate({ genre, enabled }) {
-      ctx.genres.fetchUserGenres.setData(
-        undefined,
-        produce((data) => {
-          const item = data?.find((g) => g.id === genre);
-
-          if (!item) {
-            return data;
-          }
-
-          item.enabled = enabled;
-        }),
-      );
-    },
-  });
-
-  function onToggleGenre(id: number, enabled: boolean) {
-    toggleGenre.mutate({ genre: id, enabled });
-  }
-
   function onStartSwiping() {
     navigation.navigate(SCREEN_SWIPE);
   }
 
   return (
     <MainLayout title="movies">
-      <FlatList
-        className="-mx-8 flex-1"
-        contentContainerStyle={{ paddingHorizontal: 32, paddingBottom: 64 }}
-        ListHeaderComponent={() => {
-          return (
-            <View className="space-y-6 pb-3">
-              <MyStreamingServicesSection />
-              <CastFilter />
-              <DirectorFilter />
-              <Text className="font-primary-bold text-neutral-1 text-xl">
-                genres
-              </Text>
-            </View>
-          );
-        }}
-        ItemSeparatorComponent={() => <View className="h-4" />}
-        renderItem={({ item }) => (
-          <GenreItem
-            onToggle={onToggleGenre}
-            enabled={item.enabled}
-            id={item.id}
-            title={item.name}
-            emoji={item.emoji}
-          />
-        )}
-        data={genres.data}
-      />
+      <View className="space-y-6 pb-3">
+        <MyStreamingServicesSection />
+        <CastFilter />
+        <DirectorFilter />
+        <GenreFilter />
+      </View>
+
       <Button
         onPress={onStartSwiping}
         disabled={enabledGenres?.length === 0}
@@ -97,46 +57,38 @@ export function PrepareSwipeScreen() {
   );
 }
 
-function Button({
-  children,
-  ...rest
-}: TouchableOpacityProps & { children: string }) {
+function GenreFilter(props: TouchableOpacityProps) {
+  const navigation = useNavigation();
+
+  const enabledGenres = api.genres.fetchUserGenres.useQuery(undefined, {
+    select: (data) => data?.filter((g) => g.enabled),
+  });
+
+  function onPress() {
+    navigation.navigate(SCREEN_GENRE_FILTER);
+  }
+
   return (
     <TouchableOpacity
-      activeOpacity={0.9}
-      className={twJoin(
-        "h-12 items-center justify-center rounded-full",
-        rest.disabled ? "bg-neutral-4" : "bg-brand-1",
-      )}
-      {...rest}
+      className="flex-row items-center justify-between"
+      {...props}
+      onPress={onPress}
     >
-      <Text className="font-primary-bold text-base text-white">{children}</Text>
-    </TouchableOpacity>
-  );
-}
+      <View className="flex-1">
+        <Text className="font-primary-bold text-neutral-1 text-xl">
+          genre filter
+        </Text>
 
-function GenreItem({
-  onToggle,
-  id,
-  title,
-  emoji,
-  enabled,
-}: {
-  onToggle: (id: any, enabled: boolean) => void;
-  id: any;
-  title: string;
-  emoji: string;
-  enabled: boolean;
-}) {
-  return (
-    <ListItem
-      itemId={id}
-      icon={emoji}
-      title={title}
-      right="checkbox"
-      onToggle={onToggle}
-      checked={enabled}
-    />
+        <View className="flex-row items-center">
+          <Text className="font-primary-regular text-neutral-2 text-base">
+            {enabledGenres.data
+              ? `${enabledGenres.data.length} enabled genres`
+              : "any genre"}
+          </Text>
+        </View>
+      </View>
+      <NavArrowRight />
+    </TouchableOpacity>
   );
 }
 
