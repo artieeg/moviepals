@@ -1,3 +1,4 @@
+import React from "react";
 import { Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
@@ -26,7 +27,7 @@ export function BottomTabBar(props: BottomTabBarProps) {
   return (
     <View
       style={{
-        paddingBottom: bottom ? bottom : 12
+        paddingBottom: bottom ? bottom : 12,
       }}
       className="flex-row justify-between bg-white px-4"
     >

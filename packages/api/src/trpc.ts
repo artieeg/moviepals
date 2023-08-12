@@ -122,15 +122,7 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
  */
 export const loggerMiddleware = t.middleware(async ({ ctx, input, next }) => {
   try {
-    logger.info({
-      request: {
-        ctx: {
-          ip: ctx.ip,
-          user: ctx.user,
-        },
-        input,
-      },
-    });
+    const p = performance.now();
 
     const response = await next({
       ctx: {
@@ -139,9 +131,16 @@ export const loggerMiddleware = t.middleware(async ({ ctx, input, next }) => {
       },
     });
 
+    const time = performance.now() - p;
+
     logger.info({
-      response: {
-        data: (response as any)?.data,
+      elapsed: `${time.toFixed(2)}ms`,
+      request: {
+        ctx: {
+          ip: ctx.ip,
+          user: ctx.user,
+        },
+        input,
       },
     });
 
@@ -160,7 +159,7 @@ export const loggerMiddleware = t.middleware(async ({ ctx, input, next }) => {
  * tRPC API. It does not guarantee that a user querying is authorized, but you
  * can still access user session data if they are logged in
  */
-export const publicProcedure = t.procedure;
+export const publicProcedure = t.procedure.use(loggerMiddleware);
 
 /**
  * Protected (authed) procedure
@@ -171,4 +170,6 @@ export const publicProcedure = t.procedure;
  *
  * @see https://trpc.io/docs/procedures
  */
-export const protectedProcedure = t.procedure.use(enforceUserIsAuthed);
+export const protectedProcedure = t.procedure
+  .use(enforceUserIsAuthed)
+  .use(loggerMiddleware);

@@ -224,7 +224,7 @@ export async function fetchMissingMovies({
   let nextMovieToStartFrom: number = nextTmdbStartFromMovieIdx;
   let nextPageToStartFrom: number = nextTmdbPage;
 
-  let attempts = tmdbPagesToFetch * 2;
+  let attempts = 20;//tmdbPagesToFetch * 2;
 
   while (attempts--) {
     const promises: Promise<Movie[]>[] = [];
@@ -241,15 +241,18 @@ export async function fetchMissingMovies({
 
     const results = await Promise.all(promises);
 
-    const fetchedMovies = results
-      .flat()
-      .filter((movie) => !excludeMovieIds.includes(movie.id))
-      .slice(
-        nextTmdbStartFromMovieIdx,
-        nextTmdbStartFromMovieIdx + moviesLeftToFetch,
-      );
+    const fetchedMovies = results.flat();
+    const filteredMovies = fetchedMovies.filter(
+      (movie) => !excludeMovieIds.includes(movie.id),
+    );
+    const selectedMovies = filteredMovies.slice(
+      nextTmdbStartFromMovieIdx,
+      nextTmdbStartFromMovieIdx + moviesLeftToFetch,
+    );
 
-    movies.push(...fetchedMovies);
+    logger.info({ fetchedMovies, filteredMovies, selectedMovies });
+
+    movies.push(...selectedMovies);
 
     if (movies.length >= moviesLeftToFetch) {
       nextMovieToStartFrom =
@@ -264,6 +267,8 @@ export async function fetchMissingMovies({
       batch = Math.ceil(batch / 2);
     }
   }
+
+  logger.info({ attempts }, "attempts left");
 
   if (movies.length === 0 && attempts === 0) {
     throw new TRPCError({
@@ -285,8 +290,12 @@ async function getReviewState(
 ): Promise<ReviewState> {
   const reviewState = await db.reviewState.findOne({
     userId: params.userId,
-    genre_ids: { $all: params.genre_ids },
-    watch_providers: { $all: params.watch_providers },
+    genre_ids: params.genre_ids
+      ? { $all: params.genre_ids }
+      : { $exists: true },
+    watch_providers: params.watch_providers
+      ? { $all: params.watch_providers }
+      : { $exists: true },
   });
 
   if (reviewState) {

@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, Touchable, TouchableOpacity, View } from "react-native";
 import { Cancel, Heart } from "iconoir-react-native";
 
 import { api } from "~/utils/api";
@@ -134,6 +134,17 @@ export function SwipeScreen() {
                 movie={movie}
               />
             ))}
+
+          <View className="flex-1 items-center">
+            <TouchableOpacity
+              onPress={() => {
+                setCurrentMovieIdx(0);
+                result.fetchNextPage();
+              }}
+            >
+              <Text className="text-neutral-1">fetch more</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View className="mt-8 flex-1 flex-row items-center justify-between space-x-3 px-8">

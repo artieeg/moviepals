@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "main": "src/index.ts",
   "scripts": {
-    "be:debug": "yarn with-env ts-node-dev -r tsconfig-paths/register --inspect=4321 --transpile-only src/index.ts",
+    "be:debug": "yarn with-env ts-node-dev -r tsconfig-paths/register --inspect=9229 --transpile-only src/index.ts",
     "be:dev": "yarn with-env ts-node-dev -r tsconfig-paths/register --transpile-only src/index.ts",
     "be:prod": "ts-node -r tsconfig-paths/register --transpile-only src/index.ts",
     "with-env": "npx dotenv -e ../../.env --"

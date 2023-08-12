@@ -56,6 +56,7 @@ export const MovieDetailsBottomSheet = React.forwardRef<
     <BottomSheet
       ref={bottomSheetRef}
       index={-1}
+      enableContentPanningGesture={false}
       snapPoints={[height * 0.8]}
       onClose={onClose}
       enablePanDownToClose
