@@ -1,45 +1,15 @@
-import React, {
-  PropsWithChildren,
-  useCallback,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import {
-  Text,
-  TouchableOpacity,
-  useWindowDimensions,
-  View,
-  ViewProps,
-} from "react-native";
-import FastImage from "react-native-fast-image";
-import {
-  GestureEvent,
-  PanGestureHandler,
-  PanGestureHandlerEventPayload,
-} from "react-native-gesture-handler";
-import LinearGradient from "react-native-linear-gradient";
-import Animated, {
-  FadeIn,
-  FadeOut,
-  runOnJS,
-  useAnimatedGestureHandler,
-  useAnimatedStyle,
-  useDerivedValue,
-  useSharedValue,
-  withSpring,
-} from "react-native-reanimated";
-import WebView from "react-native-webview";
-import BottomSheet, {
-  BottomSheetBackdrop,
-  BottomSheetBackdropProps,
-  BottomSheetProps,
-} from "@gorhom/bottom-sheet";
+import React, { useMemo, useRef, useState } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
 import { Cancel, Heart } from "iconoir-react-native";
 
-import { api, RouterOutputs } from "~/utils/api";
-import { IconButton } from "~/components";
+import { api } from "~/utils/api";
+import {
+  IconButton,
+  MovieCard,
+  MovieCardRef,
+  MovieDetailsBottomSheet,
+  MovieDetailsBottomSheetRef,
+} from "~/components";
 import { MainLayout } from "./layouts/MainLayout";
 
 export function SwipeScreen() {
@@ -140,32 +110,29 @@ export function SwipeScreen() {
           {result.isSuccess &&
             deck &&
             deck.map((movie, idx) => (
-              <MovieCardContainer
+              <MovieCard
                 key={movie.id}
+                ref={idx === 0 ? currentMovieCard : undefined}
                 idx={idx}
                 totalNumberOfCards={3}
-              >
-                <MovieCard
-                  ref={idx === 0 ? currentMovieCard : undefined}
-                  onSwipe={(liked: boolean) => {
-                    if (!currentMovie) {
-                      return;
-                    }
+                onSwipe={(liked: boolean) => {
+                  if (!currentMovie) {
+                    return;
+                  }
 
-                    swipe.mutate({
-                      movieId: currentMovie.id,
-                      liked,
-                      watch_providers: watchProviders.data ?? [],
-                      genres: currentMovie.genre_ids,
-                      watch_region: user.data!.country,
-                      movie_language: currentMovie.original_language,
-                    });
+                  swipe.mutate({
+                    movieId: currentMovie.id,
+                    liked,
+                    watch_providers: watchProviders.data ?? [],
+                    genres: currentMovie.genre_ids,
+                    watch_region: user.data!.country,
+                    movie_language: currentMovie.original_language,
+                  });
 
-                    setCurrentMovieIdx((prev) => prev + 1);
-                  }}
-                  movie={movie}
-                />
-              </MovieCardContainer>
+                  setCurrentMovieIdx((prev) => prev + 1);
+                }}
+                movie={movie}
+              />
             ))}
         </View>
 
@@ -190,232 +157,3 @@ export function SwipeScreen() {
     </>
   );
 }
-
-function MovieCardContainer({
-  idx,
-  totalNumberOfCards,
-  children,
-}: PropsWithChildren<{
-  idx: number;
-  totalNumberOfCards: number;
-}>) {
-  const scale = useDerivedValue(() => {
-    return withSpring(1 - idx * 0.05);
-  }, [idx, totalNumberOfCards]);
-
-  const translateY = useDerivedValue(() => {
-    return withSpring(-idx * 20);
-  }, [idx, totalNumberOfCards]);
-
-  const rContainerStyle = useAnimatedStyle(() => ({
-    zIndex: totalNumberOfCards - idx,
-    transform: [
-      {
-        translateY: translateY.value,
-      },
-      {
-        scale: scale.value,
-      },
-    ],
-  }));
-
-  return (
-    <Animated.View
-      entering={FadeIn}
-      exiting={FadeOut}
-      style={rContainerStyle}
-      className="absolute bottom-0 left-0 right-0 top-0"
-    >
-      <View className="flex-1">{children}</View>
-    </Animated.View>
-  );
-}
-
-type MovieCardRef = {
-  swipeRight: () => void;
-  swipeLeft: () => void;
-};
-
-const MovieCard = React.forwardRef<
-  MovieCardRef,
-  {
-    onSwipe: (liked: boolean) => void;
-    movie: RouterOutputs["movie_feed"]["getMovieFeed"]["feed"][number];
-  }
->(({ movie, onSwipe }, ref) => {
-  const { width } = useWindowDimensions();
-  const tx = useSharedValue(0);
-  const ty = useSharedValue(0);
-
-  useImperativeHandle(ref, () => ({
-    swipeRight() {
-      tx.value = withSpring(width * 1.5);
-    },
-    swipeLeft() {
-      tx.value = withSpring(-width * 1.5);
-    },
-  }));
-
-  const handler = useAnimatedGestureHandler<
-    GestureEvent<PanGestureHandlerEventPayload>,
-    { vx: number; vy: number }
-  >({
-    onStart() {},
-    onActive(event, ctx) {
-      tx.value = event.translationX;
-      ty.value = event.translationY;
-
-      ctx.vx = event.velocityX;
-      ctx.vy = event.velocityY;
-    },
-    onEnd(_, ctx) {
-      if (tx.value > width / 4 || tx.value < -width / 4) {
-        tx.value = withSpring(tx.value + 3 * ctx.vx);
-        ty.value = withSpring(ty.value + 3 * ctx.vy);
-
-        runOnJS(onSwipe)(tx.value > 0);
-      } else {
-        tx.value = withSpring(0);
-        ty.value = withSpring(0);
-      }
-    },
-  });
-
-  const style = useAnimatedStyle(() => {
-    return {
-      transform: [
-        {
-          translateX: tx.value,
-        },
-        {
-          translateY: ty.value,
-        },
-        { rotate: `${tx.value / 15}deg` },
-      ],
-    };
-  }, []);
-
-  return (
-    <PanGestureHandler onGestureEvent={handler}>
-      <Animated.View style={style} className="aspect-[2/3]">
-        <View className="rounded-4xl flex-1 overflow-hidden">
-          <FastImage
-            resizeMode="cover"
-            className="flex-1 bg-white"
-            source={{ uri: movie.poster_path }}
-          />
-
-          <View className="absolute bottom-0 left-0 right-0 top-0 justify-end ">
-            <LinearGradient
-              colors={["#000000FF", "#00000000"]}
-              start={{ x: 0, y: 1 }}
-              end={{ x: 0, y: 0.6 }}
-              className="absolute bottom-0 left-0 right-0 top-0"
-            />
-            <View className="space-y-3 px-4 pb-8">
-              <View className="space-y-1">
-                <Text
-                  numberOfLines={2}
-                  ellipsizeMode="tail"
-                  className="font-primary-bold text-base text-white"
-                >
-                  {movie.vote_average} <Text className="opacity-70">/ 10</Text>
-                </Text>
-
-                <View>
-                  <Text
-                    numberOfLines={2}
-                    ellipsizeMode="tail"
-                    className="font-primary-bold text-2xl text-white"
-                  >
-                    {movie.title}
-                  </Text>
-
-                  <Text
-                    numberOfLines={3}
-                    ellipsizeMode="tail"
-                    className="font-primary-bold text-sm text-white opacity-70"
-                  >
-                    {movie.overview}
-                  </Text>
-                </View>
-              </View>
-
-              {movie.likedByFriends && (
-                <View className="flex-row items-center justify-between">
-                  <Text className="font-primary-bold text-base text-white">
-                    liked by friends
-                  </Text>
-
-                  <TouchableOpacity
-                    className="bg-neutral-2-50 items-center justify-center rounded-full px-8 py-2"
-                    activeOpacity={0.8}
-                  >
-                    <Text className="font-primary-bold text-base text-white">
-                      see who
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-            </View>
-          </View>
-        </View>
-      </Animated.View>
-    </PanGestureHandler>
-  );
-});
-
-type MovieDetailsBottomSheetRef = {
-  open(url: string): void;
-  close(): void;
-};
-
-const MovieDetailsBottomSheet = React.forwardRef<
-  MovieDetailsBottomSheetRef,
-  {}
->((_, ref) => {
-  const bottomSheetRef = useRef<BottomSheet>(null);
-
-  const [url, setUrl] = useState<string | null>(null);
-
-  useImperativeHandle(ref, () => ({
-    open(url) {
-      setUrl(url);
-      bottomSheetRef.current?.expand();
-    },
-    close() {
-      setUrl(null);
-      bottomSheetRef.current?.collapse();
-    },
-  }));
-
-  const renderBackdrop = useCallback(
-    (props: BottomSheetBackdropProps) => (
-      <BottomSheetBackdrop
-        {...props}
-        disappearsOnIndex={-1}
-        appearsOnIndex={0}
-      />
-    ),
-    [],
-  );
-
-  const { height } = useWindowDimensions();
-
-  function onClose() {
-    setUrl(null);
-  }
-
-  return (
-    <BottomSheet
-      ref={bottomSheetRef}
-      index={-1}
-      snapPoints={[height * 0.8]}
-      onClose={onClose}
-      enablePanDownToClose
-      backdropComponent={renderBackdrop}
-    >
-      {url && <WebView className="flex-1" source={{ uri: url }} />}
-    </BottomSheet>
-  );
-});
