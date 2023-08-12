@@ -15,6 +15,11 @@ const reviewStateSchema = z
 
 export type ReviewState = z.infer<typeof reviewStateSchema>;
 
+/**
+* The primarily purpose of this collection is to keep track of
+* the remote api page per user per genre and watch provider
+* to avoid as much unnecessary api calls as possible.
+* */
 export const reviewState = db.collection<ReviewState>(
   env.MOVIE_SWIPE_REVIEW_STATE_COLLECTION_NAME,
 );

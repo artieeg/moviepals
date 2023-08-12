@@ -18,7 +18,7 @@ import countries from "world-countries";
 
 import { api } from "~/utils/api";
 import { getTMDBStaticUrl } from "~/utils/uri";
-import { Input, ListItem, LoadingIndicator } from "~/components";
+import { Button, Input, ListItem, LoadingIndicator } from "~/components";
 import { useNavigation } from "~/hooks";
 import { MainLayout } from "./layouts/MainLayout";
 
@@ -57,8 +57,6 @@ export function StreamingServiceList() {
       .map((item) => item.provider_id);
 
     enableStreamingServices.mutate({ country, streamingServiceIds });
-
-    navigation.goBack();
   }
 
   /**
@@ -86,8 +84,8 @@ export function StreamingServiceList() {
     }
 
     /**
-      * Modify the data locally
-      * */
+     * Modify the data locally
+     * */
     ctx.streaming_service.getStreamingServices.setData(
       { country: user.data.country },
       produce((draft) => {
@@ -143,6 +141,10 @@ export function StreamingServiceList() {
         });
       }),
     );
+  }
+
+  function onDone() {
+    navigation.goBack();
   }
 
   return (
@@ -208,18 +210,26 @@ export function StreamingServiceList() {
                 showClearButton
               />
 
-              <ListItem
-                itemId="any-service"
-                icon="💡"
-                title="any service"
-                right="radio"
-                checked={!!anyService}
-                onToggle={onToggleAnyService}
-              />
+              <View>
+                <ListItem
+                  itemId="any-service"
+                  icon="💡"
+                  title="any service"
+                  right="radio"
+                  checked={!!anyService}
+                  onToggle={onToggleAnyService}
+                />
+
+                <View className="border-neutral-4 h-4 border-b" />
+              </View>
             </View>
           </View>
         }
       />
+
+      <Button onPress={onDone} className="absolute bottom-0 left-8 right-8">
+        done
+      </Button>
     </MainLayout>
   );
 }

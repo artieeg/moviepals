@@ -7,17 +7,20 @@ export const genres = createTRPCRouter({
   enableGenres: protectedProcedure
     .input(z.object({ genres: z.array(z.number()) }))
     .mutation(async ({ ctx, input: { genres } }) => {
-      const disableUserGenres = ctx.prisma.enabledGenre.delete({
+      const disableUserGenres = ctx.prisma.enabledGenre.deleteMany({
         where: {
           userId: ctx.user,
         },
       });
-      await ctx.prisma.enabledGenre.create({
-        data: {
+
+      const createUserGenres = ctx.prisma.enabledGenre.createMany({
+        data: genres.map((genre) => ({
           userId: ctx.user,
           genreId: genre,
-        },
+        })),
       });
+
+      await ctx.prisma.$transaction([disableUserGenres, createUserGenres]);
     }),
 
   fetchUserGenres: protectedProcedure.query(async ({ ctx }) => {

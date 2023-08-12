@@ -24,7 +24,6 @@ export function PrepareSwipeScreen() {
   const [quickMatch, setQuickMatch] = React.useState(true);
 
   const navigation = useNavigation();
-  const ctx = api.useContext();
 
   const genres = api.genres.fetchUserGenres.useQuery();
 
@@ -106,6 +105,8 @@ function GenreFilter(props: TouchableOpacityProps) {
     select: (data) => data?.filter((g) => g.enabled),
   });
 
+  const enabledGenreCount = enabledGenres.data?.length ?? 0;
+
   function onPress() {
     navigation.navigate(SCREEN_GENRE_FILTER);
   }
@@ -123,8 +124,8 @@ function GenreFilter(props: TouchableOpacityProps) {
 
         <View className="flex-row items-center">
           <Text className="font-primary-regular text-neutral-2 text-base">
-            {enabledGenres.data
-              ? `${enabledGenres.data.length} enabled genres`
+            {enabledGenreCount > 0
+              ? `${enabledGenres.data?.length} enabled genres`
               : "any genre"}
           </Text>
         </View>

@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { FlatList, View } from "react-native";
 import { produce } from "immer";
 
@@ -8,65 +8,83 @@ import { useNavigation } from "~/hooks";
 import { MainLayout } from "./layouts/MainLayout";
 
 export function GenreFilterScreen() {
-  const navigation = useNavigation();
   const ctx = api.useContext();
+  const navigation = useNavigation();
   const genres = api.genres.fetchUserGenres.useQuery();
 
-  const anyGenre = useMemo(() => {
-    return genres.data?.filter((d) => d.enabled).length === 0;
+  const [enabledGenres, setEnabledGenres] = useState<number[]>([]);
+
+  const anyGenre = enabledGenres.length === 0;
+
+  useEffect(() => {
+    if (genres.data) {
+      setEnabledGenres(genres.data.filter((g) => g.enabled).map((g) => g.id));
+    }
   }, [genres.data]);
 
-  const toggleGenre = api.genres.toggleGenre.useMutation({
-    onMutate({ genre, enabled }) {
+  const enableGenres = api.genres.enableGenres.useMutation({
+    onMutate: (data) => {
+      const prev = genres.data;
       ctx.genres.fetchUserGenres.setData(
         undefined,
-        produce((data) => {
-          const item = data?.find((g) => g.id === genre);
+        produce(prev, (draft) => {
+          if (!draft) return;
 
-          if (!item) {
-            return data;
+          for (const genre of draft) {
+            genre.enabled = data.genres.includes(genre.id);
           }
-
-          item.enabled = enabled;
         }),
       );
+      return prev;
     },
   });
 
   function onToggleGenre(id: number, enabled: boolean) {
-    toggleGenre.mutate({ genre: id, enabled });
+    setEnabledGenres((prev) => {
+      if (enabled) {
+        return [...prev, id];
+      } else {
+        return prev.filter((g) => g !== id);
+      }
+    });
   }
 
-  function onConfirm() {
+  function onSaveData() {
+    enableGenres.mutate({
+      genres: enabledGenres,
+    });
     navigation.goBack();
   }
 
   function onToggleAnyGenre() {
-
+    setEnabledGenres([]);
   }
 
   return (
-    <MainLayout canGoBack title="genre filter">
+    <MainLayout canGoBack onGoBack={onSaveData} title="genre filter">
       <FlatList
         className="-mx-8 flex-1"
         contentContainerStyle={{ paddingHorizontal: 32, paddingBottom: 64 }}
         ListHeaderComponent={() => {
           return (
-            <ListItem
-              itemId="any-service"
-              icon="💡"
-              title="any service"
-              right="radio"
-              checked={anyGenre}
-              onToggle={onToggleAnyGenre}
-            />
+            <>
+              <ListItem
+                itemId="any-service"
+                icon="💡"
+                title="any genre"
+                right="radio"
+                checked={anyGenre}
+                onToggle={onToggleAnyGenre}
+              />
+              <View className="border-neutral-4 mb-4 h-4 border-b" />
+            </>
           );
         }}
         ItemSeparatorComponent={() => <View className="h-4" />}
         renderItem={({ item }) => (
           <GenreItem
             onToggle={onToggleGenre}
-            enabled={item.enabled}
+            enabled={enabledGenres.includes(item.id)}
             id={item.id}
             title={item.name}
             emoji={item.emoji}
@@ -75,8 +93,8 @@ export function GenreFilterScreen() {
         data={genres.data}
       />
 
-      <Button onPress={onConfirm} className="absolute bottom-0 left-8 right-8">
-        confirm
+      <Button onPress={onSaveData} className="absolute bottom-0 left-8 right-8">
+        done
       </Button>
     </MainLayout>
   );

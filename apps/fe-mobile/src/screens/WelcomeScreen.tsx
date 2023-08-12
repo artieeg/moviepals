@@ -74,11 +74,8 @@ export function WelcomeScreen() {
           appleAuthResponse = JSON.parse(storedAppleAuth);
         }
       } else {
-        console.log("saving to async storage");
         AsyncStorage.setItem("@apple-auth", JSON.stringify(appleAuthResponse));
       }
-
-      console.log(appleAuthResponse);
 
       if (!appleAuthResponse.identityToken) {
         return;

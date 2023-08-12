@@ -21,8 +21,6 @@ export { type RouterInputs, type RouterOutputs } from "@moviepals/api";
  * setting the baseUrl to your production API URL.
  */
 const getBaseUrl = () => {
-  console.log(env.API_BASE);
-
   return env.API_BASE;
 };
 

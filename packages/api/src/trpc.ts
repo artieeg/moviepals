@@ -125,10 +125,7 @@ export const loggerMiddleware = t.middleware(async ({ ctx, input, next }) => {
     const p = performance.now();
 
     const response = await next({
-      ctx: {
-        ...ctx,
-        user: ctx.user as string,
-      },
+      ctx
     });
 
     const time = performance.now() - p;
