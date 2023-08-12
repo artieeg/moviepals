@@ -49,6 +49,8 @@ export function SwipeScreen() {
       data?.filter((genre) => genre.enabled).map((genre) => genre.id),
   });
 
+  const swipe = api.swipe.swipe.useMutation();
+
   const watchProviders = api.streaming_service.getStreamingServices.useQuery(
     {
       country: user.data!.country,
@@ -81,6 +83,8 @@ export function SwipeScreen() {
     return currentPage?.feed.slice(currentMovieIdx, currentMovieIdx + 3);
   }, [result.data?.pages, currentMovieIdx]);
 
+  const currentMovie = deck?.[0];
+
   const movieDetailsRef = useRef<MovieDetailsBottomSheetRef>(null);
 
   function onOpenMovieDetails() {
@@ -92,12 +96,38 @@ export function SwipeScreen() {
   const currentMovieCard = useRef<MovieCardRef>(null);
 
   function onLike() {
+    if (!currentMovie) {
+      return;
+    }
+
+    swipe.mutate({
+      movieId: currentMovie.id,
+      liked: true,
+      watch_providers: watchProviders.data ?? [],
+      genres: genres.data ?? [],
+      watch_region: user.data!.country,
+      movie_language: currentMovie.original_language,
+    });
+
     currentMovieCard.current?.swipeRight();
 
     setTimeout(() => setCurrentMovieIdx((prev) => prev + 1), 200);
   }
 
   function onDislike() {
+    if (!currentMovie) {
+      return;
+    }
+
+    swipe.mutate({
+      movieId: currentMovie.id,
+      liked: false,
+      watch_providers: watchProviders.data ?? [],
+      genres: genres.data ?? [],
+      watch_region: user.data!.country,
+      movie_language: currentMovie.original_language,
+    });
+
     currentMovieCard.current?.swipeLeft();
 
     setTimeout(() => setCurrentMovieIdx((prev) => prev + 1), 200);
@@ -117,7 +147,20 @@ export function SwipeScreen() {
               >
                 <MovieCard
                   ref={idx === 0 ? currentMovieCard : undefined}
-                  onSwipe={() => {
+                  onSwipe={(liked: boolean) => {
+                    if (!currentMovie) {
+                      return;
+                    }
+
+                    swipe.mutate({
+                      movieId: currentMovie.id,
+                      liked,
+                      watch_providers: watchProviders.data ?? [],
+                      genres: currentMovie.genre_ids,
+                      watch_region: user.data!.country,
+                      movie_language: currentMovie.original_language,
+                    });
+
                     setCurrentMovieIdx((prev) => prev + 1);
                   }}
                   movie={movie}
@@ -196,7 +239,7 @@ type MovieCardRef = {
 const MovieCard = React.forwardRef<
   MovieCardRef,
   {
-    onSwipe: () => void;
+    onSwipe: (liked: boolean) => void;
     movie: RouterOutputs["movie_feed"]["getMovieFeed"]["feed"][number];
   }
 >(({ movie, onSwipe }, ref) => {
@@ -230,7 +273,7 @@ const MovieCard = React.forwardRef<
         tx.value = withSpring(tx.value + 3 * ctx.vx);
         ty.value = withSpring(ty.value + 3 * ctx.vy);
 
-        runOnJS(onSwipe)();
+        runOnJS(onSwipe)(tx.value > 0);
       } else {
         tx.value = withSpring(0);
         ty.value = withSpring(0);
@@ -258,7 +301,7 @@ const MovieCard = React.forwardRef<
         <View className="rounded-4xl flex-1 overflow-hidden">
           <FastImage
             resizeMode="cover"
-            className="flex-1"
+            className="flex-1 bg-white"
             source={{ uri: movie.poster_path }}
           />
 
