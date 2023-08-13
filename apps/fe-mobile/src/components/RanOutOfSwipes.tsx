@@ -52,9 +52,12 @@ export function RanOutOfSwipes(props: ViewProps) {
 
   const rewarded = useRewardedAd();
 
-  function onWatchRewardedAd() {
-    rewarded.data?.show();
-    rewarded.refetch();
+  async function onWatchRewardedAd() {
+    try {
+      await rewarded.data?.show();
+    } finally {
+      rewarded.refetch();
+    }
   }
 
   return (
@@ -72,8 +75,8 @@ export function RanOutOfSwipes(props: ViewProps) {
             {canServeAds.data === true ? (
               <>
                 You’ve ran out of swipes for the day. Watch a short ad and get
-                extra swipes or buy premium for unlimited access (you can share
-                it with up to 4 friends 🙌 )
+                +40 swipes, or buy premium for unlimited access (you can share it
+                with up to 4 people 🙌 )
               </>
             ) : (
               <>
@@ -86,6 +89,7 @@ export function RanOutOfSwipes(props: ViewProps) {
       </View>
       <View className="flex-1 justify-end space-y-3">
         <Button onPress={onPurchasePremium}>get premium for $5.99</Button>
+
         <Button kind="outline" onPress={onWatchRewardedAd}>
           watch a rewarded ad
         </Button>

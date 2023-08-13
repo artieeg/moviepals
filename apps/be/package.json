@@ -13,7 +13,8 @@
     "@trpc/server": "^10.36.0",
     "fastify": "^4.21.0",
     "ts-node": "^10.9.1",
-    "typescript": "^5.1.6"
+    "typescript": "^5.1.6",
+    "zod": "^3.21.4"
   },
   "devDependencies": {
     "@dotenv/cli": "^2.2.2",

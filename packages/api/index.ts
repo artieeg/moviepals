@@ -5,6 +5,8 @@ import type { AppRouter } from "./src/router/root";
 export { appRouter, type AppRouter } from "./src/router/root";
 export { createTRPCContext } from "./src/trpc";
 
+export * from "./src/services";
+
 export * from "@moviepals/db";
 export * from "@moviepals/dbmovieswipe";
 

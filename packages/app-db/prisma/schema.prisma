@@ -7,6 +7,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model ExtraSwipe {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  count Int @default(40)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
 model User {
   id       String @id @default(cuid())
   name     String
@@ -24,6 +37,7 @@ model User {
   connectionSecondUser        Connection[]        @relation("connection_second_user")
   connectionRequestFirstUser  ConnectionRequest[] @relation("connection_request_first_user")
   connectionRequestSecondUser ConnectionRequest[] @relation("connection_request_second_user")
+  ExtraSwipe                  ExtraSwipe[]
 }
 
 model ConnectionRequest {
