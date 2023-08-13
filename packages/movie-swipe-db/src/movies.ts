@@ -6,7 +6,7 @@ export const movieSchema = z
   .object({
     id: z.number(),
     adult: z.boolean(),
-    backdrop_path: z.string(),
+    backdrop_path: z.string().optional(),
     genre_ids: z.array(z.number()),
     original_language: z.string(),
     original_title: z.string(),

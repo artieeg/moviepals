@@ -5,6 +5,11 @@ import {
   RewardedAdEventType,
 } from "react-native-google-mobile-ads";
 import Purchases from "react-native-purchases";
+import Animated, {
+  useAnimatedStyle,
+  useDerivedValue,
+  withTiming,
+} from "react-native-reanimated";
 import { useQuery } from "@tanstack/react-query";
 import { BrightStar } from "iconoir-react-native";
 
@@ -46,7 +51,18 @@ function useRewardedAd() {
   });
 }
 
-export function RanOutOfSwipes(props: ViewProps) {
+export function RanOutOfSwipes({
+  onProceed,
+  visible,
+  ...rest
+}: ViewProps & {
+  onProceed(): void;
+  visible: boolean;
+}) {
+  const opacity = useDerivedValue(() => {
+    return withTiming(visible ? 1 : 0);
+  }, [visible]);
+
   const canServeAds = useCanServeAds();
 
   const premium = usePremiumProduct();
@@ -58,6 +74,8 @@ export function RanOutOfSwipes(props: ViewProps) {
 
     try {
       await Purchases.purchaseStoreProduct(premium.data.product);
+
+      onProceed();
     } finally {
     }
   }
@@ -67,13 +85,24 @@ export function RanOutOfSwipes(props: ViewProps) {
   async function onWatchRewardedAd() {
     try {
       await rewarded.data?.show();
+
+      onProceed();
     } finally {
       rewarded.refetch();
     }
   }
 
+  const style = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+
   return (
-    <View className="flex-1" {...props}>
+    <Animated.View
+      pointerEvents={visible ? "auto" : "none"}
+      style={style}
+      className="flex-1"
+      {...rest}
+    >
       <View className="items-center justify-center space-y-4">
         <View className="bg-brand-1-10 h-20 w-20 items-center justify-center rounded-2xl">
           <BrightStar color="#6867AA" fill="#6867AA" width={32} height={32} />
@@ -108,6 +137,6 @@ export function RanOutOfSwipes(props: ViewProps) {
           watch a rewarded ad
         </Button>
       </View>
-    </View>
+    </Animated.View>
   );
 }

@@ -1,5 +1,10 @@
 import React, { useMemo, useRef, useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View, ViewProps } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useDerivedValue,
+  withTiming,
+} from "react-native-reanimated";
 import { useRoute } from "@react-navigation/native";
 import { Cancel, Heart } from "iconoir-react-native";
 
@@ -69,6 +74,14 @@ export function SwipeScreen() {
   }
 
   const currentMovieCard = useRef<MovieCardRef>(null);
+
+  function onProceedAfterPurchaseOrAd() {
+    setTimeout(async () => {
+      await result.fetchNextPage();
+
+      setCurrentMovieIdx(0);
+    }, 1000);
+  }
 
   function onLike() {
     if (!currentMovie) {
@@ -140,27 +153,73 @@ export function SwipeScreen() {
               />
             ))}
 
-          <RanOutOfSwipes />
+          {result.data?.pages && (
+            <RanOutOfSwipes
+              visible={
+                !currentMovie
+              }
+              onProceed={onProceedAfterPurchaseOrAd}
+            />
+          )}
         </View>
 
-        <View className="mt-8 flex-1 flex-row items-center justify-between space-x-3 px-8">
-          <IconButton variant="red" onPress={onDislike}>
-            <Cancel color="white" />
-          </IconButton>
-
-          <TouchableOpacity
-            onPress={onOpenMovieDetails}
-            className="bg-neutral-2-10 h-16 flex-1 items-center justify-center rounded-full"
-          >
-            <Text className="font-primary-bold text-neutral-1">details</Text>
-          </TouchableOpacity>
-
-          <IconButton variant="primary" onPress={onLike}>
-            <Heart fill="white" color="white" />
-          </IconButton>
-        </View>
+        {result.data?.pages && (
+          <Controls
+            visible={
+              !!currentMovie
+            }
+            onDislike={onDislike}
+            onLike={onLike}
+            onOpenMovieDetails={onOpenMovieDetails}
+          />
+        )}
       </MainLayout>
       <MovieDetailsBottomSheet ref={movieDetailsRef} />
     </>
+  );
+}
+
+function Controls({
+  onDislike,
+  onLike,
+  onOpenMovieDetails,
+  visible,
+  ...rest
+}: ViewProps & {
+  onDislike(): void;
+  onLike(): void;
+  onOpenMovieDetails(): void;
+  visible: boolean;
+}) {
+  const opacity = useDerivedValue(() => {
+    return withTiming(visible ? 1 : 0);
+  });
+
+  const style = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+
+  return (
+    <Animated.View
+      {...rest}
+      pointerEvents={visible ? "auto" : "none"}
+      style={[style, rest.style]}
+      className="mt-8 flex-1 flex-row items-center justify-between space-x-3 px-8"
+    >
+      <IconButton variant="red" onPress={onDislike}>
+        <Cancel color="white" />
+      </IconButton>
+
+      <TouchableOpacity
+        onPress={onOpenMovieDetails}
+        className="bg-neutral-2-10 h-16 flex-1 items-center justify-center rounded-full"
+      >
+        <Text className="font-primary-bold text-neutral-1">details</Text>
+      </TouchableOpacity>
+
+      <IconButton variant="primary" onPress={onLike}>
+        <Heart fill="white" color="white" />
+      </IconButton>
+    </Animated.View>
   );
 }
