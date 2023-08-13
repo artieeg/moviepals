@@ -1,7 +1,7 @@
 import axios from "axios";
 import { z } from "zod";
 
-import { movieSchema } from "@moviepals/dbmovieswipe";
+import { Movie, movieSchema } from "@moviepals/dbmovieswipe";
 
 import { env } from "../utils/env";
 import { cachify } from "./cache";
@@ -50,7 +50,13 @@ export async function getMovies(params: unknown) {
     params,
   });
 
-  const { results: movies } = getMoviesSchema.parse(r.data);
+  const movies = r.data.results
+    .map((movie: unknown) => {
+      const r = movieSchema.safeParse(movie);
+
+      return r.success ? r.data : null;
+    })
+    .filter(Boolean) as Movie[];
 
   /** Replace the poster urls with full path  */
   movies.forEach((movie) => {

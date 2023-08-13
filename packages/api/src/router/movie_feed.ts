@@ -164,6 +164,8 @@ export const movie_feed = createTRPCRouter({
           MOVIES_PER_PAGE / MOVIES_PER_TMDB_PAGE,
         );
 
+        await ctx.dbMovieSwipe.movies.insertMany(movies, { ordered: false });
+
         /**
          * Only update review state if we had to fetch more movies than we expected
          *

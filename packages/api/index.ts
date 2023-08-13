@@ -1,3 +1,5 @@
+import "@total-typescript/ts-reset";
+
 import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 
 import type { AppRouter } from "./src/router/root";
