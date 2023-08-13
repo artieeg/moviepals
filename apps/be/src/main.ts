@@ -9,6 +9,7 @@ import {
   appRouter,
   createTRPCContext,
   dbMovieSwipe,
+  handleFullAccessPurchase,
   prisma,
   verifyRewardedAd,
 } from "@moviepals/api";
@@ -18,6 +19,16 @@ import { env } from "./env";
 const server = fastify({
   maxParamLength: 10000,
 });
+
+const revenueCatSchema = z
+  .object({
+    event: z
+      .object({
+        app_user_id: z.string(),
+      })
+      .passthrough(),
+  })
+  .passthrough();
 
 const admobSchema = z.object({
   user_id: z.string(),
@@ -43,12 +54,31 @@ server.register(fastifyTRPCPlugin, {
 export async function main() {
   await Promise.all([prisma.$connect(), dbMovieSwipe.connect()]);
 
+  server.post("/revcat/callback", async (msg, reply) => {
+    console.log(msg.body);
+    try {
+      const {
+        event: { app_user_id },
+      } = revenueCatSchema.parse(msg.query);
+
+      await handleFullAccessPurchase({
+        header: msg.headers.authorization!,
+        user: app_user_id,
+        prisma,
+      });
+
+      reply.status(200).send();
+    } catch (e) {
+      reply.status(500).send();
+    }
+  });
+
   server.get("/admob/callback", async (msg, reply) => {
     console.log(msg.query);
     try {
       const { user_id, key_id, signature } = admobSchema.parse(msg.query);
 
-      verifyRewardedAd({
+      await verifyRewardedAd({
         userId: user_id,
         prisma,
         key_id,

@@ -29,6 +29,9 @@ model User {
 
   emoji String @default("🐵")
 
+  fullAccessPurchaseId String?             @unique()
+  fullAccessPurchase   FullAccessPurchase? @relation(fields: [fullAccessPurchaseId], references: [id])
+
   EnabledStreamingService EnabledStreamingService[]
   EnabledGenre            EnabledGenre[]
 
@@ -38,6 +41,14 @@ model User {
   connectionRequestFirstUser  ConnectionRequest[] @relation("connection_request_first_user")
   connectionRequestSecondUser ConnectionRequest[] @relation("connection_request_second_user")
   ExtraSwipe                  ExtraSwipe[]
+}
+
+model FullAccessPurchase {
+  id String @id @default(cuid())
+
+  createdAt DateTime @default(now())
+  userId    String?
+  User      User?
 }
 
 model ConnectionRequest {
