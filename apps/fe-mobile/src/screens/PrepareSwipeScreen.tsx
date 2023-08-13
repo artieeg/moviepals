@@ -12,7 +12,7 @@ import { NavArrowRight } from "iconoir-react-native";
 import { api } from "~/utils/api";
 import { getTMDBStaticUrl } from "~/utils/uri";
 import { Button, Switch } from "~/components";
-import { useNavigation } from "~/hooks";
+import { useAdmob, useNavigation } from "~/hooks";
 import {
   SCREEN_GENRE_FILTER,
   SCREEN_STREAMING_SERVICE_LIST,
@@ -22,6 +22,8 @@ import { MainLayout } from "./layouts/MainLayout";
 
 export function PrepareSwipeScreen() {
   const [quickMatchMode, setQuickMatchMode] = React.useState(true);
+
+  useAdmob();
 
   const navigation = useNavigation();
 

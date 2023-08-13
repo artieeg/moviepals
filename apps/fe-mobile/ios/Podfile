@@ -28,6 +28,7 @@ linkage = ENV['USE_FRAMEWORKS']
 
 use_frameworks! :linkage => :static
 $RNFirebaseAsStaticFramework = true
+$RNGoogleMobileAdsAsStaticFramework = true
 
 target 'moviepals' do
   config = use_native_modules!

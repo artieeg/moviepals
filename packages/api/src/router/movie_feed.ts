@@ -10,10 +10,10 @@ import { createTRPCRouter, protectedProcedure } from "../trpc";
 const MOVIES_PER_TMDB_PAGE = 20;
 
 /** Number of movies that we return to the client */
-const MOVIES_PER_PAGE = 40;
+const MOVIES_PER_PAGE = 10;
 
 /** Max number of movies that we mix in from friend swipes */
-const MIX_IN_MOVIES_COUNT = 10;
+const MIX_IN_MOVIES_COUNT = 5;
 
 export const movie_feed = createTRPCRouter({
   getMovieFeed: protectedProcedure

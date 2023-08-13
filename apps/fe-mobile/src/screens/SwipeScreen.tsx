@@ -10,6 +10,7 @@ import {
   MovieCardRef,
   MovieDetailsBottomSheet,
   MovieDetailsBottomSheetRef,
+  RanOutOfSwipes,
 } from "~/components";
 import { MainLayout } from "./layouts/MainLayout";
 
@@ -139,16 +140,7 @@ export function SwipeScreen() {
               />
             ))}
 
-          <View className="flex-1 items-center">
-            <TouchableOpacity
-              onPress={() => {
-                setCurrentMovieIdx(0);
-                result.fetchNextPage();
-              }}
-            >
-              <Text className="text-neutral-1">fetch more</Text>
-            </TouchableOpacity>
-          </View>
+          <RanOutOfSwipes />
         </View>
 
         <View className="mt-8 flex-1 flex-row items-center justify-between space-x-3 px-8">

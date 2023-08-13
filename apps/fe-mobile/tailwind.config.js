@@ -4,9 +4,9 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        "primary-regular": "Montserrat-Regular",
+        //"primary-regular": "Montserrat-Regular",
         "primary-bold": "Montserrat-Bold",
-        //"primary-regular": "Nunito-Regular",
+        "primary-regular": "Nunito-Regular",
         //"primary-bold": "Nunito-Bold",
       },
       borderRadius: {
@@ -23,7 +23,8 @@ module.exports = {
         "neutral-3": "#D4D4D4",
         "neutral-4": "#C7C5DA",
         "red-1": "#FC7B71",
-        "brand-1": "#6867AA"
+        "brand-1": "#6867AA",
+        "brand-1-10": "rgba(104, 103, 170, 0.10)", //"#71707B1A",
         //"brand-1": "#6356E4",
       },
     },

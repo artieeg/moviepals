@@ -10,10 +10,10 @@ import { TRPCProvider } from "./utils/api";
 export function App() {
   useEffect(() => {
     StatusBar.setBarStyle("dark-content");
-    StatusBar.setBackgroundColor("transparent");
 
     if (Platform.OS === "android") {
       StatusBar.setTranslucent(true);
+      StatusBar.setBackgroundColor("transparent");
     }
   }, []);
 
