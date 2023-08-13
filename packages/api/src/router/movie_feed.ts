@@ -3,7 +3,6 @@ import { z } from "zod";
 
 import { DbMovieSwipe, Movie, ReviewState } from "@moviepals/dbmovieswipe";
 
-import { logger } from "../logger";
 import { getMovies } from "../services";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 

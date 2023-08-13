@@ -57,6 +57,8 @@ PODS:
   - libwebp/webp (1.3.1):
     - libwebp/sharpyuv
   - PromisesObjC (2.3.1)
+  - PurchasesHybridCommon (5.6.0):
+    - RevenueCat (= 4.25.2)
   - RCT-Folly (2021.07.22.00):
     - boost
     - DoubleConversion
@@ -473,6 +475,7 @@ PODS:
     - React-jsi (= 0.72.3)
     - React-logger (= 0.72.3)
     - React-perflogger (= 0.72.3)
+  - RevenueCat (4.25.2)
   - rive-react-native (4.1.2):
     - React-Core
     - RiveRuntime (= 4.0.4)
@@ -494,6 +497,9 @@ PODS:
     - React-Core
   - RNGoogleSignin (10.0.1):
     - GoogleSignIn (~> 7.0)
+    - React-Core
+  - RNPurchases (6.6.0):
+    - PurchasesHybridCommon (= 5.6.0)
     - React-Core
   - RNReanimated (3.4.1):
     - DoubleConversion
@@ -591,6 +597,7 @@ DEPENDENCIES:
   - "RNFlashList (from `../../../node_modules/@shopify/flash-list`)"
   - RNGestureHandler (from `../../../node_modules/react-native-gesture-handler`)
   - "RNGoogleSignin (from `../../../node_modules/@react-native-google-signin/google-signin`)"
+  - RNPurchases (from `../../../node_modules/react-native-purchases`)
   - RNReanimated (from `../../../node_modules/react-native-reanimated`)
   - RNScreens (from `../../../node_modules/react-native-screens`)
   - RNSVG (from `../../../node_modules/react-native-svg`)
@@ -610,6 +617,8 @@ SPEC REPOS:
     - libevent
     - libwebp
     - PromisesObjC
+    - PurchasesHybridCommon
+    - RevenueCat
     - RiveRuntime
     - SDWebImage
     - SDWebImageWebPCoder
@@ -717,6 +726,8 @@ EXTERNAL SOURCES:
     :path: "../../../node_modules/react-native-gesture-handler"
   RNGoogleSignin:
     :path: "../../../node_modules/@react-native-google-signin/google-signin"
+  RNPurchases:
+    :path: "../../../node_modules/react-native-purchases"
   RNReanimated:
     :path: "../../../node_modules/react-native-reanimated"
   RNScreens:
@@ -746,6 +757,7 @@ SPEC CHECKSUMS:
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   libwebp: 33dc822fbbf4503668d09f7885bbfedc76c45e96
   PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
+  PurchasesHybridCommon: 45fc4487e06787e4b071510f9230e180f49a0a5f
   RCT-Folly: 85766c3226c7ec638f05ad7cb3cf6a268d6c4241
   RCTRequired: a2faf4bad4e438ca37b2040cb8f7799baa065c18
   RCTTypeSafety: cb09f3e4747b6d18331a15eb05271de7441ca0b3
@@ -781,6 +793,7 @@ SPEC CHECKSUMS:
   React-runtimescheduler: e1911310bc1fe609747e770fbb54276959001ae7
   React-utils: 7129f9ab75d65e2f7f1cb1f6fccdf81e517ede01
   ReactCommon: 03b0c99728ac8b43fb9431c8547a391b8e038a0f
+  RevenueCat: 3997b7af3ded18a59346e76f1365cae5a64f4281
   rive-react-native: ac42cbef913861b914893e3ba5e2cbf489384849
   RiveRuntime: 76eab58e930afd03dae3edac3ed8ab4f31df7347
   RNAppleAuthentication: 0571c08da8c327ae2afc0261b48b4a515b0286a6
@@ -790,6 +803,7 @@ SPEC CHECKSUMS:
   RNFlashList: 25b0e092b4470c84db0386d4f5316dc34123bb6d
   RNGestureHandler: dec4645026e7401a0899f2846d864403478ff6a5
   RNGoogleSignin: ccaa4a81582cf713eea562c5dd9dc1961a715fd0
+  RNPurchases: c71b659ee3e91254e18c2186e09d2c8be420d338
   RNReanimated: ee53561398b68a8b3d883c2453f85d33a4da3a56
   RNScreens: 6a8a3c6b808aa48dca1780df7b73ea524f602c63
   RNSVG: 80584470ff1ffc7994923ea135a3e5ad825546b9
