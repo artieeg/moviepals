@@ -59,10 +59,10 @@ export async function main() {
     try {
       const {
         event: { app_user_id },
-      } = revenueCatSchema.parse(msg.query);
+      } = revenueCatSchema.parse(msg.body);
 
       await handleFullAccessPurchase({
-        header: msg.headers.authorization!,
+        header: msg.headers.authorization?.split(" ")[1] ?? "",
         user: app_user_id,
         prisma,
       });
