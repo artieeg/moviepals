@@ -1,4 +1,4 @@
-import React from "react";
+import React, { PropsWithChildren } from "react";
 import { Text, TouchableOpacity, TouchableOpacityProps } from "react-native";
 import { twJoin } from "tailwind-merge";
 
@@ -6,7 +6,9 @@ export function Button({
   children,
   kind = "primary",
   ...rest
-}: TouchableOpacityProps & { children: string; kind?: "primary" | "outline" }) {
+}: PropsWithChildren<
+  TouchableOpacityProps & { kind?: "primary" | "outline" }
+>) {
   return (
     <TouchableOpacity
       activeOpacity={0.9}

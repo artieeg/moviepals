@@ -5,6 +5,9 @@ import {
   REWARDED_AD_ANDROID,
   REWARDED_AD_IOS,
   TMDB_IMAGE_BASE,
+  REVCAT_KEY_IOS,
+  REVCAT_KEY_ANDROID,
+  REVCAT_GO_PRO_PRODUCT_ID,
 } from "@env";
 import { z } from "zod";
 
@@ -14,6 +17,10 @@ const envSchema = z.object({
   TMDB_IMAGE_BASE: z.string(),
   REWARDED_AD_IOS: z.string(),
   REWARDED_AD_ANDROID: z.string(),
+
+  REVCAT_KEY_ANDROID: z.string(),
+  REVCAT_KEY_IOS: z.string(),
+  REVCAT_GO_PRO_PRODUCT_ID: z.string(),
 });
 
 export const env = envSchema.parse({
@@ -22,4 +29,7 @@ export const env = envSchema.parse({
   TMDB_IMAGE_BASE,
   REWARDED_AD_IOS: __DEV__ ? TestIds.REWARDED : REWARDED_AD_IOS,
   REWARDED_AD_ANDROID: __DEV__ ? TestIds.REWARDED : REWARDED_AD_ANDROID,
+  REVCAT_KEY_IOS,
+  REVCAT_KEY_ANDROID,
+  REVCAT_GO_PRO_PRODUCT_ID,
 });

@@ -4,12 +4,13 @@ import {
   RewardedAd,
   RewardedAdEventType,
 } from "react-native-google-mobile-ads";
+import Purchases from "react-native-purchases";
 import { useQuery } from "@tanstack/react-query";
 import { BrightStar } from "iconoir-react-native";
 
 import { api } from "~/utils/api";
 import { env } from "~/utils/env";
-import { useCanServeAds } from "~/hooks";
+import { useCanServeAds, usePremiumProduct } from "~/hooks";
 import { Button } from "./Button";
 
 const ad = Platform.select({
@@ -48,7 +49,18 @@ function useRewardedAd() {
 export function RanOutOfSwipes(props: ViewProps) {
   const canServeAds = useCanServeAds();
 
-  function onPurchasePremium() {}
+  const premium = usePremiumProduct();
+
+  async function onPurchasePremium() {
+    if (!premium.data?.product.identifier) {
+      return;
+    }
+
+    try {
+      await Purchases.purchaseStoreProduct(premium.data.product);
+    } finally {
+    }
+  }
 
   const rewarded = useRewardedAd();
 
@@ -75,8 +87,8 @@ export function RanOutOfSwipes(props: ViewProps) {
             {canServeAds.data === true ? (
               <>
                 You’ve ran out of swipes for the day. Watch a short ad and get
-                +40 swipes, or buy premium for unlimited access (you can share it
-                with up to 4 people 🙌 )
+                +40 swipes, or buy premium for unlimited access (you can share
+                it with up to 4 people 🙌 )
               </>
             ) : (
               <>
@@ -88,7 +100,9 @@ export function RanOutOfSwipes(props: ViewProps) {
         </View>
       </View>
       <View className="flex-1 justify-end space-y-3">
-        <Button onPress={onPurchasePremium}>get premium for $5.99</Button>
+        <Button onPress={onPurchasePremium}>
+          get premium for {premium.data?.formattedPrice}
+        </Button>
 
         <Button kind="outline" onPress={onWatchRewardedAd}>
           watch a rewarded ad
