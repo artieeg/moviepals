@@ -1,12 +1,61 @@
 import React from "react";
-import { Text, View, ViewProps } from "react-native";
+import { Platform, Text, View, ViewProps } from "react-native";
+import {
+  RewardedAd,
+  RewardedAdEventType,
+} from "react-native-google-mobile-ads";
+import { useQuery } from "@tanstack/react-query";
 import { BrightStar } from "iconoir-react-native";
 
+import { api } from "~/utils/api";
+import { env } from "~/utils/env";
 import { useCanServeAds } from "~/hooks";
 import { Button } from "./Button";
 
+const ad = Platform.select({
+  ios: env.REWARDED_AD_IOS,
+  default: env.REWARDED_AD_ANDROID,
+});
+
+function useRewardedAd() {
+  const user = api.user.getUserData.useQuery();
+
+  return useQuery(["rewarded-ad", user.data?.id], async () => {
+    return new Promise<RewardedAd>((resolve) => {
+      const rewarded = RewardedAd.createForAdRequest(ad, {
+        serverSideVerificationOptions: {
+          userId: user.data?.id,
+          customData: ad,
+        },
+      });
+
+      const loadedUnsub = rewarded.addAdEventListener(
+        RewardedAdEventType.LOADED,
+        () => {
+          loadedUnsub();
+
+          resolve(rewarded);
+        },
+      );
+
+      rewarded.load();
+
+      return rewarded;
+    });
+  });
+}
+
 export function RanOutOfSwipes(props: ViewProps) {
   const canServeAds = useCanServeAds();
+
+  function onPurchasePremium() {}
+
+  const rewarded = useRewardedAd();
+
+  function onWatchRewardedAd() {
+    rewarded.data?.show();
+    rewarded.refetch();
+  }
 
   return (
     <View className="flex-1" {...props}>
@@ -36,8 +85,10 @@ export function RanOutOfSwipes(props: ViewProps) {
         </View>
       </View>
       <View className="flex-1 justify-end space-y-3">
-        <Button onPress={() => {}}>get premium for $5.99</Button>
-        <Button kind="outline" onPress={() => {}}>watch a rewarded ad</Button>
+        <Button onPress={onPurchasePremium}>get premium for $5.99</Button>
+        <Button kind="outline" onPress={onWatchRewardedAd}>
+          watch a rewarded ad
+        </Button>
       </View>
     </View>
   );
