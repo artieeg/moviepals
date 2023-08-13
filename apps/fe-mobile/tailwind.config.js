@@ -4,8 +4,10 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        "primary-regular": "Nunito-Regular",
-        "primary-bold": "Nunito-Bold",
+        "primary-regular": "Montserrat-Regular",
+        "primary-bold": "Montserrat-Bold",
+        //"primary-regular": "Nunito-Regular",
+        //"primary-bold": "Nunito-Bold",
       },
       borderRadius: {
         "4xl": "32px",

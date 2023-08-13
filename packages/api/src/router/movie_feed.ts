@@ -78,10 +78,9 @@ export const movie_feed = createTRPCRouter({
         /**
          * Fetch movies that friends have swiped on
          *
-         * Make sure the genres and movie providers overlap,
-         * unless quick match mode is enabled
+         * Make sure the genres and movie providers overlap
          * */
-        const friendSwipes = await ctx.dbMovieSwipe.swipes
+        const relevantFriendSwipes = await ctx.dbMovieSwipe.swipes
           .find({
             userId: { $in: connectedUserIds },
             movieId: { $nin: excludeMovieIds },
@@ -99,9 +98,8 @@ export const movie_feed = createTRPCRouter({
           })
           .toArray();
 
-
         const randomFriendSwipes = pickRandomItems(
-          friendSwipes,
+          relevantFriendSwipes,
           MIX_IN_MOVIES_COUNT,
         );
 
@@ -109,9 +107,33 @@ export const movie_feed = createTRPCRouter({
           (swipe) => swipe.movieId,
         );
 
-        console.log({selectedFriendSwipeMovieIds});
-
         excludeMovieIds.push(...selectedFriendSwipeMovieIds);
+
+        //If user has quick match mode enabled, and we couldn't find enough relevant friend-liked movies,
+        //we want to mix in friend-liked movies regardless of genre and provider
+        if (
+          selectedFriendSwipeMovieIds.length < MIX_IN_MOVIES_COUNT &&
+          quick_match_mode
+        ) {
+          const allFriendSwipes = await ctx.dbMovieSwipe.swipes
+            .find({
+              userId: { $in: connectedUserIds },
+              movieId: { $nin: excludeMovieIds },
+              liked: true,
+            })
+            .toArray();
+
+          const randomAllFriendSwipes = pickRandomItems(
+            allFriendSwipes,
+            MIX_IN_MOVIES_COUNT - selectedFriendSwipeMovieIds.length,
+          );
+
+          const selectedAllFriendSwipeMovieIds = randomAllFriendSwipes.map(
+            (swipe) => swipe.movieId,
+          );
+
+          excludeMovieIds.push(...selectedAllFriendSwipeMovieIds);
+        }
 
         const missingMoviesPromise = fetchMissingMovies({
           count: MOVIES_PER_PAGE,

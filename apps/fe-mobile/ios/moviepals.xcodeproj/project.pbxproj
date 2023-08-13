@@ -18,6 +18,8 @@
 		942D1E6BC94E100111771533 /* Pods_moviepals.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AC48D106EA11EDD1583B6442 /* Pods_moviepals.framework */; };
 		D8146A4FAA4C079851D20527 /* Pods_moviepals_moviepalsTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A78D96912ED7B072A2D9D6B /* Pods_moviepals_moviepalsTests.framework */; };
 		F1D6703BDF5B4F7B9637276F /* Nunito-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D3AA2E0716664792B8E39801 /* Nunito-Bold.ttf */; };
+		2F9087B6E6DF46439FE9FB00 /* Montserrat-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CA809173C27E41D0ADAF479F /* Montserrat-Bold.ttf */; };
+		02965403EA40405EB9E77F44 /* Montserrat-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3CD6844FECCC4E2CA3A13F91 /* Montserrat-Regular.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +55,8 @@
 		AC48D106EA11EDD1583B6442 /* Pods_moviepals.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_moviepals.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D3AA2E0716664792B8E39801 /* Nunito-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Nunito-Bold.ttf"; path = "../assets/fonts/Nunito-Bold.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		CA809173C27E41D0ADAF479F /* Montserrat-Bold.ttf */ = {isa = PBXFileReference; name = "Montserrat-Bold.ttf"; path = "../assets/fonts/Montserrat-Bold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		3CD6844FECCC4E2CA3A13F91 /* Montserrat-Regular.ttf */ = {isa = PBXFileReference; name = "Montserrat-Regular.ttf"; path = "../assets/fonts/Montserrat-Regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -155,6 +159,8 @@
 			children = (
 				D3AA2E0716664792B8E39801 /* Nunito-Bold.ttf */,
 				42A8E3F9E744416A8178A77E /* Nunito-Regular.ttf */,
+				CA809173C27E41D0ADAF479F /* Montserrat-Bold.ttf */,
+				3CD6844FECCC4E2CA3A13F91 /* Montserrat-Regular.ttf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -271,6 +277,8 @@
 				F1D6703BDF5B4F7B9637276F /* Nunito-Bold.ttf in Resources */,
 				0287B9340AC84BCF875B3D3F /* Nunito-Regular.ttf in Resources */,
 				8CD6B3D72A79193400EE747B /* GoogleService-Info.plist in Resources */,
+				2F9087B6E6DF46439FE9FB00 /* Montserrat-Bold.ttf in Resources */,
+				02965403EA40405EB9E77F44 /* Montserrat-Regular.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

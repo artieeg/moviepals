@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 import {
   Alert,
   FlatList,
@@ -7,6 +7,7 @@ import {
   View,
   ViewProps,
 } from "react-native";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { MoreHoriz, NavArrowRight, Search } from "iconoir-react-native";
 import { produce } from "immer";
 import { useDebounce } from "use-debounce";
@@ -196,19 +197,21 @@ function UnknownUser({
   onToggleRequest: (id: string, requested: boolean) => void;
 }) {
   return (
-    <ListItem
-      right="component"
-      onPress={() => onToggleRequest(userId, !requested)}
-      rightComponent={
-        <Text className="text-brand-1 font-primary-bold text-lg">
-          {requested ? "requested" : "request"}
-        </Text>
-      }
-      itemId={userId}
-      title={name}
-      subtitle={username}
-      icon={emoji}
-    />
+    <Animated.View entering={FadeIn} exiting={FadeOut}>
+      <ListItem
+        right="component"
+        onPress={() => onToggleRequest(userId, !requested)}
+        rightComponent={
+          <Text className="text-brand-1 font-primary-bold text-lg">
+            {requested ? "requested" : "request"}
+          </Text>
+        }
+        itemId={userId}
+        title={name}
+        subtitle={username}
+        icon={emoji}
+      />
+    </Animated.View>
   );
 }
 
@@ -231,11 +234,12 @@ function UserConnection({
   function onOpenDialog() {
     Alert.alert("user actions", "what do you want to do?", [
       {
+        style: "destructive",
         text: "remove",
         onPress: () => onRemove(connectionId),
       },
       {
-        text: "cancel",
+        text: "go back",
         style: "cancel",
       },
     ]);
