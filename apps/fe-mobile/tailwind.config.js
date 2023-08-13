@@ -21,7 +21,8 @@ module.exports = {
         "neutral-3": "#D4D4D4",
         "neutral-4": "#C7C5DA",
         "red-1": "#FC7B71",
-        "brand-1": "#6356E4",
+        "brand-1": "#6867AA"
+        //"brand-1": "#6356E4",
       },
     },
   },

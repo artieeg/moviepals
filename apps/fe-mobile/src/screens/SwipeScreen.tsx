@@ -1,5 +1,6 @@
 import React, { useMemo, useRef, useState } from "react";
-import { Text, Touchable, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
+import { useRoute } from "@react-navigation/native";
 import { Cancel, Heart } from "iconoir-react-native";
 
 import { api } from "~/utils/api";
@@ -18,6 +19,8 @@ export function SwipeScreen() {
     select: (data) =>
       data?.filter((genre) => genre.enabled).map((genre) => genre.id),
   });
+
+  const { quickMatchMode } = useRoute().params as { quickMatchMode: boolean };
 
   const swipe = api.swipe.swipe.useMutation();
 
@@ -38,6 +41,7 @@ export function SwipeScreen() {
       genres: genres.data!,
       watchProviderIds: watchProviders.data!,
       region: user.data!.country,
+      quick_match_mode: quickMatchMode,
     },
     {
       initialCursor: 0,

@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Animated, {
   Easing,
   interpolate,
   interpolateColor,
   useAnimatedStyle,
   useDerivedValue,
+  useSharedValue,
   withTiming,
 } from "react-native-reanimated";
 
@@ -17,12 +18,14 @@ export function Switch({
   enabled: boolean;
   onToggle: (value: boolean) => void;
 }) {
-  const tweener = useDerivedValue(() => {
-    return withTiming(enabled ? 1 : 0, {
+  const tweener = useSharedValue(enabled ? 1 : 0);
+
+  useEffect(() => {
+    tweener.value = withTiming(enabled ? 1 : 0, {
       duration: 200,
       easing: Easing.bezier(0.75, 0.04, 0.32, 1).factory(),
     });
-  });
+  }, [enabled]);
 
   const backdropStyle = useAnimatedStyle(() => {
     return {
@@ -34,7 +37,7 @@ export function Switch({
       backgroundColor: interpolateColor(
         tweener.value,
         [0.3, 1],
-        ["#E0E0E0", "#6356E4"],
+        ["#E0E0E0", "#6867AA"],
       ),
     };
   });
@@ -55,7 +58,7 @@ export function Switch({
       onPress={() => onToggle(!enabled)}
       activeOpacity={1}
       style={backdropStyle}
-      className="max-w-14 h-8 w-14 rounded-full border justify-center"
+      className="max-w-14 h-8 w-14 justify-center rounded-full border"
     >
       <Animated.View
         style={circleStyle}

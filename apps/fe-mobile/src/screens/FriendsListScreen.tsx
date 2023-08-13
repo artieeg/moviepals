@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {
   Alert,
   FlatList,
@@ -28,6 +28,10 @@ export function FriendsListScreen() {
 
   const [query, setQuery] = React.useState("");
   const [debouncedQuery] = useDebounce(query, 300);
+
+  useEffect(() => {
+    friends.refetch();
+  }, [query]);
 
   const deleteConnection = api.connection.deleteConnection.useMutation({
     onMutate({ connectionId }) {
@@ -130,6 +134,7 @@ export function FriendsListScreen() {
           {userSearch.data && user.isSuccess && friends.isSuccess && (
             <FlatList
               data={userSearch.data}
+              ItemSeparatorComponent={() => <View className="h-4" />}
               renderItem={({ item }) => {
                 return (
                   <UnknownUser
@@ -148,6 +153,7 @@ export function FriendsListScreen() {
           {!userSearch.data && user.isSuccess && friends.isSuccess && (
             <FlatList
               data={friends.data?.connections}
+              ItemSeparatorComponent={() => <View className="h-4" />}
               renderItem={({ item }) => {
                 const source =
                   item.firstUser.id === user.data?.id

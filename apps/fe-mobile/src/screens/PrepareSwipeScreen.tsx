@@ -21,7 +21,7 @@ import {
 import { MainLayout } from "./layouts/MainLayout";
 
 export function PrepareSwipeScreen() {
-  const [quickMatch, setQuickMatch] = React.useState(true);
+  const [quickMatchMode, setQuickMatchMode] = React.useState(true);
 
   const navigation = useNavigation();
 
@@ -33,7 +33,7 @@ export function PrepareSwipeScreen() {
   );
 
   function onStartSwiping() {
-    navigation.navigate(SCREEN_SWIPE);
+    navigation.navigate(SCREEN_SWIPE, {quickMatchMode});
   }
 
   return (
@@ -48,9 +48,9 @@ export function PrepareSwipeScreen() {
         <DirectorFilter />
 
         <QuickMatchMode
-          enabled={quickMatch}
+          enabled={quickMatchMode}
           onToggle={(v) => {
-            setQuickMatch(v);
+            setQuickMatchMode(v);
           }}
         />
       </View>
@@ -91,7 +91,7 @@ function QuickMatchMode({
         </View>
       </View>
 
-      <View className="w-14">
+      <View className="ml-4">
         <Switch enabled={enabled} onToggle={onToggle} />
       </View>
     </TouchableOpacity>

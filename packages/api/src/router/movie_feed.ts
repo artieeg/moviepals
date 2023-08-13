@@ -87,9 +87,10 @@ export const movie_feed = createTRPCRouter({
             movieId: { $nin: excludeMovieIds },
             liked: true,
 
-            movie_genre_ids: quick_match_mode
-              ? { $exists: true }
-              : { $in: genres },
+            movie_genre_ids:
+              !quick_match_mode && genres.length > 0
+                ? { $in: genres }
+                : { $exists: true },
 
             watch_providers:
               watchProviderIds.length > 0 && !quick_match_mode
@@ -97,6 +98,7 @@ export const movie_feed = createTRPCRouter({
                 : { $exists: true },
           })
           .toArray();
+
 
         const randomFriendSwipes = pickRandomItems(
           friendSwipes,
@@ -106,6 +108,8 @@ export const movie_feed = createTRPCRouter({
         const selectedFriendSwipeMovieIds = randomFriendSwipes.map(
           (swipe) => swipe.movieId,
         );
+
+        console.log({selectedFriendSwipeMovieIds});
 
         excludeMovieIds.push(...selectedFriendSwipeMovieIds);
 
@@ -152,7 +156,7 @@ export const movie_feed = createTRPCRouter({
           await ctx.dbMovieSwipe.reviewState.updateOne(
             {
               userId: ctx.user,
-              genre_ids: genres,
+              genre_ids: genres.length > 0 ? genres : { $exists: true },
               watch_providers: watchProviderIds,
             },
             {
@@ -259,8 +263,6 @@ export async function fetchMissingMovies({
       nextTmdbStartFromMovieIdx + moviesLeftToFetch,
     );
 
-    logger.info({ fetchedMovies, filteredMovies, selectedMovies });
-
     movies.push(...selectedMovies);
 
     if (movies.length >= moviesLeftToFetch) {
@@ -276,8 +278,6 @@ export async function fetchMissingMovies({
       batch = Math.ceil(batch / 2);
     }
   }
-
-  logger.info({ attempts }, "attempts left");
 
   if (movies.length === 0 && attempts === 0) {
     throw new TRPCError({
