@@ -16,12 +16,12 @@
 		1805F70BB47172E9C5C4F8A1 /* Pods_moviepals.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E23B895D0AEEF39C0995496C /* Pods_moviepals.framework */; };
 		2F9087B6E6DF46439FE9FB00 /* Montserrat-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CA809173C27E41D0ADAF479F /* Montserrat-Bold.ttf */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		8C5609A02A894BD6005E34DD /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C56099F2A894BD6005E34DD /* StoreKit.framework */; };
 		8C6D98232A7705CA00BC87B0 /* logo.riv in Resources */ = {isa = PBXBuildFile; fileRef = 8C6D98222A7705CA00BC87B0 /* logo.riv */; };
-		8CD4188A2A894AD300132CF3 /* moviepals-store-kit.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 8CD418892A894AD300132CF3 /* moviepals-store-kit.storekit */; };
-		8CD4188B2A894AD300132CF3 /* moviepals-store-kit.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 8CD418892A894AD300132CF3 /* moviepals-store-kit.storekit */; };
-		8CD4188D2A894AE900132CF3 /* StoreKitTestCertificate.cer in Resources */ = {isa = PBXBuildFile; fileRef = 8CD4188C2A894AE800132CF3 /* StoreKitTestCertificate.cer */; };
-		8CD4188E2A894AE900132CF3 /* StoreKitTestCertificate.cer in Resources */ = {isa = PBXBuildFile; fileRef = 8CD4188C2A894AE800132CF3 /* StoreKitTestCertificate.cer */; };
+		8C7FEBF32A8AAD060014D92B /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C7FEBF22A8AAD060014D92B /* StoreKit.framework */; };
+		8C7FEBFB2A8AB78D0014D92B /* moviepals-store-kit.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 8C7FEBFA2A8AB78D0014D92B /* moviepals-store-kit.storekit */; };
+		8C7FEBFC2A8AB78D0014D92B /* moviepals-store-kit.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 8C7FEBFA2A8AB78D0014D92B /* moviepals-store-kit.storekit */; };
+		8C7FEBFE2A8AB7E30014D92B /* StoreKitTestCertificate.cer in Resources */ = {isa = PBXBuildFile; fileRef = 8C7FEBFD2A8AB7E30014D92B /* StoreKitTestCertificate.cer */; };
+		8C7FEBFF2A8AB7E30014D92B /* StoreKitTestCertificate.cer in Resources */ = {isa = PBXBuildFile; fileRef = 8C7FEBFD2A8AB7E30014D92B /* StoreKitTestCertificate.cer */; };
 		8CD6B3D72A79193400EE747B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8CD6B3D62A79193300EE747B /* GoogleService-Info.plist */; };
 		E19F731BD4A2C470093984EA /* Pods_moviepals_moviepalsTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 76AFB59DF743FE143BADB0DA /* Pods_moviepals_moviepalsTests.framework */; };
 		F1D6703BDF5B4F7B9637276F /* Nunito-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D3AA2E0716664792B8E39801 /* Nunito-Bold.ttf */; };
@@ -54,10 +54,10 @@
 		7789C856DCF0ED2770348C77 /* Pods-moviepals-moviepalsTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-moviepals-moviepalsTests.debug.xcconfig"; path = "Target Support Files/Pods-moviepals-moviepalsTests/Pods-moviepals-moviepalsTests.debug.xcconfig"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = moviepals/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8C3EE42B2A7E74850085EEEC /* moviepals.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = moviepals.entitlements; path = moviepals/moviepals.entitlements; sourceTree = "<group>"; };
-		8C56099F2A894BD6005E34DD /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		8C6D98222A7705CA00BC87B0 /* logo.riv */ = {isa = PBXFileReference; lastKnownFileType = file; path = logo.riv; sourceTree = "<group>"; };
-		8CD418892A894AD300132CF3 /* moviepals-store-kit.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = "moviepals-store-kit.storekit"; sourceTree = "<group>"; };
-		8CD4188C2A894AE800132CF3 /* StoreKitTestCertificate.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = StoreKitTestCertificate.cer; sourceTree = "<group>"; };
+		8C7FEBF22A8AAD060014D92B /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		8C7FEBFA2A8AB78D0014D92B /* moviepals-store-kit.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = "moviepals-store-kit.storekit"; sourceTree = "<group>"; };
+		8C7FEBFD2A8AB7E30014D92B /* StoreKitTestCertificate.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = StoreKitTestCertificate.cer; sourceTree = "<group>"; };
 		8CD6B3D62A79193300EE747B /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		980143A73E8916D85308F047 /* Pods-moviepals-moviepalsTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-moviepals-moviepalsTests.release.xcconfig"; path = "Target Support Files/Pods-moviepals-moviepalsTests/Pods-moviepals-moviepalsTests.release.xcconfig"; sourceTree = "<group>"; };
 		CA809173C27E41D0ADAF479F /* Montserrat-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Bold.ttf"; path = "../assets/fonts/Montserrat-Bold.ttf"; sourceTree = "<group>"; };
@@ -80,8 +80,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8C5609A02A894BD6005E34DD /* StoreKit.framework in Frameworks */,
 				1805F70BB47172E9C5C4F8A1 /* Pods_moviepals.framework in Frameworks */,
+				8C7FEBF32A8AAD060014D92B /* StoreKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -117,6 +117,8 @@
 				8C6D98222A7705CA00BC87B0 /* logo.riv */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
+				8C7FEBFA2A8AB78D0014D92B /* moviepals-store-kit.storekit */,
+				8C7FEBFD2A8AB7E30014D92B /* StoreKitTestCertificate.cer */,
 			);
 			name = moviepals;
 			sourceTree = "<group>";
@@ -124,7 +126,7 @@
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				8C56099F2A894BD6005E34DD /* StoreKit.framework */,
+				8C7FEBF22A8AAD060014D92B /* StoreKit.framework */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				E23B895D0AEEF39C0995496C /* Pods_moviepals.framework */,
 				76AFB59DF743FE143BADB0DA /* Pods_moviepals_moviepalsTests.framework */,
@@ -142,8 +144,6 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				8CD418892A894AD300132CF3 /* moviepals-store-kit.storekit */,
-				8CD4188C2A894AE800132CF3 /* StoreKitTestCertificate.cer */,
 				13B07FAE1A68108700A75B9A /* moviepals */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* moviepalsTests */,
@@ -277,8 +277,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8CD4188B2A894AD300132CF3 /* moviepals-store-kit.storekit in Resources */,
-				8CD4188E2A894AE900132CF3 /* StoreKitTestCertificate.cer in Resources */,
+				8C7FEBFC2A8AB78D0014D92B /* moviepals-store-kit.storekit in Resources */,
+				8C7FEBFF2A8AB7E30014D92B /* StoreKitTestCertificate.cer in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -289,9 +289,9 @@
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				8C6D98232A7705CA00BC87B0 /* logo.riv in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
-				8CD4188A2A894AD300132CF3 /* moviepals-store-kit.storekit in Resources */,
+				8C7FEBFB2A8AB78D0014D92B /* moviepals-store-kit.storekit in Resources */,
 				F1D6703BDF5B4F7B9637276F /* Nunito-Bold.ttf in Resources */,
-				8CD4188D2A894AE900132CF3 /* StoreKitTestCertificate.cer in Resources */,
+				8C7FEBFE2A8AB7E30014D92B /* StoreKitTestCertificate.cer in Resources */,
 				0287B9340AC84BCF875B3D3F /* Nunito-Regular.ttf in Resources */,
 				8CD6B3D72A79193400EE747B /* GoogleService-Info.plist in Resources */,
 				2F9087B6E6DF46439FE9FB00 /* Montserrat-Bold.ttf in Resources */,

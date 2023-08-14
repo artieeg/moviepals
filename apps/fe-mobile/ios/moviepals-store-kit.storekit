@@ -1,5 +1,5 @@
 {
-  "identifier" : "79BB7B8B",
+  "identifier" : "1F486A20",
   "nonRenewingSubscriptions" : [
 
   ],
@@ -7,23 +7,21 @@
     {
       "displayPrice" : "5.99",
       "familyShareable" : false,
-      "internalID" : "6461212927",
+      "internalID" : "3CE343DD",
       "localizations" : [
         {
-          "description" : "Ad-free unlimited access",
-          "displayName" : "Pro Access",
+          "description" : "Go Pro",
+          "displayName" : "Go Pro",
           "locale" : "en_US"
         }
       ],
       "productID" : "go_pro",
-      "referenceName" : "Go Pro",
+      "referenceName" : "Full Access",
       "type" : "NonConsumable"
     }
   ],
   "settings" : {
-    "_applicationInternalID" : "6461212763",
-    "_developerTeamID" : "ZMC8WZHB36",
-    "_lastSynchronizedDate" : 713640663.00153005
+
   },
   "subscriptionGroups" : [
 

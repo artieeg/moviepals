@@ -37,7 +37,7 @@ export function MainLayout({
             </TouchableOpacity>
           )}
           <View className="flex-row items-center justify-center py-4">
-            <Text className="font-primary-bold text-neutral-1 text-2xl">
+            <Text className="font-primary-bold text-neutral-1 text-base">
               {title}
             </Text>
           </View>

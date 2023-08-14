@@ -6,3 +6,5 @@ export * from "./FriendsListScreen";
 export * from "./FriendRequestListScreen";
 export * from "./SwipeScreen";
 export * from "./GenreFilterScreen";
+export * from "./ThankYouScreen";
+export * from "./StreamingServiceListScreen";

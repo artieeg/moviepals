@@ -4,7 +4,7 @@ import {
   RewardedAd,
   RewardedAdEventType,
 } from "react-native-google-mobile-ads";
-import Purchases from "react-native-purchases";
+import Purchases, {PurchasesError} from "react-native-purchases";
 import Animated, {
   useAnimatedStyle,
   useDerivedValue,
@@ -15,7 +15,8 @@ import { BrightStar } from "iconoir-react-native";
 
 import { api } from "~/utils/api";
 import { env } from "~/utils/env";
-import { useCanServeAds, usePremiumProduct } from "~/hooks";
+import { useCanServeAds, useNavigation, usePremiumProduct } from "~/hooks";
+import { SCREEN_THANK_YOU } from "~/navigators/SwipeNavigator";
 import { Button } from "./Button";
 
 const ad = Platform.select({
@@ -67,15 +68,22 @@ export function RanOutOfSwipes({
 
   const premium = usePremiumProduct();
 
+  const navigation = useNavigation();
+
   async function onPurchasePremium() {
     if (!premium.data?.product.identifier) {
       return;
     }
 
     try {
-      await Purchases.purchaseStoreProduct(premium.data.product);
-
+      //await Purchases.purchaseStoreProduct(premium.data.product);
       onProceed();
+
+      navigation.navigate(SCREEN_THANK_YOU);
+    }catch(e) {
+      console.log(JSON.stringify(e, null, 2));
+      console.error((e as PurchasesError).underlyingErrorMessage)
+      console.error((e as PurchasesError).underlyingErrorMessage)
     } finally {
     }
   }
