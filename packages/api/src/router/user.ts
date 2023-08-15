@@ -4,6 +4,8 @@ import appleSignInAuth from "apple-signin-auth";
 import { OAuth2Client } from "google-auth-library";
 import { z } from "zod";
 
+import { UserInviteLink } from "@moviepals/db";
+
 import { logger } from "../logger";
 import { getCountryFromIP, isValidCountry } from "../services";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
@@ -113,12 +115,25 @@ export const user = createTRPCRouter({
               nonce: method.nonce,
             });
 
+      let inviteLink: UserInviteLink | undefined = undefined;
+
+      while (!inviteLink) {
+        try {
+          inviteLink = await ctx.prisma.userInviteLink.create({
+            data: {
+              slug: crypto.randomBytes(4).toString("hex"),
+            },
+          });
+        } catch {}
+      }
+
       const user = await ctx.prisma.user.create({
         data: {
           country,
           name,
           username,
           email,
+          userInviteLinkId: inviteLink.id,
         },
       });
 

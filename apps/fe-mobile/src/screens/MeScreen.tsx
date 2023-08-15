@@ -1,12 +1,11 @@
 import React from "react";
 import { ScrollView, Text, View } from "react-native";
-import { useRoute } from "@react-navigation/native";
 
 import { api } from "~/utils/api";
-import { Section, TouchableScale, UserAvatar } from "~/components";
+import { Section, UserAvatar } from "~/components";
 import { useNavigation } from "~/hooks";
-import { SCREEN_MATCHES_LIST } from "~/navigators/FriendsNavigator";
 import { MainLayout } from "./layouts/MainLayout";
+import {SCREEN_INVITE} from "./InviteScreen";
 
 export const SCREEN_ME = "MeScreen";
 
@@ -15,7 +14,9 @@ export function MeScreen() {
 
   const navigation = useNavigation();
 
-  function onInvitePeople() {}
+  function onInvitePeople() {
+    navigation.navigate(SCREEN_INVITE);
+  }
 
   function onViewSwipes() {}
 

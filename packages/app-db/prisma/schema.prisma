@@ -29,6 +29,9 @@ model User {
 
   emoji String @default("🐵")
 
+  userInviteLinkId String         @unique() @map("userInviteSlugId")
+  userInviteLink   UserInviteLink @relation(fields: [userInviteLinkId], references: [id])
+
   fullAccessPurchaseId String?             @unique()
   fullAccessPurchase   FullAccessPurchase? @relation(fields: [fullAccessPurchaseId], references: [id])
 
@@ -41,6 +44,15 @@ model User {
   connectionRequestFirstUser  ConnectionRequest[] @relation("connection_request_first_user")
   connectionRequestSecondUser ConnectionRequest[] @relation("connection_request_second_user")
   ExtraSwipe                  ExtraSwipe[]
+}
+
+model UserInviteLink {
+  id String @id @default(cuid())
+
+  slug String @unique()
+
+  createdAt DateTime @default(now())
+  User      User?
 }
 
 model FullAccessPurchase {

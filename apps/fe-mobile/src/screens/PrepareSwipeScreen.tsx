@@ -59,7 +59,6 @@ export function PrepareSwipeScreen() {
 
       <Button
         onPress={onStartSwiping}
-        disabled={enabledGenres?.length === 0}
         className="absolute bottom-0 left-8 right-8"
       >
         start swiping
