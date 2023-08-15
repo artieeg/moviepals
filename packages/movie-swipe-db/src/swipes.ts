@@ -18,6 +18,8 @@ export const swipeSchema = z.object({
 
   /** Movie language */
   movie_language: z.string(),
+
+  created_at: z.date(),
 });
 
 export type Swipe = z.infer<typeof swipeSchema>;

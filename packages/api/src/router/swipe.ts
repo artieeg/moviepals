@@ -63,6 +63,7 @@ export const swipe = createTRPCRouter({
           watch_providers,
           movie_language,
           watch_region,
+          created_at: new Date(),
         });
       },
     ),
