@@ -10,6 +10,7 @@ import {
 import { Contact, getAll } from "react-native-contacts";
 import { check, PERMISSIONS, request } from "react-native-permissions";
 import SendSMS from "react-native-sms";
+import { Toast } from "react-native-toast-message/lib/src/Toast";
 import Clipboard from "@react-native-clipboard/clipboard";
 import { FlashList } from "@shopify/flash-list";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -18,10 +19,9 @@ import { useDebounce } from "use-debounce";
 
 import { api } from "~/utils/api";
 import { Button, Input, ListItem } from "~/components";
+import { useNavigation } from "~/hooks";
+import { SCREEN_INVITE_SUCCESS } from "./InviteSuccessScreen";
 import { MainLayout } from "./layouts/MainLayout";
-import {useNavigation} from "~/hooks";
-import {SCREEN_INVITE_SUCCESS} from "./InviteSuccessScreen";
-import {Toast} from "react-native-toast-message/lib/src/Toast";
 
 export const SCREEN_INVITE = "InviteScreen";
 
@@ -47,7 +47,6 @@ export function InviteScreen() {
   async function onInvite() {
     const s = await Clipboard.getString();
 
-
     if (!inviteUrl.isSuccess) return;
 
     SendSMS.send(
@@ -64,7 +63,7 @@ export function InviteScreen() {
           Toast.show({
             type: "error",
             text1: "Something went wrong",
-          })
+          });
         }
       },
     );
@@ -72,12 +71,12 @@ export function InviteScreen() {
 
   const [linkCopied, setLinkCopied] = useState(false);
 
-  function onCopyLink() {
+  const onCopyLink = useCallback(() => {
     if (!inviteUrl.isSuccess) return;
 
     Clipboard.setString(inviteUrl.data.link);
     setLinkCopied(true);
-  }
+  }, [inviteUrl.isSuccess, inviteUrl.data?.link]);
 
   function onRequestPermission() {
     request.mutate();
@@ -140,12 +139,12 @@ export function InviteScreen() {
           onPress={onCopyLink}
           right={undefined}
           itemId="copy-link"
-          title={linkCopied ? "Link copied" : "Copy link"}
+          title={linkCopied ? "Link copied" : "Copy invite link"}
           subtitle="Send the link via any app"
         />
       </View>
     );
-  }, [linkCopied]);
+  }, [linkCopied, onCopyLink]);
 
   return (
     <MainLayout canGoBack title="Invites">

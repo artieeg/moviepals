@@ -14,6 +14,8 @@ import { Input } from "~/components";
 import { useNavigation } from "~/hooks";
 import { NAVIGATOR_MAIN } from "~/navigators/RootNavigator";
 import { useOnboardingStore } from "~/stores";
+import Clipboard from "@react-native-clipboard/clipboard";
+import {SCREEN_CHECK_INVITE} from "./CheckInviteScreen";
 
 export function WhatsYourNameScreen() {
   const navigation = useNavigation();
@@ -22,7 +24,11 @@ export function WhatsYourNameScreen() {
     async onSuccess({ token }) {
       await setAuthToken(token);
 
-      navigation.navigate(NAVIGATOR_MAIN);
+      if (await Clipboard.hasURL()) {
+        navigation.navigate(SCREEN_CHECK_INVITE);
+      } else {
+        navigation.navigate(NAVIGATOR_MAIN);
+      }
     },
     onError(e) {
       Toast.show({

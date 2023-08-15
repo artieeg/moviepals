@@ -11,8 +11,10 @@ export const invite = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input: { inviteUrl } }) => {
+      const slug = inviteUrl.split("/").pop();
+
       const inviteLink = await ctx.prisma.userInviteLink.findUnique({
-        where: { slug: inviteUrl },
+        where: { slug },
       });
 
       const inviter = await ctx.prisma.user.findUnique({

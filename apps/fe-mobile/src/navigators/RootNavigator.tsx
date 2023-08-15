@@ -15,11 +15,6 @@ export const NAVIGATOR_MAIN = "Swipe";
 export default function RootNavigator() {
   return (
     <Stack.Navigator>
-      <Stack.Screen
-        options={options}
-        name={SCREEN_CHECK_INVITE}
-        component={CheckInviteScreen}
-      />
 
       <Stack.Screen
         options={options}

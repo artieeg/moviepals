@@ -57,6 +57,8 @@ export function WelcomeScreen() {
           idToken: r.idToken,
         },
       });
+
+      navigation.navigate(SCREEN_WHATS_YOUR_NAME)
     } catch {}
   }
 
@@ -71,7 +73,7 @@ export function WelcomeScreen() {
         const storedAppleAuth = await AsyncStorage.getItem("@apple-auth");
 
         if (storedAppleAuth) {
-          appleAuthResponse = JSON.parse(storedAppleAuth);
+          appleAuthResponse = JSON.parse(storedAppleAuth) as any ;
         }
       } else {
         AsyncStorage.setItem("@apple-auth", JSON.stringify(appleAuthResponse));
@@ -89,6 +91,8 @@ export function WelcomeScreen() {
           nonce: appleAuthResponse.nonce,
         },
       });
+
+      navigation.navigate(SCREEN_WHATS_YOUR_NAME)
     } catch {}
   }
 
