@@ -1,8 +1,9 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Text, View } from "react-native";
 import FastImage from "react-native-fast-image";
 import { FlashList } from "@shopify/flash-list";
 import { Search } from "iconoir-react-native";
+import { useDebounce } from "use-debounce";
 
 import { Movie } from "@moviepals/dbmovieswipe";
 
@@ -14,6 +15,12 @@ import { MainLayout } from "./layouts/MainLayout";
 export function MatchListScreen() {
   const { userId } = useRouteParams<{ userId: string }>();
 
+  const [query, setQuery] = useState("");
+
+  const matchedMovieSearch = api.matches.search.useQuery(
+    { userId, query },
+    { enabled: !!query },
+  );
   const movies = api.matches.getMatches.useInfiniteQuery({ userId });
 
   const moviesList = useMemo(() => {
@@ -25,8 +32,16 @@ export function MatchListScreen() {
       {moviesList && (
         <View className="-mx-8 flex-1">
           <MovieList
+            onSearch={(search) => {
+              setQuery(search);
+            }}
             onFetchNext={() => movies.fetchNextPage()}
-            movies={moviesList}
+            movies={
+              matchedMovieSearch.isSuccess &&
+              matchedMovieSearch.data.movies.length > 0
+                ? matchedMovieSearch.data.movies
+                : moviesList
+            }
           />
         </View>
       )}
@@ -37,10 +52,19 @@ export function MatchListScreen() {
 function MovieList({
   movies,
   onFetchNext,
+  onSearch,
 }: {
   movies: Movie[];
   onFetchNext: () => void;
+  onSearch: (query: string) => void;
 }) {
+  const [_query, setQuery] = useState("");
+  const [query] = useDebounce(_query, 300);
+
+  useEffect(() => {
+    onSearch(query);
+  }, [query]);
+
   const renderMovieItem = useCallback(({ item }: { item: Movie }) => {
     return <MovieItem movie={item} />;
   }, []);
@@ -52,7 +76,7 @@ function MovieList({
   const renderListHeader = useCallback(() => {
     return (
       <View className="mb-6">
-        <Input placeholder="Search" icon={<Search />} />
+        <Input onChangeText={setQuery} placeholder="Search" icon={<Search />} />
       </View>
     );
   }, []);
