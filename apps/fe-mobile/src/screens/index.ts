@@ -9,3 +9,4 @@ export * from "./GenreFilterScreen";
 export * from "./ThankYouScreen";
 export * from "./StreamingServiceListScreen";
 export * from "./UserInfoScreen";
+export * from "./MatchListScreen";

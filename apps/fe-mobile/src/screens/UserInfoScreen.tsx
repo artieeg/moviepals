@@ -4,6 +4,8 @@ import { useRoute } from "@react-navigation/native";
 
 import { api } from "~/utils/api";
 import { Section, TouchableScale } from "~/components";
+import { useNavigation } from "~/hooks";
+import { SCREEN_MATCHES_LIST } from "~/navigators/FriendsNavigator";
 import { MainLayout } from "./layouts/MainLayout";
 
 export function UserInfoScreen() {
@@ -11,6 +13,8 @@ export function UserInfoScreen() {
   const userId = params?.userId;
 
   const user = api.user.getUserData.useQuery({ userId });
+
+  const navigation = useNavigation();
 
   return (
     <MainLayout
@@ -38,7 +42,7 @@ export function UserInfoScreen() {
             }
             onPress={() => {
               if (user.data.matchesCount > 0) {
-                // navigation.navigate(SCREEN_MATCHES_LIST);
+                navigation.navigate(SCREEN_MATCHES_LIST, { userId });
               }
             }}
             showArrowRight={user.data.matchesCount > 0}
