@@ -10,12 +10,14 @@ import {
 import { Contact, getAll } from "react-native-contacts";
 import { check, PERMISSIONS, request } from "react-native-permissions";
 import SendSMS from "react-native-sms";
+import Clipboard from "@react-native-clipboard/clipboard";
 import { FlashList } from "@shopify/flash-list";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { MessageText } from "iconoir-react-native";
+import { Copy, MessageText, Search } from "iconoir-react-native";
+import { useDebounce } from "use-debounce";
 
 import { api } from "~/utils/api";
-import { Button, ListItem } from "~/components";
+import { Button, Input, ListItem } from "~/components";
 import { MainLayout } from "./layouts/MainLayout";
 
 export const SCREEN_INVITE = "InviteScreen";
@@ -52,13 +54,40 @@ export function InviteScreen() {
     );
   }
 
-  function onCopyLink() {}
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  function onCopyLink() {
+    if (!inviteUrl.isSuccess) return;
+
+    Clipboard.setString(inviteUrl.data.link);
+    setLinkCopied(true);
+  }
 
   function onRequestPermission() {
     request.mutate();
   }
 
+  const [_query, setQuery] = useState("");
+  const [query] = useDebounce(_query, 500);
+
   const [selected, setSelected] = useState<Contact[]>([]);
+
+  const filteredContacts = useMemo(() => {
+    if (!contacts.isSuccess) return [];
+
+    if (!query) return contacts.data;
+
+    return contacts.data.filter((c) => {
+      return (
+        c.givenName?.toLowerCase().includes(query.toLowerCase()) ||
+        c.displayName?.toLowerCase().includes(query.toLowerCase()) ||
+        c.phoneNumbers?.[0].number
+          ?.toLowerCase()
+          .includes(query.toLowerCase()) ||
+        c.familyName?.toLowerCase().includes(query.toLowerCase())
+      );
+    });
+  }, [contacts, query]);
 
   function onToggle(contact: Contact) {
     setSelected((s) =>
@@ -81,6 +110,27 @@ export function InviteScreen() {
     [selected],
   );
 
+  const renderItemSeparator = useCallback(() => {
+    return <View className="h-4" />;
+  }, []);
+
+  const renderListHeader = useCallback(() => {
+    return (
+      <View className="mb-4 space-y-4">
+        <Input onChangeText={setQuery} placeholder="Search" icon={<Search />} />
+
+        <ListItem
+          icon={<Copy />}
+          onPress={onCopyLink}
+          right={undefined}
+          itemId="copy-link"
+          title={linkCopied ? "Link copied" : "Copy link"}
+          subtitle="Send the link via any app"
+        />
+      </View>
+    );
+  }, [linkCopied]);
+
   return (
     <MainLayout canGoBack title="Invites">
       <View className="space-y-1">
@@ -102,15 +152,17 @@ export function InviteScreen() {
           ) : (
             <>
               <FlatList
-                extraData={selected}
+                extraData={selected.length}
                 className="-mx-8"
+                ItemSeparatorComponent={renderItemSeparator}
+                ListHeaderComponent={renderListHeader}
                 contentContainerStyle={{
                   paddingHorizontal: 32,
                   paddingTop: 32,
                   paddingBottom: 128,
                 }}
                 renderItem={renderContactItem}
-                data={contacts.data}
+                data={filteredContacts}
               />
 
               <View className="absolute bottom-0 left-8 right-8">
