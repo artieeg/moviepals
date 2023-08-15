@@ -15,7 +15,7 @@ export function InviteSuccessScreen() {
   }
 
   return (
-    <MainLayout canGoBack title="premium">
+    <MainLayout canGoBack title="Invites">
       <View className="flex-1">
         <View className="flex-1 space-y-1">
           <Text className="font-primary-bold text-neutral-1 text-2xl">

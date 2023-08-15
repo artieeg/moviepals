@@ -2,8 +2,6 @@ import { useState } from "react";
 import {
   KeyboardAvoidingView,
   Text,
-  TextInput,
-  TextInputProps,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";

@@ -1,6 +1,6 @@
 import { createStackNavigator } from "@react-navigation/stack";
 
-import { SplashScreen } from "~/screens";
+import { CheckInviteScreen, SCREEN_CHECK_INVITE, SplashScreen } from "~/screens";
 import MainNavigator from "./MainNavigator";
 import OnboardingNavigator from "./OnboardingNavigator";
 import { options } from "./options";
@@ -17,9 +17,16 @@ export default function RootNavigator() {
     <Stack.Navigator>
       <Stack.Screen
         options={options}
+        name={SCREEN_CHECK_INVITE}
+        component={CheckInviteScreen}
+      />
+
+      <Stack.Screen
+        options={options}
         name={SCREEN_SPLASH}
         component={SplashScreen}
       />
+
       <Stack.Screen
         options={options}
         name={NAVIGATOR_ONBOARDING}

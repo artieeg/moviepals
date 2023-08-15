@@ -13,3 +13,4 @@ export * from "./MatchListScreen";
 export * from "./MeScreen";
 export * from "./InviteScreen";
 export * from "./InviteSuccessScreen";
+export * from "./CheckInviteScreen";

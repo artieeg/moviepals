@@ -10,11 +10,13 @@ export function MainLayout({
   title,
   onGoBack,
   canGoBack,
+  edges,
 }: PropsWithChildren & {
   title: string;
   /** Override default "go back" behavior */
   onGoBack?: () => void;
   canGoBack?: boolean;
+  edges?: ("top" | "left" | "right" | "bottom")[];
 }) {
   const navigation = useNavigation();
 
@@ -27,7 +29,7 @@ export function MainLayout({
   }
 
   return (
-    <SafeAreaView edges={["top", "left", "right"]} className="flex-1 bg-white">
+    <SafeAreaView edges={edges ?? ["top", "left", "right"]} className="flex-1 bg-white">
       <View className="flex-1">
         {/* HEADER */}
         <View className="flex-row items-center justify-center">
