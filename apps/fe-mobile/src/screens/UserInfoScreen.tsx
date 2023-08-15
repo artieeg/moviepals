@@ -3,7 +3,7 @@ import { Text, View } from "react-native";
 import { useRoute } from "@react-navigation/native";
 
 import { api } from "~/utils/api";
-import { TouchableScale } from "~/components";
+import { Section, TouchableScale } from "~/components";
 import { MainLayout } from "./layouts/MainLayout";
 
 export function UserInfoScreen() {
@@ -18,16 +18,36 @@ export function UserInfoScreen() {
       title={user.isSuccess ? user.data.user.username : "Loading..."}
     >
       {user.isSuccess && (
-        <View className="my-4 items-center justify-center">
-          <UserAvatar emoji={user.data.user.emoji} />
+        <View className="flex-1 space-y-8">
+          <View className="my-4 items-center justify-center">
+            <UserAvatar emoji={user.data.user.emoji} />
 
-          <Text className="font-primary-bold text-neutral-1 text-xl">
-            {user.data.user.name}
-          </Text>
+            <Text className="font-primary-bold text-neutral-1 text-xl">
+              {user.data.user.name}
+            </Text>
 
-          <Text className="text-neutral-2 font-primary-regular text-base">
-            @{user.data.user.username}
-          </Text>
+            <Text className="text-neutral-2 font-primary-regular text-base">
+              @{user.data.user.username}
+            </Text>
+          </View>
+          <Section
+            title={
+              user.data.matchesCount > 0
+                ? `Matches (${user.data.matchesCount})`
+                : "No matches"
+            }
+            onPress={() => {
+              if (user.data.matchesCount > 0) {
+                // navigation.navigate(SCREEN_MATCHES_LIST);
+              }
+            }}
+            showArrowRight={user.data.matchesCount > 0}
+            subtitle={
+              user.data.matchesCount > 0
+                ? "view your matches"
+                : "No matches yet, keep swiping!"
+            }
+          />
         </View>
       )}
     </MainLayout>
