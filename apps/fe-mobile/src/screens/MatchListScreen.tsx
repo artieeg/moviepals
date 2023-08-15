@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import FastImage from "react-native-fast-image";
 import { FlashList } from "@shopify/flash-list";
 import { Search } from "iconoir-react-native";
@@ -8,9 +8,15 @@ import { useDebounce } from "use-debounce";
 import { Movie } from "@moviepals/dbmovieswipe";
 
 import { api } from "~/utils/api";
-import { Input } from "~/components";
+import { getTMDBStaticUrl } from "~/utils/uri";
+import {
+  Input,
+  MovieDetailsBottomSheet,
+  MovieDetailsBottomSheetRef,
+} from "~/components";
 import { useRouteParams } from "~/hooks";
 import { MainLayout } from "./layouts/MainLayout";
+import {PressableProps} from "react-native";
 
 export function MatchListScreen() {
   const { userId } = useRouteParams<{ userId: string }>();
@@ -27,25 +33,37 @@ export function MatchListScreen() {
     return movies.data?.pages.flatMap(({ movies }) => movies);
   }, [movies.data?.pages]);
 
+  const movieDetailsBottomSheetRef =
+    React.useRef<MovieDetailsBottomSheetRef>(null);
+
+  const onOpenMovieDetails = useCallback(
+    (url: string) => movieDetailsBottomSheetRef.current?.open(url),
+    [],
+  );
+
   return (
-    <MainLayout title="matches" canGoBack>
-      {moviesList && (
-        <View className="-mx-8 flex-1">
-          <MovieList
-            onSearch={(search) => {
-              setQuery(search);
-            }}
-            onFetchNext={() => movies.fetchNextPage()}
-            movies={
-              matchedMovieSearch.isSuccess &&
-              matchedMovieSearch.data.movies.length > 0
-                ? matchedMovieSearch.data.movies
-                : moviesList
-            }
-          />
-        </View>
-      )}
-    </MainLayout>
+    <>
+      <MainLayout title="matches" canGoBack>
+        {moviesList && (
+          <View className="-mx-8 flex-1">
+            <MovieList
+              onOpenMovieDetails={onOpenMovieDetails}
+              onSearch={(search) => {
+                setQuery(search);
+              }}
+              onFetchNext={() => movies.fetchNextPage()}
+              movies={
+                matchedMovieSearch.isSuccess &&
+                matchedMovieSearch.data.movies.length > 0
+                  ? matchedMovieSearch.data.movies
+                  : moviesList
+              }
+            />
+          </View>
+        )}
+      </MainLayout>
+      <MovieDetailsBottomSheet ref={movieDetailsBottomSheetRef} />
+    </>
   );
 }
 
@@ -53,10 +71,12 @@ function MovieList({
   movies,
   onFetchNext,
   onSearch,
+  onOpenMovieDetails,
 }: {
   movies: Movie[];
   onFetchNext: () => void;
   onSearch: (query: string) => void;
+  onOpenMovieDetails: (url: string) => void;
 }) {
   const [_query, setQuery] = useState("");
   const [query] = useDebounce(_query, 300);
@@ -66,7 +86,16 @@ function MovieList({
   }, [query]);
 
   const renderMovieItem = useCallback(({ item }: { item: Movie }) => {
-    return <MovieItem movie={item} />;
+    return (
+      <MovieItem
+        movie={item}
+        onPress={() => {
+          const url = `https://www.themoviedb.org/movie/${item.id}`;
+
+          onOpenMovieDetails(url);
+        }}
+      />
+    );
   }, []);
 
   const renderItemSeparator = useCallback(() => {
@@ -96,9 +125,9 @@ function MovieList({
 
 const MovieItem = React.memo(_MovieItem);
 
-function _MovieItem({ movie }: { movie: Movie }) {
+function _MovieItem({ movie, ...rest }: { movie: Movie } & PressableProps) {
   return (
-    <View className="h-16 flex-row items-center space-x-2">
+    <Pressable className="h-16 flex-row items-center space-x-2" {...rest}>
       <FastImage
         className="h-16 w-16 rounded-md"
         source={{ uri: movie.poster_path }}
@@ -110,6 +139,6 @@ function _MovieItem({ movie }: { movie: Movie }) {
       >
         {movie.title}
       </Text>
-    </View>
+    </Pressable>
   );
 }
