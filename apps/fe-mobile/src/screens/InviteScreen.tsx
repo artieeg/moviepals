@@ -19,6 +19,9 @@ import { useDebounce } from "use-debounce";
 import { api } from "~/utils/api";
 import { Button, Input, ListItem } from "~/components";
 import { MainLayout } from "./layouts/MainLayout";
+import {useNavigation} from "~/hooks";
+import {SCREEN_INVITE_SUCCESS} from "./InviteSuccessScreen";
+import {Toast} from "react-native-toast-message/lib/src/Toast";
 
 export const SCREEN_INVITE = "InviteScreen";
 
@@ -31,6 +34,7 @@ export function InviteScreen() {
   });
 
   const inviteUrl = api.invite.fetchInviteUrl.useQuery();
+  const navigation = useNavigation();
 
   const contacts = useQuery(
     ["contacts"],
@@ -40,7 +44,10 @@ export function InviteScreen() {
     { enabled: permission.data === "granted" },
   );
 
-  function onInvite() {
+  async function onInvite() {
+    const s = await Clipboard.getString();
+
+
     if (!inviteUrl.isSuccess) return;
 
     SendSMS.send(
@@ -48,8 +55,17 @@ export function InviteScreen() {
         body: `Hey! Let's pick a movie to watch together using ${inviteUrl.data.link}`,
         recipients: selected.map((s) => s.phoneNumbers[0].number),
       },
-      (completed) => {
-        console.log(completed);
+      (completed, cancelled, error) => {
+        if (completed) {
+          navigation.replace(SCREEN_INVITE_SUCCESS);
+        }
+
+        if (error) {
+          Toast.show({
+            type: "error",
+            text1: "Something went wrong",
+          })
+        }
       },
     );
   }
