@@ -28,7 +28,7 @@ export function StreamingServiceList() {
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebounce(search, 300);
 
-  const user = api.user.getUserData.useQuery();
+  const user = api.user.getMyData.useQuery();
 
   const enableStreamingServices =
     api.streaming_service.enableStreamingServices.useMutation();
@@ -36,7 +36,7 @@ export function StreamingServiceList() {
   const navigation = useNavigation();
 
   function onSaveData() {
-    const user = ctx.user.getUserData.getData();
+    const user = ctx.user.getMyData.getData();
 
     if (!user) {
       return;
@@ -63,7 +63,7 @@ export function StreamingServiceList() {
    * This function only updates the country locally
    * */
   const onChangeCountry = useCallback((country: Country) => {
-    ctx.user.getUserData.setData(
+    ctx.user.getMyData.setData(
       undefined,
       produce((draft) => {
         if (!draft) {

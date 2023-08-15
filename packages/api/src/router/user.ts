@@ -20,7 +20,10 @@ const signInMethodSchema = z.discriminatedUnion("provider", [
 ]);
 
 export const user = createTRPCRouter({
-  getUserData: protectedProcedure.query(async ({ ctx }) => {
+  /**
+   * Returns the data of the currently logged in user
+   * */
+  getMyData: protectedProcedure.query(async ({ ctx }) => {
     const user = await ctx.prisma.user.findUnique({
       where: { id: ctx.user },
     });
@@ -31,6 +34,29 @@ export const user = createTRPCRouter({
 
     return user;
   }),
+
+  getUserData: protectedProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input: { userId } }) => {
+      const user = await ctx.prisma.user.findUnique({
+        where: { id: userId },
+      });
+
+      if (!user) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+
+      const matchesCount = await ctx.dbMovieSwipe.swipes.countDocuments({
+        userId: { $in: [user.id, ctx.user] },
+        liked: true,
+      });
+
+      return { user, matchesCount };
+    }),
 
   findExistingUser: publicProcedure
     .input(z.object({ method: signInMethodSchema }))

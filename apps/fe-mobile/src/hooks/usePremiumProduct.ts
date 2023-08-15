@@ -6,7 +6,7 @@ import { env } from "~/utils/env";
 import {api} from "~/utils/api";
 
 export function usePremiumProduct() {
-  const user = api.user.getUserData.useQuery();
+  const user = api.user.getMyData.useQuery();
 
   return useQuery(["premium-cost", user.data?.id], async () => {
     Purchases.configure({

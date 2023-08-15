@@ -2,6 +2,8 @@ import React, { PropsWithChildren } from "react";
 import { Text, TouchableOpacity, TouchableOpacityProps } from "react-native";
 import { twJoin } from "tailwind-merge";
 
+import { TouchableScale } from "./TouchableScale";
+
 export function Button({
   children,
   kind = "primary",
@@ -10,8 +12,7 @@ export function Button({
   TouchableOpacityProps & { kind?: "primary" | "outline" }
 >) {
   return (
-    <TouchableOpacity
-      activeOpacity={0.9}
+    <TouchableScale
       className={twJoin(
         "h-12 items-center justify-center rounded-full",
         kind !== "outline" && rest.disabled ? "bg-neutral-4" : "bg-brand-1",
@@ -27,6 +28,6 @@ export function Button({
       >
         {children}
       </Text>
-    </TouchableOpacity>
+    </TouchableScale>
   );
 }

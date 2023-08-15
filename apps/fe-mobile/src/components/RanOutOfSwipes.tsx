@@ -25,7 +25,7 @@ const ad = Platform.select({
 });
 
 function useRewardedAd() {
-  const user = api.user.getUserData.useQuery();
+  const user = api.user.getMyData.useQuery();
 
   return useQuery(["rewarded-ad", user.data?.id], async () => {
     return new Promise<RewardedAd>((resolve) => {
@@ -77,6 +77,7 @@ export function RanOutOfSwipes({
 
     try {
       //await Purchases.purchaseStoreProduct(premium.data.product);
+      
       onProceed();
 
       navigation.navigate(SCREEN_THANK_YOU);

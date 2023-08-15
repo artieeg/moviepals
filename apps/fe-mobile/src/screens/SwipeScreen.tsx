@@ -20,7 +20,7 @@ import {
 import { MainLayout } from "./layouts/MainLayout";
 
 export function SwipeScreen() {
-  const user = api.user.getUserData.useQuery();
+  const user = api.user.getMyData.useQuery();
   const genres = api.genres.fetchUserGenres.useQuery(undefined, {
     select: (data) =>
       data?.filter((genre) => genre.enabled).map((genre) => genre.id),

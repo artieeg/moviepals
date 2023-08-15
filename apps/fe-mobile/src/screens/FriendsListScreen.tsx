@@ -15,11 +15,14 @@ import { useDebounce } from "use-debounce";
 import { api } from "~/utils/api";
 import { Input, ListItem } from "~/components";
 import { useNavigation } from "~/hooks";
-import { SCREEN_FRIEND_REQUEST_LIST } from "~/navigators/FriendsNavigator";
+import {
+  SCREEN_FRIEND_REQUEST_LIST,
+  SCREEN_USER_INFO,
+} from "~/navigators/FriendsNavigator";
 import { MainLayout } from "./layouts/MainLayout";
 
 export function FriendsListScreen() {
-  const user = api.user.getUserData.useQuery();
+  const user = api.user.getMyData.useQuery();
   const friends = api.connection.listConnections.useQuery();
 
   const connectionRequestsCount =
@@ -231,6 +234,12 @@ function UserConnection({
   isFollowing: boolean;
   onRemove: (userId: string) => void;
 }) {
+  const navigation = useNavigation();
+
+  function onOpenUser() {
+    navigation.navigate(SCREEN_USER_INFO, { userId });
+  }
+
   function onOpenDialog() {
     Alert.alert("user actions", "what do you want to do?", [
       {
@@ -247,6 +256,7 @@ function UserConnection({
 
   return (
     <ListItem
+      onPress={onOpenUser}
       right="component"
       rightComponent={
         <TouchableOpacity onPress={onOpenDialog}>

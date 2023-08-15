@@ -17,7 +17,7 @@ export function SplashScreen() {
   >();
   const [animationFinished, setAnimationFinished] = useState(false);
 
-  const userData = api.user.getUserData.useQuery(undefined, {
+  const userData = api.user.getMyData.useQuery(undefined, {
     enabled: tokenStatus === "available",
   });
 

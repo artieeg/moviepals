@@ -11,7 +11,7 @@ import { NavArrowRight } from "iconoir-react-native";
 
 import { api } from "~/utils/api";
 import { getTMDBStaticUrl } from "~/utils/uri";
-import { Button, Switch } from "~/components";
+import { Button, Section, Switch } from "~/components";
 import { useAdmob, useNavigation } from "~/hooks";
 import {
   SCREEN_GENRE_FILTER,
@@ -35,7 +35,7 @@ export function PrepareSwipeScreen() {
   );
 
   function onStartSwiping() {
-    navigation.navigate(SCREEN_SWIPE, {quickMatchMode});
+    navigation.navigate(SCREEN_SWIPE, { quickMatchMode });
   }
 
   return (
@@ -77,26 +77,16 @@ function QuickMatchMode({
   onToggle(enabled: boolean): void;
 }) {
   return (
-    <TouchableOpacity
-      className="flex-row items-center justify-between"
+    <Section
+      title="quick match mode"
+      subtitle="include friend movies even if they don't match your genre selection"
       {...rest}
-    >
-      <View className="flex-1">
-        <Text className="font-primary-bold text-neutral-1 text-xl">
-          quick match mode
-        </Text>
-
-        <View className="flex-row items-center">
-          <Text className="font-primary-regular text-neutral-2 text-base">
-            include friend movies even if they don't match your filters
-          </Text>
+      right={
+        <View className="ml-4">
+          <Switch enabled={enabled} onToggle={onToggle} />
         </View>
-      </View>
-
-      <View className="ml-4">
-        <Switch enabled={enabled} onToggle={onToggle} />
-      </View>
-    </TouchableOpacity>
+      }
+    />
   );
 }
 
@@ -114,33 +104,24 @@ function GenreFilter(props: TouchableOpacityProps) {
   }
 
   return (
-    <TouchableOpacity
-      className="flex-row items-center justify-between"
-      {...props}
+    <Section
+      title="genre filter"
+      subtitle={
+        enabledGenreCount > 0
+          ? `${enabledGenres.data?.length} enabled genres`
+          : "any genre"
+      }
+      showArrowRight
       onPress={onPress}
-    >
-      <View className="flex-1">
-        <Text className="font-primary-bold text-neutral-1 text-xl">
-          genre filter
-        </Text>
-
-        <View className="flex-row items-center">
-          <Text className="font-primary-regular text-neutral-2 text-base">
-            {enabledGenreCount > 0
-              ? `${enabledGenres.data?.length} enabled genres`
-              : "any genre"}
-          </Text>
-        </View>
-      </View>
-      <NavArrowRight />
-    </TouchableOpacity>
+      {...props}
+    />
   );
 }
 
 function MyStreamingServicesSection(props: TouchableOpacityProps) {
   const navigation = useNavigation();
 
-  const user = api.user.getUserData.useQuery();
+  const user = api.user.getMyData.useQuery();
 
   const streamingServices = api.streaming_service.getStreamingServices.useQuery(
     { country: user.data?.country as string },
@@ -159,86 +140,42 @@ function MyStreamingServicesSection(props: TouchableOpacityProps) {
   }
 
   return (
-    <TouchableOpacity
-      className="flex-row items-center justify-between"
-      {...props}
+    <Section
+      title="my streaming services"
       onPress={onPress}
-    >
-      <View className="flex-1">
-        <Text className="font-primary-bold text-neutral-1 text-xl">
-          my streaming services
-        </Text>
-
-        <View className="flex-row items-center">
-          {streamingServices.data?.useAnyService ? (
-            <Text className="font-primary-regular text-neutral-2 text-base">
-              using any service
-            </Text>
-          ) : (
-            <View className="mt-2">
-              <FlatList
-                horizontal
-                ItemSeparatorComponent={() => <View className="w-2" />}
-                data={enabledStreamingServices}
-                renderItem={({ item }) => {
-                  return (
-                    <FastImage
-                      resizeMode="contain"
-                      source={{
-                        uri: getTMDBStaticUrl(item.logo_path),
-                      }}
-                      className="h-8 w-8 rounded-lg"
-                    />
-                  );
-                }}
-              />
-            </View>
-          )}
-        </View>
-      </View>
-      <NavArrowRight />
-    </TouchableOpacity>
+      showArrowRight
+      subtitle={
+        streamingServices.data?.useAnyService ? (
+          "using any service"
+        ) : (
+          <View className="mt-2">
+            <FlatList
+              horizontal
+              ItemSeparatorComponent={() => <View className="w-2" />}
+              data={enabledStreamingServices}
+              renderItem={({ item }) => {
+                return (
+                  <FastImage
+                    resizeMode="contain"
+                    source={{
+                      uri: getTMDBStaticUrl(item.logo_path),
+                    }}
+                    className="h-8 w-8 rounded-lg"
+                  />
+                );
+              }}
+            />
+          </View>
+        )
+      }
+    />
   );
 }
 
 function CastFilter(props: TouchableOpacityProps) {
-  return (
-    <TouchableOpacity
-      className="flex-row items-center justify-between"
-      {...props}
-    >
-      <View>
-        <Text className="font-primary-bold text-neutral-1 text-xl">
-          cast filter
-        </Text>
-
-        <View className="h-6 flex-row items-center space-x-1">
-          <Text className="font-primary-regular text-neutral-2 text-base">
-            coming soon
-          </Text>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
+  return <Section title="cast filter" subtitle="coming soon" {...props} />;
 }
 
 function DirectorFilter(props: TouchableOpacityProps) {
-  return (
-    <TouchableOpacity
-      className="flex-row items-center justify-between"
-      {...props}
-    >
-      <View>
-        <Text className="font-primary-bold text-neutral-1 text-xl">
-          director filter
-        </Text>
-
-        <View className="h-6 flex-row items-center space-x-1">
-          <Text className="font-primary-regular text-neutral-2 text-base">
-            coming soon
-          </Text>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
+  return <Section title="director filter" subtitle="coming soon" {...props} />;
 }

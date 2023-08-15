@@ -17,7 +17,7 @@ import { Input, ListItem } from "~/components";
 import { MainLayout } from "./layouts/MainLayout";
 
 export function FriendRequestListScreen() {
-  const user = api.user.getUserData.useQuery();
+  const user = api.user.getMyData.useQuery();
   const friendRequestList =
     api.connection_requests.listConnectionRequests.useQuery();
 
