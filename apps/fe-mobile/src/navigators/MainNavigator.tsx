@@ -5,6 +5,7 @@ import { BottomTabBar } from "~/components";
 import FriendsNavigator from "./FriendsNavigator";
 import { options } from "./options";
 import SwipeNavigator from "./SwipeNavigator";
+import MeNavigator from "./MeNavigator";
 
 const Tabs = createBottomTabNavigator();
 
@@ -38,7 +39,7 @@ export default function MainNavigator() {
       <Tabs.Screen
         options={options}
         name={NAVIGATOR_ME}
-        component={SwipeNavigator}
+        component={MeNavigator}
       />
     </Tabs.Navigator>
   );

@@ -12,3 +12,4 @@ export * from "./RanOutOfSwipes";
 export * from "./AnimatedPressable";
 export * from "./TouchableScale";
 export * from "./Section";
+export * from "./UserAvatar";

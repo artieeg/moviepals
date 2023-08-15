@@ -3,7 +3,7 @@ import { Text, View } from "react-native";
 import { useRoute } from "@react-navigation/native";
 
 import { api } from "~/utils/api";
-import { Section, TouchableScale } from "~/components";
+import { Section, UserAvatar } from "~/components";
 import { useNavigation } from "~/hooks";
 import { SCREEN_MATCHES_LIST } from "~/navigators/FriendsNavigator";
 import { MainLayout } from "./layouts/MainLayout";
@@ -55,13 +55,5 @@ export function UserInfoScreen() {
         </View>
       )}
     </MainLayout>
-  );
-}
-
-function UserAvatar({ emoji }: { onChange?: () => void; emoji: string }) {
-  return (
-    <TouchableScale className="bg-neutral-2-10 h-16 w-16 items-center justify-center rounded-full">
-      <Text className="text-3xl">{emoji}</Text>
-    </TouchableScale>
   );
 }

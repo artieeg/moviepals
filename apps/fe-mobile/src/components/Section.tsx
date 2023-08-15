@@ -6,18 +6,21 @@ import {
   View,
 } from "react-native";
 import { NavArrowRight } from "iconoir-react-native";
+import { twJoin } from "tailwind-merge";
 
 export function Section({
   title,
   subtitle,
   showArrowRight,
   right,
+  danger,
   ...rest
 }: TouchableOpacityProps & {
   title: string;
   subtitle: string | React.ReactNode;
   showArrowRight?: boolean;
   right?: React.ReactNode;
+  danger?: boolean;
 }) {
   return (
     <TouchableOpacity
@@ -25,7 +28,12 @@ export function Section({
       {...rest}
     >
       <View className="flex-1">
-        <Text className="font-primary-bold text-neutral-1 text-xl">
+        <Text
+          className={twJoin(
+            "font-primary-bold text-neutral-1 text-xl",
+            danger && "text-red-1",
+          )}
+        >
           {title}
         </Text>
 
