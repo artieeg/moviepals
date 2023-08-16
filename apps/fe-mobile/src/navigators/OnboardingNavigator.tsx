@@ -1,6 +1,6 @@
 import { createStackNavigator } from "@react-navigation/stack";
 
-import { WelcomeScreen, WhatsYourNameScreen } from "~/screens";
+import { CheckInviteScreen, SCREEN_CHECK_INVITE, WelcomeScreen, WhatsYourNameScreen } from "~/screens";
 import { options } from "./options";
 
 const Stack = createStackNavigator();
@@ -20,6 +20,12 @@ export default function OnboardingNavigator() {
         options={options}
         name={SCREEN_WHATS_YOUR_NAME}
         component={WhatsYourNameScreen}
+      />
+
+      <Stack.Screen
+        options={options}
+        name={SCREEN_CHECK_INVITE}
+        component={CheckInviteScreen}
       />
     </Stack.Navigator>
   );

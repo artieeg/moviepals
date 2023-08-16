@@ -257,6 +257,7 @@ function UserConnection({
   return (
     <ListItem
       onPress={onOpenUser}
+      onLongPress={onOpenDialog}
       right="component"
       rightComponent={
         <TouchableOpacity onPress={onOpenDialog}>

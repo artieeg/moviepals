@@ -1,16 +1,15 @@
 import React, { useState } from "react";
-import { Alert, Text, View } from "react-native";
+import { Alert, Platform, Text, View } from "react-native";
 import Animated from "react-native-reanimated";
 import Toast from "react-native-toast-message";
 import Clipboard from "@react-native-clipboard/clipboard";
 
 import { api } from "~/utils/api";
 import { Button } from "~/components";
+import { useNavigation } from "~/hooks";
+import { NAVIGATOR_MAIN } from "~/navigators/RootNavigator";
 import { MainLayout } from "./layouts/MainLayout";
 import { User } from ".prisma/client";
-import {NAVIGATOR_MAIN} from "~/navigators/RootNavigator";
-import {useNavigation} from "~/hooks";
-import {Platform} from "react-native";
 
 export const SCREEN_CHECK_INVITE = "CheckInviteScreen";
 
@@ -60,8 +59,9 @@ export function CheckInviteScreen() {
             Do you have an invite?
           </Text>
           <Text className="font-primary-regular text-neutral-2 text-base">
-            If another person has invited you via link, we can instantly connect you
-            together 🤗{"\n"}Otherwise, you can skip this step
+            If you don't have an invite, you can skip this step. If another
+            person has invited you via link, we can instantly connect you
+            together 🤗
           </Text>
         </Animated.View>
 

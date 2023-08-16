@@ -202,11 +202,11 @@ export function InviteScreen() {
 
             <View className="mt-4 items-center justify-center space-y-2">
               <Text className="font-primary-bold text-xl">
-                We need your permission
+                Contacts Permission
               </Text>
               <Text className="font-primary-regular text-neutral-2 text-center text-base">
                 We need your permission so we can fetch the list of people you
-                can invite
+                can invite. This data won't be transferred or stored anywhere.
               </Text>
             </View>
           </View>
