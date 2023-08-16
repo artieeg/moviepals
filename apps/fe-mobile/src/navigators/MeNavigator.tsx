@@ -4,9 +4,11 @@ import {
   InviteScreen,
   InviteSuccessScreen,
   MeScreen,
+  MySwipeListScreen,
   SCREEN_INVITE,
   SCREEN_INVITE_SUCCESS,
   SCREEN_ME,
+  SCREEN_MY_SWIPE_LIST,
 } from "~/screens";
 import { options } from "./options";
 
@@ -21,10 +23,17 @@ export default function MeNavigator() {
         name={SCREEN_INVITE}
         component={InviteScreen}
       />
+
       <Stack.Screen
         options={options}
         name={SCREEN_INVITE_SUCCESS}
         component={InviteSuccessScreen}
+      />
+
+      <Stack.Screen
+        options={options}
+        name={SCREEN_MY_SWIPE_LIST}
+        component={MySwipeListScreen}
       />
     </Stack.Navigator>
   );

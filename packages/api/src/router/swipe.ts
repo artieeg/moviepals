@@ -6,6 +6,30 @@ import { createTRPCRouter, protectedProcedure } from "../trpc";
 const USER_SWIPES_PER_PAGE = 20;
 
 export const swipe = createTRPCRouter({
+  search: protectedProcedure
+    .input(z.object({ query: z.string() }))
+    .query(async ({ ctx, input: { query } }) => {
+      const swipes = await ctx.dbMovieSwipe.swipes
+        .find({
+          userId: ctx.user,
+        })
+        .sort({ createdAt: -1 })
+        .toArray();
+
+      const uniqueMovieIds = Array.from(
+        new Set(swipes.map((swipe) => swipe.movieId)),
+      );
+
+      const movies = await ctx.dbMovieSwipe.movies
+        .find({
+          id: { $in: uniqueMovieIds },
+          $text: { $search: query },
+        })
+        .toArray();
+
+      return { movies };
+    }),
+
   fetchMySwipes: protectedProcedure
     .input(z.object({ cursor: z.number().default(0) }))
     .query(async ({ ctx, input: { cursor } }) => {

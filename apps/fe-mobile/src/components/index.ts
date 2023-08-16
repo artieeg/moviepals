@@ -13,3 +13,4 @@ export * from "./AnimatedPressable";
 export * from "./TouchableScale";
 export * from "./Section";
 export * from "./UserAvatar";
+export * from "./MovieList";

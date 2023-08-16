@@ -4,8 +4,9 @@ import { ScrollView, Text, View } from "react-native";
 import { api } from "~/utils/api";
 import { Section, UserAvatar } from "~/components";
 import { useNavigation } from "~/hooks";
+import { SCREEN_INVITE } from "./InviteScreen";
 import { MainLayout } from "./layouts/MainLayout";
-import {SCREEN_INVITE} from "./InviteScreen";
+import { SCREEN_MY_SWIPE_LIST } from "./MySwipeListScreen";
 
 export const SCREEN_ME = "MeScreen";
 
@@ -18,7 +19,9 @@ export function MeScreen() {
     navigation.navigate(SCREEN_INVITE);
   }
 
-  function onViewSwipes() {}
+  function onViewSwipes() {
+    navigation.navigate(SCREEN_MY_SWIPE_LIST);
+  }
 
   function onPurchasePremium() {}
 
