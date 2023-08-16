@@ -31,13 +31,19 @@ export const movie_feed = createTRPCRouter({
         ctx,
         input: { genres, quick_match_mode, cursor, region, watchProviderIds },
       }) => {
-        const reviewState = await getReviewState(ctx.dbMovieSwipe, {
+        const reviewStatePromise = getReviewState(ctx.dbMovieSwipe, {
           genre_ids: genres,
           watch_providers: watchProviderIds,
           userId: ctx.user,
         });
 
-        const connections = await ctx.prisma.connection.findMany({
+        const userPromise = await ctx.prisma.user.findUnique({
+          where: {
+            id: ctx.user,
+          },
+        });
+
+        const connectionsPromise = ctx.prisma.connection.findMany({
           where: {
             OR: [
               {
@@ -50,13 +56,7 @@ export const movie_feed = createTRPCRouter({
           },
         });
 
-        const connectedUserIds = connections.map((connection) =>
-          connection.firstUserId === ctx.user
-            ? connection.secondUserId
-            : connection.firstUserId,
-        );
-
-        const userSwipes = await ctx.dbMovieSwipe.swipes
+        const userSwipesPromise = ctx.dbMovieSwipe.swipes
           .find({
             userId: ctx.user,
 
@@ -71,6 +71,19 @@ export const movie_feed = createTRPCRouter({
                 : { $exists: true },
           })
           .toArray();
+
+        const [user, connections, reviewState, userSwipes] = await Promise.all([
+          userPromise,
+          connectionsPromise,
+          reviewStatePromise,
+          userSwipesPromise,
+        ]);
+
+        const connectedUserIds = connections.map((connection) =>
+          connection.firstUserId === ctx.user
+            ? connection.secondUserId
+            : connection.firstUserId,
+        );
 
         const excludeMovieIds = userSwipes.map((swipe) => swipe.movieId);
 
