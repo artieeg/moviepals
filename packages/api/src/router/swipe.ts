@@ -2,7 +2,34 @@ import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
+const USER_SWIPES_PER_PAGE = 20;
+
 export const swipe = createTRPCRouter({
+  fetchMySwipes: protectedProcedure
+    .input(z.object({ cursor: z.number().default(0) }))
+    .query(async ({ ctx, input: { cursor } }) => {
+      const swipes = await ctx.dbMovieSwipe.swipes
+        .find({
+          userId: ctx.user,
+        })
+        .sort({ createdAt: -1 })
+        .skip(cursor * USER_SWIPES_PER_PAGE)
+        .limit(USER_SWIPES_PER_PAGE)
+        .toArray();
+
+      const uniqueMovieIds = Array.from(
+        new Set(swipes.map((swipe) => swipe.movieId)),
+      );
+
+      const movies = await ctx.dbMovieSwipe.movies
+        .find({
+          id: { $in: uniqueMovieIds },
+        })
+        .toArray();
+
+      return { movies, nextCursor: cursor + 1 };
+    }),
+
   reset: protectedProcedure
     .input(
       z.object({
