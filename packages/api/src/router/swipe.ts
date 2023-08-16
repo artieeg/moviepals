@@ -1,3 +1,4 @@
+import cuid from "@paralleldrive/cuid2";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
@@ -83,6 +84,7 @@ export const swipe = createTRPCRouter({
         },
       }) => {
         await ctx.dbMovieSwipe.swipes.insertOne({
+          id: cuid.createId(),
           userId: ctx.user,
           movieId,
           liked,

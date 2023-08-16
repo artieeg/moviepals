@@ -3,6 +3,7 @@ import { z } from "zod";
 import { db } from "./db";
 
 export const swipeSchema = z.object({
+  id: z.string(),
   userId: z.string(),
   movieId: z.number(),
   liked: z.boolean(),
