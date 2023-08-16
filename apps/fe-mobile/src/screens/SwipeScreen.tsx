@@ -155,6 +155,7 @@ export function SwipeScreen() {
 
           {result.data?.pages && (
             <RanOutOfSwipes
+              mode="ad-permission"
               visible={
                 !currentMovie
               }
