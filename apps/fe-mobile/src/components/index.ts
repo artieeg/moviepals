@@ -14,3 +14,4 @@ export * from "./TouchableScale";
 export * from "./Section";
 export * from "./UserAvatar";
 export * from "./MovieList";
+export * from "./Prompt";

@@ -4,13 +4,11 @@ import { twJoin } from "tailwind-merge";
 
 import { TouchableScale } from "./TouchableScale";
 
-export function Button({
-  children,
-  kind = "primary",
-  ...rest
-}: PropsWithChildren<
+export type ButtonProps = PropsWithChildren<
   TouchableOpacityProps & { kind?: "primary" | "outline" }
->) {
+>;
+
+export function Button({ children, kind = "primary", ...rest }: ButtonProps) {
   return (
     <TouchableScale
       className={twJoin(

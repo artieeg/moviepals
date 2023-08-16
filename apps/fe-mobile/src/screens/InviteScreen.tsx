@@ -18,7 +18,7 @@ import { Copy, MessageText, Search } from "iconoir-react-native";
 import { useDebounce } from "use-debounce";
 
 import { api } from "~/utils/api";
-import { Button, Input, ListItem } from "~/components";
+import { Button, Input, ListItem, Prompt } from "~/components";
 import { useNavigation } from "~/hooks";
 import { SCREEN_INVITE_SUCCESS } from "./InviteSuccessScreen";
 import { MainLayout } from "./layouts/MainLayout";
@@ -189,36 +189,22 @@ export function InviteScreen() {
           )}
         </>
       ) : (
-        <View className="mt-8 flex-1">
-          <View className="flex-1 items-center justify-center">
-            <View className="bg-brand-1-10 h-20 w-20 items-center justify-center rounded-2xl">
-              <MessageText
-                color="#6867AA"
-                fill="#6867AA"
-                width={32}
-                height={32}
-              />
-            </View>
-
-            <View className="mt-4 items-center justify-center space-y-2">
-              <Text className="font-primary-bold text-xl">
-                Contacts Permission
-              </Text>
-              <Text className="font-primary-regular text-neutral-2 text-center text-base">
-                We need your permission so we can fetch the list of people you
-                can invite. This data won't be transferred or stored anywhere.
-              </Text>
-            </View>
-          </View>
-
-          <View className="mb-4 space-y-4">
-            <Button onPress={onRequestPermission}>Allow Access</Button>
-
-            <Button onPress={onCopyLink} kind="outline">
-              Copy the link instead
-            </Button>
-          </View>
-        </View>
+        <Prompt
+          icon={<MessageText />}
+          title="Contacts Permission"
+          subtitle="We need your permission so we can fetch the list of people you can invite. This data won't be transferred or stored anywhere."
+          buttons={[
+            {
+              title: "Allow Access",
+              onPress: onRequestPermission,
+            },
+            {
+              kind: "outline",
+              title: "Copy the link instead",
+              onPress: onCopyLink,
+            },
+          ]}
+        />
       )}
     </MainLayout>
   );
