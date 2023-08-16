@@ -1,5 +1,6 @@
 import React from "react";
 import { Platform, ViewProps } from "react-native";
+import { AdsConsent } from "react-native-google-mobile-ads";
 import { PurchasesError } from "react-native-purchases";
 import Animated, {
   useAnimatedStyle,
@@ -57,7 +58,10 @@ export function RanOutOfSwipes({
   }
 
   async function onAllowAds() {
+    const consentInfo = await AdsConsent.requestInfoUpdate({
 
+    });
+    console.log(consentInfo)
   }
 
   async function onWatchRewardedAd() {
@@ -84,32 +88,31 @@ export function RanOutOfSwipes({
       <Prompt
         icon={<BrightStar />}
         title={
-          mode === "ad"
-            ? "Hey, slow down a little 😅"
-            : "Hey, a short stop 🍿"
+          mode === "ad" ? "Hey, slow down a little 😅" : "Hey, a short stop 🍿"
         }
         subtitle={
           mode === "ad"
             ? canServeAds.data === true
               ? "Swipe-oops, you've hit the daily limit! 🙅. Watch a short ad and get +40 swipes, or buy premium for unlimited access (you can share it with up to 4 people 🙌)"
               : "You’ve ran out of swipes for the day. Buy premium for unlimited access (you can share it with up to 4 friends 🙌)"
-            : "MoviePals depends on occassional ads. They are like the popcorn to our movie marathon  – helps us keep the reels spinning.\nPlease allow some permissions for a better ad experience. Or you can get premium (that you can share with up to 4 people 🙌)"
+            : "MoviePals depends on occassional ads. They are like the popcorn to our movie marathon  – helps us keep the reels spinning.\n\nWe need your permission for a better ad experience.\n\nYou can also get premium for unlimited ad-free experience. You can share premium  with up to 4 people 🙌"
         }
         buttons={[
           {
             title: `get premium for ${premium.data?.formattedPrice}`,
             onPress: onPurchasePremium,
           },
-          mode === "ad" ? 
-          {
-            kind: "outline",
-            title: `watch a rewarded ad`,
-            onPress: onWatchRewardedAd,
-          } : {
-            kind: "outline",
-            title: "allow ads",
-            onPress: onAllowAds,
-          },
+          mode === "ad"
+            ? {
+                kind: "outline",
+                title: `watch a rewarded ad`,
+                onPress: onWatchRewardedAd,
+              }
+            : {
+                kind: "outline",
+                title: "allow ads",
+                onPress: onAllowAds,
+              },
         ]}
       />
     </Animated.View>

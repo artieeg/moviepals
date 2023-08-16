@@ -1,6 +1,8 @@
 import React, { useMemo, useRef, useState } from "react";
 import { Text, TouchableOpacity, View, ViewProps } from "react-native";
 import Animated, {
+  FadeIn,
+  FadeOut,
   useAnimatedStyle,
   useDerivedValue,
   withTiming,
@@ -124,55 +126,59 @@ export function SwipeScreen() {
   return (
     <>
       <MainLayout title="swipe" canGoBack>
-        <View className="aspect-[2/3] translate-y-8">
-          {result.isSuccess &&
-            deck &&
-            deck.map((movie, idx) => (
-              <MovieCard
-                key={movie.id}
-                ref={idx === 0 ? currentMovieCard : undefined}
-                idx={idx}
-                totalNumberOfCards={3}
-                onSwipe={(liked: boolean) => {
-                  if (!currentMovie) {
-                    return;
-                  }
+        {currentMovie && (
+          <Animated.View entering={FadeIn} exiting={FadeOut} className="flex-1">
+            <View className="aspect-[2/3] translate-y-8">
+              {result.isSuccess &&
+                deck &&
+                deck.map((movie, idx) => (
+                  <MovieCard
+                    key={movie.id}
+                    ref={idx === 0 ? currentMovieCard : undefined}
+                    idx={idx}
+                    totalNumberOfCards={3}
+                    onSwipe={(liked: boolean) => {
+                      if (!currentMovie) {
+                        return;
+                      }
 
-                  swipe.mutate({
-                    movieId: currentMovie.id,
-                    liked,
-                    watch_providers: watchProviders.data ?? [],
-                    genres: currentMovie.genre_ids,
-                    watch_region: user.data!.country,
-                    movie_language: currentMovie.original_language,
-                  });
+                      swipe.mutate({
+                        movieId: currentMovie.id,
+                        liked,
+                        watch_providers: watchProviders.data ?? [],
+                        genres: currentMovie.genre_ids,
+                        watch_region: user.data!.country,
+                        movie_language: currentMovie.original_language,
+                      });
 
-                  setCurrentMovieIdx((prev) => prev + 1);
-                }}
-                movie={movie}
+                      setCurrentMovieIdx((prev) => prev + 1);
+                    }}
+                    movie={movie}
+                  />
+                ))}
+            </View>
+
+            {result.data?.pages && (
+              <Controls
+                visible={!!currentMovie}
+                onDislike={onDislike}
+                onLike={onLike}
+                onOpenMovieDetails={onOpenMovieDetails}
               />
-            ))}
+            )}
+          </Animated.View>
+        )}
 
-          {result.data?.pages && (
-            <RanOutOfSwipes
-              mode="ad-permission"
-              visible={
-                !currentMovie
-              }
-              onProceed={onProceedAfterPurchaseOrAd}
-            />
-          )}
-        </View>
-
-        {result.data?.pages && (
-          <Controls
-            visible={
-              !!currentMovie
-            }
-            onDislike={onDislike}
-            onLike={onLike}
-            onOpenMovieDetails={onOpenMovieDetails}
-          />
+        {!currentMovie && (
+          <Animated.View className="flex-1 pb-8" entering={FadeIn} exiting={FadeOut}>
+            {result.data?.pages && (
+              <RanOutOfSwipes
+                mode="ad-permission"
+                visible={!currentMovie}
+                onProceed={onProceedAfterPurchaseOrAd}
+              />
+            )}
+          </Animated.View>
         )}
       </MainLayout>
       <MovieDetailsBottomSheet ref={movieDetailsRef} />
