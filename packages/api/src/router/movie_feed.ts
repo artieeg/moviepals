@@ -79,6 +79,17 @@ export const movie_feed = createTRPCRouter({
           userSwipesPromise,
         ]);
 
+        if (!user) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "User not found",
+          });
+        }
+
+        if (!user.fullAccessPurchaseId) {
+
+        }
+
         const connectedUserIds = connections.map((connection) =>
           connection.firstUserId === ctx.user
             ? connection.secondUserId

@@ -59,7 +59,6 @@ model FullAccessPurchase {
   id String @id @default(cuid())
 
   createdAt DateTime @default(now())
-  userId    String?
   User      User?
 }
 

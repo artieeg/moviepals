@@ -1,4 +1,9 @@
 services:
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
   movie-swipe-db:
     image: mongo:latest
     ports:

@@ -3,6 +3,7 @@ import {
   fastifyTRPCPlugin,
 } from "@trpc/server/adapters/fastify";
 import fastify from "fastify";
+import { Redis } from "ioredis";
 import { z } from "zod";
 
 import {
@@ -11,6 +12,7 @@ import {
   dbMovieSwipe,
   handleFullAccessPurchase,
   prisma,
+  UserFeedDeliveryCache,
   verifyRewardedAd,
 } from "@moviepals/api";
 
@@ -37,22 +39,38 @@ const admobSchema = z.object({
   signature: z.string(),
 });
 
-//TRPC
-server.register(fastifyTRPCPlugin, {
-  prefix: "/trpc",
-  trpcOptions: {
-    router: appRouter,
-    createContext: (opts: CreateFastifyContextOptions) => {
-      const { authorization } = opts.req.headers;
-      const ip = opts.req.headers["x-forwarded-for"] ?? opts.req.ip;
-
-      return createTRPCContext({ authorization, ip: ip as string });
-    },
-  },
-});
-
 export async function main() {
-  await Promise.all([prisma.$connect(), dbMovieSwipe.connect()]);
+  const userDeliveryCacheClient = new Redis(env.USER_DELIVERY_CACHE_REDIS_URL, {
+    lazyConnect: true,
+  });
+
+  await Promise.all([
+    prisma.$connect(),
+    dbMovieSwipe.connect(),
+    userDeliveryCacheClient.connect(),
+  ]);
+
+  const userFeedDeliveryCache = new UserFeedDeliveryCache(
+    userDeliveryCacheClient,
+  );
+
+  //TRPC
+  server.register(fastifyTRPCPlugin, {
+    prefix: "/trpc",
+    trpcOptions: {
+      router: appRouter,
+      createContext: (opts: CreateFastifyContextOptions) => {
+        const { authorization } = opts.req.headers;
+        const ip = opts.req.headers["x-forwarded-for"] ?? opts.req.ip;
+
+        return createTRPCContext({
+          authorization,
+          ip: ip as string,
+          userFeedDeliveryCache,
+        });
+      },
+    },
+  });
 
   server.post("/revcat/callback", async (msg, reply) => {
     console.log(msg.body);
