@@ -5,6 +5,7 @@ import { DbMovieSwipe, Movie, ReviewState } from "@moviepals/dbmovieswipe";
 
 import { getMovies } from "../services";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
+import {logger} from "../logger";
 
 /** Number of movies that TMDB returns */
 const MOVIES_PER_TMDB_PAGE = 20;
@@ -91,9 +92,14 @@ export const movie_feed = createTRPCRouter({
             ctx.user,
           );
 
+          logger.info({
+            state,
+            user: ctx.user,
+          })
+
           // If user has been delivered feed earlier this day
           if (state) {
-            if (state.page + 1 < state.ads_watched) {
+            if (state.page + 1 > state.ads_watched) {
               throw new TRPCError({
                 code: "BAD_REQUEST",
                 message: "Daily swipe limit"

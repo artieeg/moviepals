@@ -125,7 +125,7 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
 /**
  * Logger middleware
  */
-export const loggerMiddleware = t.middleware(async ({ ctx, input, next }) => {
+export const loggerMiddleware = t.middleware(async ({ ctx, path, input, next }) => {
   try {
     const p = performance.now();
 
@@ -138,6 +138,7 @@ export const loggerMiddleware = t.middleware(async ({ ctx, input, next }) => {
     logger.info({
       elapsed: `${time.toFixed(2)}ms`,
       request: {
+        path,
         ctx: {
           ip: ctx.ip,
           user: ctx.user,
