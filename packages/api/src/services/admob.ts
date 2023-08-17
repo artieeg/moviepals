@@ -1,25 +1,39 @@
 import crypto from "crypto";
+import qs from "querystring";
 import axios from "axios";
+import { z } from "zod";
 
-import { PrismaClient } from "@moviepals/db";
+import { UserFeedDeliveryCache } from "./user-feed-delivery-cache";
 
-export async function verifyRewardedAd({
-  userId,
-  prisma,
-  key_id,
-  signature,
+export const admobSchema = z.object({
+  user_id: z.string(),
+  ad_unit: z.string(),
+  key_id: z.string(),
+  signature: z.string(),
+});
+
+export async function verifyRewardedAdCallback({
+  data,
+  userFeedDeliveryCache,
 }: {
-  userId: string;
-  prisma: PrismaClient;
-  key_id: string;
-  signature: string;
+  data: unknown;
+  userFeedDeliveryCache: UserFeedDeliveryCache;
 }) {
-  /*
+  const payload = admobSchema.parse(data);
+
+  await verifySignature(payload);
+
+  await userFeedDeliveryCache.incAdWatched(payload.user_id);
+}
+
+async function verifySignature(payload: z.infer<typeof admobSchema>) {
   const keys = await axios.get(
     "https://gstatic.com/admob/reward/verifier-keys.json",
   );
 
   console.log(keys.data.keys[0]);
+
+  const { key_id, signature, ...rest } = payload;
 
   const key = keys.data.keys.find(
     (key: { keyId: string }) => Number(key.keyId) === Number(key_id),
@@ -31,23 +45,13 @@ export async function verifyRewardedAd({
 
   const verifier = crypto.createVerify("RSA-SHA256");
 
-  verifier.update(userId);
+  verifier.update(qs.encode(rest));
 
-  const verified = verifier.verify(
-    key.pem,
-    signature,
-    "base64",
-  );
+  const verified = verifier.verify(key.pem, signature, "base64");
 
   if (!verified) {
     throw new Error("Not verified");
   }
-  */
 
-  await prisma.extraSwipe.create({
-    data: {
-      userId,
-      count: 40,
-    },
-  });
+  return true;
 }

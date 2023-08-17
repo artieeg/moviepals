@@ -7,6 +7,7 @@ import { Redis } from "ioredis";
 import { z } from "zod";
 
 import {
+  admobSchema,
   appRouter,
   createTRPCContext,
   dbMovieSwipe,
@@ -31,13 +32,6 @@ const revenueCatSchema = z
       .passthrough(),
   })
   .passthrough();
-
-const admobSchema = z.object({
-  user_id: z.string(),
-  ad_unit: z.string(),
-  key_id: z.string(),
-  signature: z.string(),
-});
 
 export async function main() {
   const userDeliveryCacheClient = new Redis(env.USER_DELIVERY_CACHE_REDIS_URL, {
@@ -98,9 +92,9 @@ export async function main() {
 
       await verifyRewardedAd({
         userId: user_id,
-        prisma,
         key_id,
         signature,
+        userFeedDeliveryCache,
       });
 
       reply.status(200).send();

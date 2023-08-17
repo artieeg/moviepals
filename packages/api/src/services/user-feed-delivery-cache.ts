@@ -1,4 +1,5 @@
 import Redis from "ioredis";
+import { DateTime } from "luxon";
 import { z } from "zod";
 
 const userFeedDeliveryStateSchema = z.object({
@@ -20,20 +21,29 @@ export class UserFeedDeliveryCache {
     const state = await this.getDeliveryState(userId);
 
     if (!state) {
-      this.setDeliveryState(userId, {
+      await this.setDeliveryState(userId, {
         page: 0,
         ads_watched: 1,
       });
     } else {
-      this.setDeliveryState(userId, {
+      await this.setDeliveryState(userId, {
         ...state,
         ads_watched: state.ads_watched + 1,
       });
     }
   }
 
+  private getExpireAt() {
+    const tomorrow = DateTime.utc().startOf("day").plus({ days: 1 }).toJSDate();
+
+    return Math.floor(tomorrow.getTime() / 1000);
+  }
+
   async setDeliveryState(userId: string, state: UserFeedDeliveryState) {
-    return this.client.hmset(userId, state);
+    const pipeline = this.client.pipeline();
+
+    pipeline.hmset(userId, state);
+    pipeline.expireat(userId, this.getExpireAt());
   }
 
   async getDeliveryState(userId: string) {
