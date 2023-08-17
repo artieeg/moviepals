@@ -1,6 +1,8 @@
 import React, { useCallback, useMemo, useState } from "react";
 import {
   FlatList,
+  Linking,
+  Pressable,
   Text,
   TouchableOpacity,
   View,
@@ -16,95 +18,52 @@ import { produce } from "immer";
 import { useDebounce } from "use-debounce";
 import countries from "world-countries";
 
+import { StreamingService } from "@moviepals/api";
+
 import { api } from "~/utils/api";
 import { getTMDBStaticUrl } from "~/utils/uri";
 import { Button, Input, ListItem, LoadingIndicator } from "~/components";
 import { useNavigation } from "~/hooks";
+import { useFilterStore } from "~/stores";
 import { MainLayout } from "./layouts/MainLayout";
 
 export function StreamingServiceList() {
-  const ctx = api.useContext();
-
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebounce(search, 300);
 
-  const user = api.user.getMyData.useQuery();
+  const country = useFilterStore((state) => state.country);
 
-  const enableStreamingServices =
-    api.streaming_service.enableStreamingServices.useMutation();
+  const enabledStreamingServices = useFilterStore(
+    (state) => state.streamingServices,
+  );
+  const anyService = enabledStreamingServices.length === 0;
 
   const navigation = useNavigation();
 
   function onSaveData() {
-    const user = ctx.user.getMyData.getData();
-
-    if (!user) {
-      return;
-    }
-
-    const streamingServices =
-      ctx.streaming_service.getStreamingServices.getData({
-        country: user.country,
-      });
-
-    if (!streamingServices) {
-      return;
-    }
-
-    const country = user.country;
-    const streamingServiceIds = streamingServices.services
-      .filter((item) => item.enabled)
-      .map((item) => item.provider_id);
-
-    enableStreamingServices.mutate({ country, streamingServiceIds });
+    navigation.goBack();
   }
 
   /**
    * This function only updates the country locally
    * */
   const onChangeCountry = useCallback((country: Country) => {
-    ctx.user.getMyData.setData(
-      undefined,
-      produce((draft) => {
-        if (!draft) {
-          return draft;
-        }
-
-        draft.country = country.cca2;
-      }),
-    );
+    useFilterStore.setState({
+      country: country.cca2,
+    });
   }, []);
 
   /**
    * This function only updates the list locally.
    * */
-  function onToggleStreamingService(id: number, enabled: boolean) {
-    if (!user.data?.country) {
-      return;
-    }
-
-    /**
-     * Modify the data locally
-     * */
-    ctx.streaming_service.getStreamingServices.setData(
-      { country: user.data.country },
-      produce((draft) => {
-        const item = draft?.services.find((s) => s.provider_id === id);
-
-        if (!item || !draft) {
-          return draft;
-        }
-
-        draft.useAnyService = false;
-        item.enabled = enabled;
-      }),
-    );
+  function onToggleStreamingService(service: StreamingService) {
+    useFilterStore.getState().toggleStreamingService(service);
   }
 
   const streamingServices = api.streaming_service.getStreamingServices.useQuery(
-    { country: user.data?.country as string },
+    { country },
     {
-      enabled: user.isSuccess && !!user.data.country,
+      enabled: !!country,
       select: (result) => {
         if (debouncedSearch.length > 0) {
           return {
@@ -113,34 +72,20 @@ export function StreamingServiceList() {
                 .toLowerCase()
                 .includes(debouncedSearch.toLowerCase()),
             ),
-            useAnyService: result.useAnyService,
           };
         } else {
           return {
             services: result.services,
-            useAnyService: result.useAnyService,
           };
         }
       },
     },
   );
 
-  const anyService = streamingServices.data?.useAnyService;
-
   function onToggleAnyService() {
-    ctx.streaming_service.getStreamingServices.setData(
-      { country: user.data?.country as string },
-      produce((draft) => {
-        if (!draft) {
-          return draft;
-        }
-
-        draft.useAnyService = !draft.useAnyService;
-        draft.services.forEach((item) => {
-          item.enabled = false;
-        });
-      }),
-    );
+    useFilterStore.setState({
+      streamingServices: [],
+    });
   }
 
   function onDone() {
@@ -166,8 +111,10 @@ export function StreamingServiceList() {
               itemId={item.provider_id}
               title={item.provider_name.toLowerCase()}
               right="checkbox"
-              checked={item.enabled}
-              onToggle={onToggleStreamingService}
+              checked={enabledStreamingServices.some(
+                (s) => s.provider_id === item.provider_id,
+              )}
+              onToggle={() => onToggleStreamingService(item)}
             />
           );
         }}
@@ -184,21 +131,32 @@ export function StreamingServiceList() {
         }}
         ListHeaderComponent={
           <View className="mb-4 space-y-8">
-            {user.isSuccess && (
-              <YourCountry
-                country={user.data.country}
-                onChangeCountry={onChangeCountry}
-              />
-            )}
+            <YourCountry country={country} onChangeCountry={onChangeCountry} />
 
             <View className="space-y-6">
               <View className="space-y-1">
                 <Text className="font-primary-bold text-neutral-1 text-xl">
-                  streaming services
+                  Services available
                 </Text>
                 <Text className="font-primary-regular text-neutral-2 text-base">
-                  select the services you use, this will make the app more
-                  relevant to you & your friends
+                  Select the services you use. Powered by{" "}
+                  <Pressable
+                    onPress={() => Linking.openURL("https://www.justwatch.com")}
+                    className="translate-y-0.5"
+                  >
+                    <Text className="font-primary-regular text-neutral-2 text-base underline">
+                      justwatch.com
+                    </Text>
+                  </Pressable>{" "}
+                  and{" "}
+                  <Pressable 
+                    onPress={() => Linking.openURL("https://www.themoviedb.org")}
+                    className="translate-y-0.5">
+                    <Text className="font-primary-regular text-neutral-2 text-base underline">
+                      themoviedb.org
+                    </Text>
+                  </Pressable>
+                  .
                 </Text>
               </View>
 

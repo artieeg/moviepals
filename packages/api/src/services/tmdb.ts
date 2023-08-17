@@ -29,20 +29,18 @@ export async function getStreamingServices(country: string) {
   return streamingServicesResponseSchema.parse(response.data).results;
 }
 
-const streamingServicesResponseSchema = z.object({
-  results: z.array(
-    z.object({
-      display_priorities: z.record(z.string(), z.number()),
-      display_priority: z.number(),
-      logo_path: z.string(),
-      provider_name: z.string(),
-      provider_id: z.number(),
-    }),
-  ),
+const streamingServiceSchema = z.object({
+  display_priorities: z.record(z.string(), z.number()),
+  display_priority: z.number(),
+  logo_path: z.string(),
+  provider_name: z.string(),
+  provider_id: z.number(),
 });
 
-const getMoviesSchema = z.object({
-  results: z.array(movieSchema),
+export type StreamingService = z.infer<typeof streamingServiceSchema>;
+
+const streamingServicesResponseSchema = z.object({
+  results: z.array(streamingServiceSchema),
 });
 
 export async function getMovies(params: unknown) {

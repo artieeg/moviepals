@@ -9,7 +9,6 @@ import {
   NAVIGATOR_MAIN,
   NAVIGATOR_ONBOARDING,
 } from "~/navigators/RootNavigator";
-import {SCREEN_CHECK_INVITE} from "./CheckInviteScreen";
 
 export function SplashScreen() {
   const navigation = useNavigation();

@@ -1,63 +1,32 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React from "react";
 import { FlatList, View } from "react-native";
-import { produce } from "immer";
 
 import { api } from "~/utils/api";
 import { Button, ListItem } from "~/components";
 import { useNavigation } from "~/hooks";
+import { useFilterStore } from "~/stores";
 import { MainLayout } from "./layouts/MainLayout";
 
 export function GenreFilterScreen() {
-  const ctx = api.useContext();
   const navigation = useNavigation();
-  const genres = api.genres.fetchUserGenres.useQuery();
+  const allGenres = api.genres.fetchAllGenres.useQuery();
 
-  const [enabledGenres, setEnabledGenres] = useState<number[]>([]);
+  const genres = useFilterStore((state) => state.genres);
 
-  const anyGenre = enabledGenres.length === 0;
+  const anyGenre = genres.length === 0;
 
-  useEffect(() => {
-    if (genres.data) {
-      setEnabledGenres(genres.data.filter((g) => g.enabled).map((g) => g.id));
-    }
-  }, [genres.data]);
-
-  const enableGenres = api.genres.enableGenres.useMutation({
-    onMutate: (data) => {
-      const prev = genres.data;
-      ctx.genres.fetchUserGenres.setData(
-        undefined,
-        produce(prev, (draft) => {
-          if (!draft) return;
-
-          for (const genre of draft) {
-            genre.enabled = data.genres.includes(genre.id);
-          }
-        }),
-      );
-      return prev;
-    },
-  });
-
-  function onToggleGenre(id: number, enabled: boolean) {
-    setEnabledGenres((prev) => {
-      if (enabled) {
-        return [...prev, id];
-      } else {
-        return prev.filter((g) => g !== id);
-      }
-    });
+  function onToggleGenre(id: number) {
+    useFilterStore.getState().toggleGenre(id);
   }
 
   function onSaveData() {
-    enableGenres.mutate({
-      genres: enabledGenres,
-    });
     navigation.goBack();
   }
 
   function onToggleAnyGenre() {
-    setEnabledGenres([]);
+    useFilterStore.setState({
+      genres: [],
+    });
   }
 
   return (
@@ -84,13 +53,14 @@ export function GenreFilterScreen() {
         renderItem={({ item }) => (
           <GenreItem
             onToggle={onToggleGenre}
-            enabled={enabledGenres.includes(item.id)}
+            enabled={genres.includes(item.id)}
             id={item.id}
             title={item.name}
             emoji={item.emoji}
           />
         )}
-        data={genres.data}
+        extraData={genres}
+        data={allGenres.data}
       />
 
       <Button onPress={onSaveData} className="absolute bottom-0 left-8 right-8">

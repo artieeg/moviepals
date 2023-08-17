@@ -106,6 +106,7 @@ export function AdsOrPremiumPrompt({
 
     if (!data) {
       const refetchResult = await ad.refetch();
+      console.log(refetchResult)
 
       if (refetchResult.data) {
         data = refetchResult.data;

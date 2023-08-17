@@ -58,22 +58,24 @@ function _ListItem(
             )}
           </View>
         )}
-        <View className="space-y-0.5">
+        <View className="space-y-0.5 flex-1">
           <Text
-            numberOfLines={props.subtitle ? 1 : 2}
+            numberOfLines={props.subtitle ? 1 : undefined}
             ellipsizeMode="tail"
-            className="font-primary-bold text-neutral-1 flex-1 text-xl"
+            className="font-primary-bold text-neutral-1 text-xl"
           >
             {props.title}
           </Text>
 
-          <Text
-            numberOfLines={1}
-            ellipsizeMode="tail"
-            className="font-primary-regular text-neutral-2 flex-1 text-base"
-          >
-            {props.subtitle}
-          </Text>
+          {props.subtitle && (
+            <Text
+              numberOfLines={1}
+              ellipsizeMode="tail"
+              className="font-primary-regular text-neutral-2 flex-1 text-base"
+            >
+              {props.subtitle}
+            </Text>
+          )}
         </View>
       </View>
       {props.right === "component" && (

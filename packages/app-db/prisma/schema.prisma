@@ -25,7 +25,6 @@ model User {
   name     String
   email    String @unique()
   username String @unique()
-  country  String
 
   emoji String @default("🐵")
 
@@ -34,9 +33,6 @@ model User {
 
   fullAccessPurchaseId String?             @unique()
   fullAccessPurchase   FullAccessPurchase? @relation(fields: [fullAccessPurchaseId], references: [id])
-
-  EnabledStreamingService EnabledStreamingService[]
-  EnabledGenre            EnabledGenre[]
 
   createdAt                   DateTime            @default(now())
   connectionFirstUser         Connection[]        @relation("connection_first_user")
@@ -86,25 +82,4 @@ model Connection {
 
   @@unique([firstUserId, secondUserId])
   @@map("Friend")
-}
-
-model EnabledGenre {
-  id      String @id @default(cuid())
-  genreId Int
-  userId  String
-  user    User   @relation(fields: [userId], references: [id])
-
-  @@unique([userId, genreId])
-  @@index([userId])
-}
-
-model EnabledStreamingService {
-  id     String @id @default(cuid())
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
-
-  //ID of the streaming service on TMDB
-  streamingServiceId Int
-
-  @@unique([userId, streamingServiceId])
 }

@@ -21,6 +21,7 @@ import {
   MovieDetailsBottomSheet,
   MovieDetailsBottomSheetRef,
 } from "~/components";
+import { useFilterStore } from "~/stores";
 import { MainLayout } from "./layouts/MainLayout";
 
 function useAdConsentPromptStatus() {
@@ -33,33 +34,16 @@ function useAdConsentPromptStatus() {
 
 export function SwipeScreen() {
   const user = api.user.getMyData.useQuery();
-  const genres = api.genres.fetchUserGenres.useQuery(undefined, {
-    select: (data) =>
-      data?.filter((genre) => genre.enabled).map((genre) => genre.id),
-  });
-
-  const { quickMatchMode } = useRoute().params as { quickMatchMode: boolean };
+  const filters = useFilterStore((state) => state);
 
   const swipe = api.swipe.swipe.useMutation();
 
-  const watchProviders = api.streaming_service.getStreamingServices.useQuery(
-    {
-      country: user.data!.country,
-    },
-    {
-      select: (data) =>
-        data.services
-          .filter((s) => s.enabled)
-          .map((service) => service.provider_id),
-    },
-  );
-
   const result = api.movie_feed.getMovieFeed.useInfiniteQuery(
     {
-      genres: genres.data!,
-      watchProviderIds: watchProviders.data!,
-      region: user.data!.country,
-      quick_match_mode: quickMatchMode,
+      genres: filters.genres,
+      watchProviderIds: filters.streamingServices.map((s) => s.provider_id),
+      region: filters.country,
+      quick_match_mode: filters.quickMatchMode,
     },
     {
       initialCursor: 0,
@@ -116,9 +100,9 @@ export function SwipeScreen() {
     swipe.mutate({
       movieId: currentMovie.id,
       liked: true,
-      watch_providers: watchProviders.data ?? [],
-      genres: genres.data ?? [],
-      watch_region: user.data!.country,
+      watch_providers: filters.streamingServices.map((s) => s.provider_id),
+      genres: filters.genres,
+      watch_region: filters.country,
       movie_language: currentMovie.original_language,
     });
 
@@ -134,10 +118,10 @@ export function SwipeScreen() {
 
     swipe.mutate({
       movieId: currentMovie.id,
-      liked: false,
-      watch_providers: watchProviders.data ?? [],
-      genres: genres.data ?? [],
-      watch_region: user.data!.country,
+      liked: true,
+      watch_providers: filters.streamingServices.map((s) => s.provider_id),
+      genres: filters.genres,
+      watch_region: filters.country,
       movie_language: currentMovie.original_language,
     });
 

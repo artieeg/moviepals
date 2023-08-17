@@ -18,6 +18,7 @@ import {
   SCREEN_STREAMING_SERVICE_LIST,
   SCREEN_SWIPE,
 } from "~/navigators/SwipeNavigator";
+import { useFilterStore } from "~/stores";
 import { MainLayout } from "./layouts/MainLayout";
 
 export function PrepareSwipeScreen() {
@@ -27,7 +28,7 @@ export function PrepareSwipeScreen() {
 
   const navigation = useNavigation();
 
-  const genres = api.genres.fetchUserGenres.useQuery();
+  const genres = api.genres.fetchAllGenres.useQuery();
 
   const enabledGenres = useMemo(
     () => genres.data?.filter((g) => g.enabled),
@@ -92,11 +93,7 @@ function QuickMatchMode({
 function GenreFilter(props: TouchableOpacityProps) {
   const navigation = useNavigation();
 
-  const enabledGenres = api.genres.fetchUserGenres.useQuery(undefined, {
-    select: (data) => data?.filter((g) => g.enabled),
-  });
-
-  const enabledGenreCount = enabledGenres.data?.length ?? 0;
+  const enabledGenreCount = useFilterStore((state) => state.genres.length);
 
   function onPress() {
     navigation.navigate(SCREEN_GENRE_FILTER);
@@ -107,7 +104,7 @@ function GenreFilter(props: TouchableOpacityProps) {
       title="genre filter"
       subtitle={
         enabledGenreCount > 0
-          ? `${enabledGenres.data?.length} enabled genres`
+          ? `${enabledGenreCount} enabled genres`
           : "any genre"
       }
       showArrowRight
@@ -117,22 +114,10 @@ function GenreFilter(props: TouchableOpacityProps) {
   );
 }
 
-function MyStreamingServicesSection(props: TouchableOpacityProps) {
+function MyStreamingServicesSection() {
   const navigation = useNavigation();
 
-  const user = api.user.getMyData.useQuery();
-
-  const streamingServices = api.streaming_service.getStreamingServices.useQuery(
-    { country: user.data?.country as string },
-    {
-      enabled: !!user.data?.country,
-    },
-  );
-
-  const enabledStreamingServices = useMemo(
-    () => streamingServices.data?.services.filter((service) => service.enabled),
-    [streamingServices.data],
-  );
+  const streamingServices = useFilterStore((state) => state.streamingServices);
 
   function onPress() {
     navigation.navigate(SCREEN_STREAMING_SERVICE_LIST);
@@ -144,14 +129,14 @@ function MyStreamingServicesSection(props: TouchableOpacityProps) {
       onPress={onPress}
       showArrowRight
       subtitle={
-        streamingServices.data?.useAnyService ? (
+        streamingServices.length === 0 ? (
           "using any service"
         ) : (
           <View className="mt-2">
             <FlatList
               horizontal
               ItemSeparatorComponent={() => <View className="w-2" />}
-              data={enabledStreamingServices}
+              data={streamingServices}
               renderItem={({ item }) => {
                 return (
                   <FastImage

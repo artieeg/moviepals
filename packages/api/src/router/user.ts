@@ -7,7 +7,7 @@ import { z } from "zod";
 import { UserInviteLink } from "@moviepals/db";
 
 import { logger } from "../logger";
-import { getCountryFromIP, isValidCountry } from "../services";
+import { isValidCountry } from "../services";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { env } from "../utils/env";
 import { createToken } from "../utils/jwt";
@@ -95,16 +95,6 @@ export const user = createTRPCRouter({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      let country = "US";
-
-      try {
-        country = await getCountryFromIP(ctx.ip);
-
-        if (!isValidCountry(country)) {
-          country = "US";
-        }
-      } catch {}
-
       const { name, username, method } = input;
 
       const email =
@@ -129,7 +119,6 @@ export const user = createTRPCRouter({
 
       const user = await ctx.prisma.user.create({
         data: {
-          country,
           name,
           username,
           email,

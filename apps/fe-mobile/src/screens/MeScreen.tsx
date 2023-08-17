@@ -1,5 +1,5 @@
 import React from "react";
-import { ScrollView, Text, View } from "react-native";
+import { Linking, Pressable, ScrollView, Text, View } from "react-native";
 
 import { api } from "~/utils/api";
 import { Section, UserAvatar } from "~/components";
@@ -66,6 +66,28 @@ export function MeScreen() {
                 showArrowRight
                 subtitle="Ad-free, unlimited matches, share with your friends"
               />
+
+              <Text className="font-primary-regular text-neutral-2 text-base">
+                MoviePals is powered by{" "}
+                <Pressable
+                  onPress={() => Linking.openURL("https://www.themoviedb.org")}
+                  className="translate-y-0.5"
+                >
+                  <Text className="font-primary-regular text-neutral-2 text-base underline">
+                    themoviedb.org
+                  </Text>
+                </Pressable>{" "}
+                for movies, cast, directors, etc. and{" "}
+                <Pressable
+                  onPress={() => Linking.openURL("https://www.justwatch.com")}
+                  className="translate-y-0.5"
+                >
+                  <Text className="font-primary-regular text-neutral-2 text-base underline">
+                    justwatch.com
+                  </Text>
+                </Pressable>{" "}
+                for streaming service availability.
+              </Text>
 
               <View className="h-3" />
               <Section
