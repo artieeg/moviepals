@@ -88,6 +88,21 @@ export const movie_feed = createTRPCRouter({
           });
         }
 
+        //Try to serve the latest feed response ...
+        const latestFeedResponse =
+          await ctx.latestFeedResponseCache.getLatestFeedResponse(
+            reviewState.id,
+          );
+
+        if (latestFeedResponse) {
+          return {
+            feed: latestFeedResponse.filter(
+              (m) => !userSwipes.some((s) => s.movieId === m.id),
+            ),
+            cursor: null,
+          };
+        }
+
         // If user hasn't watched an ad and not allowed to fetch new movies,
         // we should try to serve him his latest page,
         // while filtering out movies they has swiped on
@@ -106,33 +121,12 @@ export const movie_feed = createTRPCRouter({
           // If user has been delivered feed earlier this day
           if (state) {
             if (state.page + 1 > state.ads_watched) {
-              shouldServeLatestCachedFeedResponse = true;
+              return {
+                cursor: null,
+                hasToWatchAd: true,
+                feed: []
+              }
             }
-          }
-        }
-
-        if (shouldServeLatestCachedFeedResponse) {
-          const response =
-            await ctx.latestFeedResponseCache.getLatestFeedResponse(
-              reviewState.id,
-            );
-
-          logger.info({
-            response,
-          });
-
-          if (!response) {
-            return {
-              feed: [],
-              cursor: null,
-            };
-          } else {
-            return {
-              feed: response.filter(
-                (m) => !userSwipes.some((s) => s.movieId === m.id),
-              ),
-              cursor: null,
-            };
           }
         }
 
