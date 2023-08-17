@@ -5,12 +5,14 @@ import { z } from "zod";
 
 import { UserFeedDeliveryCache } from "./user-feed-delivery-cache";
 
-export const admobSchema = z.object({
-  user_id: z.string(),
-  ad_unit: z.string(),
-  key_id: z.string(),
-  signature: z.string(),
-});
+export const admobSchema = z
+  .object({
+    user_id: z.string(),
+    ad_unit: z.string(),
+    key_id: z.string(),
+    signature: z.string(),
+  })
+  .passthrough();
 
 export async function verifyRewardedAdCallback({
   data,
@@ -45,9 +47,19 @@ async function verifySignature(payload: z.infer<typeof admobSchema>) {
 
   const verifier = crypto.createVerify("RSA-SHA256");
 
-  verifier.update(qs.encode(rest));
+  verifier.update(
+    qs.encode({
+      ad_network: rest.ad_network,
+      ad_unit: rest.ad_unit,
+      reward_amount: rest.reward_amount,
+      reward_item: rest.reward_item,
+      timestamp: rest.timestamp,
+      transaction_id: rest.transaction_id,
+      user_id: rest.user_id,
+    } as any),
+  );
 
-  const verified = verifier.verify(key.pem, signature, "base64");
+  const verified = verifier.verify(key.pem, Buffer.from(signature, "base64"));
 
   if (!verified) {
     throw new Error("Not verified");

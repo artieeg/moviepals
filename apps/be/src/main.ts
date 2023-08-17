@@ -14,7 +14,7 @@ import {
   handleFullAccessPurchase,
   prisma,
   UserFeedDeliveryCache,
-  verifyRewardedAd,
+  verifyRewardedAdCallback,
 } from "@moviepals/api";
 
 import { env } from "./env";
@@ -88,17 +88,14 @@ export async function main() {
   server.get("/admob/callback", async (msg, reply) => {
     console.log(msg.query);
     try {
-      const { user_id, key_id, signature } = admobSchema.parse(msg.query);
-
-      await verifyRewardedAd({
-        userId: user_id,
-        key_id,
-        signature,
+      await verifyRewardedAdCallback({
+        data: msg.query,
         userFeedDeliveryCache,
       });
 
       reply.status(200).send();
     } catch (e) {
+      console.log(e);
       reply.status(400).send();
     }
   });
