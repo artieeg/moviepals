@@ -49,10 +49,14 @@ export class UserFeedDeliveryCache {
   async getDeliveryState(userId: string) {
     const state = await this.client.hgetall(userId);
 
-    if (!state) {
+    const result = userFeedDeliveryStateSchema.safeParse(state);
+
+    if (!result.success) {
+      await this.client.del(userId);
+
       return null;
     }
 
-    return userFeedDeliveryStateSchema.parse(state);
+    return result.data;
   }
 }
