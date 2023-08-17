@@ -1,6 +1,7 @@
 import { AdsConsent } from "react-native-google-mobile-ads";
 import { useQuery } from "@tanstack/react-query";
-import {useAdmob} from "./useAdmob";
+
+import { useAdmob } from "./useAdmob";
 
 export function useCanServeAds() {
   const admob = useAdmob();

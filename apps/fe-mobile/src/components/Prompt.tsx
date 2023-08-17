@@ -13,7 +13,7 @@ export function Prompt({
   title: string;
   icon: React.ReactNode;
   subtitle: string;
-  buttons: (ButtonProps & { title: string })[];
+  buttons: ((ButtonProps & { title: string }) | undefined)[];
 } & ViewProps) {
   return (
     <View className="flex-1" {...rest}>
@@ -40,7 +40,7 @@ export function Prompt({
       </View>
 
       <View className="space-y-3">
-        {buttons.map((button, i) => (
+        {buttons.filter(Boolean).map((button, i) => (
           <Button key={i} {...button}>
             {button.title}
           </Button>

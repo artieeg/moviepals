@@ -5,7 +5,7 @@ import { twJoin } from "tailwind-merge";
 import { TouchableScale } from "./TouchableScale";
 
 export type ButtonProps = PropsWithChildren<
-  TouchableOpacityProps & { kind?: "primary" | "outline" }
+  TouchableOpacityProps & { kind?: "primary" | "outline" | "text" }
 >;
 
 export function Button({ children, kind = "primary", ...rest }: ButtonProps) {
@@ -13,7 +13,8 @@ export function Button({ children, kind = "primary", ...rest }: ButtonProps) {
     <TouchableScale
       className={twJoin(
         "h-12 items-center justify-center rounded-full",
-        kind !== "outline" && rest.disabled ? "bg-neutral-4" : "bg-brand-1",
+        kind === "primary" && "bg-brand-1",
+        rest.disabled && "bg-neutral-4",
         kind === "outline" && "border-brand-1 border bg-transparent",
       )}
       {...rest}
@@ -21,7 +22,8 @@ export function Button({ children, kind = "primary", ...rest }: ButtonProps) {
       <Text
         className={twJoin(
           "font-primary-bold text-base",
-          kind === "outline" ? "text-brand-1" : "text-white",
+          (kind === "outline" || kind === "text") && "text-brand-1",
+          kind === "primary" && "text-white",
         )}
       >
         {children}

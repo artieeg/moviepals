@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Text, TouchableOpacity, View, ViewProps } from "react-native";
 import Animated, {
   FadeIn,
@@ -7,19 +7,29 @@ import Animated, {
   useDerivedValue,
   withTiming,
 } from "react-native-reanimated";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRoute } from "@react-navigation/native";
+import { useQuery } from "@tanstack/react-query";
 import { Cancel, Heart } from "iconoir-react-native";
 
 import { api } from "~/utils/api";
 import {
+  AdsOrPremiumPrompt,
   IconButton,
   MovieCard,
   MovieCardRef,
   MovieDetailsBottomSheet,
   MovieDetailsBottomSheetRef,
-  RanOutOfSwipes,
 } from "~/components";
 import { MainLayout } from "./layouts/MainLayout";
+
+function useAdConsentPromptStatus() {
+  return useQuery(["ad-consent"], async () => {
+    const value = await AsyncStorage.getItem("ad-concent");
+
+    return { shown: Boolean(value) };
+  });
+}
 
 export function SwipeScreen() {
   const user = api.user.getMyData.useQuery();
@@ -58,6 +68,17 @@ export function SwipeScreen() {
   );
 
   const [currentMovieIdx, setCurrentMovieIdx] = useState(0);
+  const [showAdPermissionPrompt, setShowAdPermissionPrompt] = useState(false);
+
+  const adConsentPromptStatus = useAdConsentPromptStatus();
+
+  useEffect(() => {
+    if (currentMovieIdx === 3) {
+      setShowAdPermissionPrompt(true);
+
+      AsyncStorage.setItem("ad-concent", "true");
+    }
+  }, [currentMovieIdx, adConsentPromptStatus.data?.shown]);
 
   const deck = useMemo(() => {
     const currentPage = result.data?.pages[result.data.pages.length - 1];
@@ -70,7 +91,9 @@ export function SwipeScreen() {
   const movieDetailsRef = useRef<MovieDetailsBottomSheetRef>(null);
 
   function onOpenMovieDetails() {
-    const url = `https://www.themoviedb.org/movie/${deck![0].id}`;
+    if (!currentMovie) return;
+
+    const url = `https://www.themoviedb.org/movie/${currentMovie.id}`;
 
     movieDetailsRef.current?.open(url);
   }
@@ -126,7 +149,7 @@ export function SwipeScreen() {
   return (
     <>
       <MainLayout title="swipe" canGoBack>
-        {currentMovie && (
+        {currentMovie && !showAdPermissionPrompt && (
           <Animated.View entering={FadeIn} exiting={FadeOut} className="flex-1">
             <View className="aspect-[2/3] translate-y-8">
               {result.isSuccess &&
@@ -169,15 +192,41 @@ export function SwipeScreen() {
           </Animated.View>
         )}
 
-        {!currentMovie && (
-          <Animated.View className="flex-1 pb-8" entering={FadeIn} exiting={FadeOut}>
-            {result.data?.pages && (
-              <RanOutOfSwipes
-                mode="ad-permission"
-                visible={!currentMovie}
-                onProceed={onProceedAfterPurchaseOrAd}
-              />
-            )}
+        {!currentMovie && !showAdPermissionPrompt && (
+          <Animated.View
+            className="flex-1 pb-8"
+            entering={FadeIn}
+            exiting={FadeOut}
+          >
+            <AdsOrPremiumPrompt
+              mode="ad"
+              visible
+              onProceed={() => {
+                onProceedAfterPurchaseOrAd();
+                setShowAdPermissionPrompt(false);
+              }}
+            />
+          </Animated.View>
+        )}
+
+        {showAdPermissionPrompt && (
+          <Animated.View
+            className="flex-1 pb-8"
+            entering={FadeIn}
+            exiting={FadeOut}
+          >
+            <AdsOrPremiumPrompt
+              mode="ad-permission"
+              onSkip={() => {
+                setShowAdPermissionPrompt(false);
+              }}
+              visible
+              onProceed={() => {
+                onProceedAfterPurchaseOrAd();
+
+                setShowAdPermissionPrompt(false);
+              }}
+            />
           </Animated.View>
         )}
       </MainLayout>

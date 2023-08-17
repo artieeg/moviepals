@@ -8,7 +8,7 @@ export * from "./MovieDetailsBottomSheet";
 export * from "./MovieCard";
 export * from "./Button";
 export * from "./Switch";
-export * from "./RanOutOfSwipes";
+export * from "./AdsOrPremiumPrompt";
 export * from "./AnimatedPressable";
 export * from "./TouchableScale";
 export * from "./Section";
