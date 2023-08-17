@@ -87,7 +87,19 @@ export const movie_feed = createTRPCRouter({
         }
 
         if (!user.fullAccessPurchaseId) {
+          const state = await ctx.userFeedDeliveryCache.getDeliveryState(
+            ctx.user,
+          );
 
+          // If user has been delivered feed earlier this day
+          if (state) {
+            if (state.page + 1 < state.ads_watched) {
+              throw new TRPCError({
+                code: "BAD_REQUEST",
+                message: "Daily swipe limit"
+              })
+            }
+          }
         }
 
         const connectedUserIds = connections.map((connection) =>
@@ -227,6 +239,8 @@ export const movie_feed = createTRPCRouter({
         });
 
         const shuffled = feed.sort(() => Math.random() - 0.5);
+
+        await ctx.userFeedDeliveryCache.incPage(ctx.user);
 
         return { feed: shuffled, cursor };
       },

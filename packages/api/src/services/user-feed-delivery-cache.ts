@@ -17,6 +17,22 @@ export type UserFeedDeliveryState = z.infer<typeof userFeedDeliveryStateSchema>;
 export class UserFeedDeliveryCache {
   constructor(private client: Redis) {}
 
+  async incPage(userId: string) {
+    const state = await this.getDeliveryState(userId);
+
+    if (!state) {
+      await this.setDeliveryState(userId, {
+        page: 1,
+        ads_watched: 0,
+      });
+    } else {
+      await this.setDeliveryState(userId, {
+        ...state,
+        page: state.page + 1,
+      });
+    }
+  }
+
   async incAdWatched(userId: string) {
     const state = await this.getDeliveryState(userId);
 
