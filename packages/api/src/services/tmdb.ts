@@ -5,6 +5,7 @@ import { Movie, movieSchema } from "@moviepals/dbmovieswipe";
 
 import { env } from "../utils/env";
 import { cachify } from "./cache";
+import {logger} from "../logger";
 
 export const tmdb = axios.create({
   baseURL: "https://api.themoviedb.org/3/",
@@ -44,6 +45,8 @@ const streamingServicesResponseSchema = z.object({
 });
 
 export async function getMovies(params: unknown) {
+  logger.info(params, "getMovies")
+
   const r = await tmdb.get("discover/movie", {
     params,
   });
@@ -62,4 +65,38 @@ export async function getMovies(params: unknown) {
   });
 
   return movies;
+}
+
+const personSchema = z.object({
+  adult: z.boolean(),
+  gender: z.number(),
+  id: z.number(),
+  known_for: z.array(z.unknown()),
+  known_for_department: z.string(),
+  name: z.string(),
+  popularity: z.number(),
+  profile_path: z.string(),
+});
+
+export type Person = z.infer<typeof personSchema>;
+
+const castFetchResultSchema = z.object({
+  page: z.number(),
+  results: z.array(personSchema),
+});
+
+export async function getPopularCast(page: number) {
+  const r = await tmdb.get("person/popular", { params: { page } });
+
+  const { results } = castFetchResultSchema.parse(r.data);
+
+  return results.filter((r) => r.known_for_department === "Acting");
+}
+
+export async function searchCast(query: string) {
+  const r = await tmdb.get("search/person", { params: { query } });
+
+  const { results } = castFetchResultSchema.parse(r.data);
+
+  return results.filter((r) => r.known_for_department === "Acting");
 }

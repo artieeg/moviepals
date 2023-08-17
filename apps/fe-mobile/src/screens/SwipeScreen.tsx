@@ -42,6 +42,7 @@ export function SwipeScreen() {
     {
       genres: filters.genres,
       watchProviderIds: filters.streamingServices.map((s) => s.provider_id),
+      cast: filters.cast.map((c) => c.id),
       region: filters.country,
       quick_match_mode: filters.quickMatchMode,
     },
@@ -99,6 +100,7 @@ export function SwipeScreen() {
 
     swipe.mutate({
       movieId: currentMovie.id,
+      cast: filters.cast.map((c) => c.id),
       liked: true,
       watch_providers: filters.streamingServices.map((s) => s.provider_id),
       genres: filters.genres,
@@ -118,6 +120,7 @@ export function SwipeScreen() {
 
     swipe.mutate({
       movieId: currentMovie.id,
+      cast: filters.cast.map((c) => c.id),
       liked: true,
       watch_providers: filters.streamingServices.map((s) => s.provider_id),
       genres: filters.genres,

@@ -55,40 +55,24 @@ export const swipe = createTRPCRouter({
       return { movies, nextCursor: cursor + 1 };
     }),
 
-  reset: protectedProcedure
-    .input(
-      z.object({
-        watch_providers: z.array(z.number()),
-        genres: z.array(z.number()),
-      }),
-    )
-    .mutation(async ({ ctx, input: { watch_providers, genres } }) => {
-      const deleteSwipes = ctx.dbMovieSwipe.swipes.deleteMany({
-        userId: ctx.user,
-        movie_genre_ids: { $in: genres },
-        movie_watch_providers:
-          watch_providers.length > 0
-            ? { $in: watch_providers }
-            : { $exists: true },
-      });
+  reset: protectedProcedure.mutation(async ({ ctx }) => {
+    const deleteSwipes = ctx.dbMovieSwipe.swipes.deleteMany({
+      userId: ctx.user,
+    });
 
-      const deleteReviewState = ctx.dbMovieSwipe.reviewState.deleteMany({
-        userId: ctx.user,
-        movie_genre_ids: { $in: genres },
-        movie_watch_providers:
-          watch_providers.length > 0
-            ? { $in: watch_providers }
-            : { $exists: true },
-      });
+    const deleteReviewState = ctx.dbMovieSwipe.reviewState.deleteMany({
+      userId: ctx.user,
+    });
 
-      await Promise.all([deleteSwipes, deleteReviewState]);
-    }),
+    await Promise.all([deleteSwipes, deleteReviewState]);
+  }),
 
   swipe: protectedProcedure
     .input(
       z.object({
         movieId: z.number(),
         watch_providers: z.array(z.number()),
+        cast: z.array(z.number()),
         genres: z.array(z.number()),
         liked: z.boolean(),
         watch_region: z.string(),
@@ -104,12 +88,14 @@ export const swipe = createTRPCRouter({
           genres,
           watch_providers,
           watch_region,
+          cast,
           movie_language,
         },
       }) => {
         await ctx.dbMovieSwipe.swipes.insertOne({
           id: cuid.createId(),
           userId: ctx.user,
+          cast,
           movieId,
           liked,
           movie_genre_ids: genres,

@@ -8,6 +8,9 @@ export const swipeSchema = z.object({
   movieId: z.number(),
   liked: z.boolean(),
 
+  /** Selected cast members */
+  cast: z.array(z.number()),
+
   /** All of the genre ids of the swiped movie */
   movie_genre_ids: z.array(z.number()),
 

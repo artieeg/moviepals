@@ -3,7 +3,7 @@ import { produce } from "immer";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-import { StreamingService } from "@moviepals/api";
+import { Person, StreamingService } from "@moviepals/api";
 
 export interface FilterStore {
   country: string;
@@ -17,11 +17,11 @@ export interface FilterStore {
   genres: number[];
 
   /** Contains a list of selected cast members */
-  cast: number[];
+  cast: Person[];
 
   toggleStreamingService: (service: StreamingService) => void;
   toggleGenre: (id: number) => void;
-  toggleCast: (id: number) => void;
+  toggleCast: (person: Person) => void;
 }
 
 export const useFilterStore = create<FilterStore>()(
@@ -48,7 +48,7 @@ export const useFilterStore = create<FilterStore>()(
       },
       toggleGenre: (id: number) => {
         set(
-          produce((state) => {
+          produce<FilterStore>((state) => {
             const index = state.genres.indexOf(id);
             if (index === -1) {
               state.genres.push(id);
@@ -58,12 +58,12 @@ export const useFilterStore = create<FilterStore>()(
           }),
         );
       },
-      toggleCast: (id: number) => {
+      toggleCast: (person: Person) => {
         set(
-          produce((state) => {
-            const index = state.cast.indexOf(id);
+          produce<FilterStore>((state) => {
+            const index = state.cast.findIndex((c) => c.id === person.id);
             if (index === -1) {
-              state.cast.push(id);
+              state.cast.push(person);
             } else {
               state.cast.splice(index, 1);
             }

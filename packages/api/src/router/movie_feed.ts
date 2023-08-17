@@ -24,6 +24,7 @@ export const movie_feed = createTRPCRouter({
         region: z.string(),
         watchProviderIds: z.array(z.number()),
         genres: z.array(z.number()),
+        cast: z.array(z.number()),
         cursor: z.number().nullish(),
         quick_match_mode: z.boolean(),
       }),
@@ -31,15 +32,23 @@ export const movie_feed = createTRPCRouter({
     .query(
       async ({
         ctx,
-        input: { genres, quick_match_mode, cursor, region, watchProviderIds },
+        input: {
+          genres,
+          quick_match_mode,
+          cursor,
+          region,
+          cast,
+          watchProviderIds,
+        },
       }) => {
         const reviewStatePromise = getReviewState(ctx.dbMovieSwipe, {
+          cast,
           genre_ids: genres,
           watch_providers: watchProviderIds,
           userId: ctx.user,
         });
 
-        const userPromise = await ctx.prisma.user.findUnique({
+        const userPromise = ctx.prisma.user.findUnique({
           where: {
             id: ctx.user,
           },
@@ -61,6 +70,9 @@ export const movie_feed = createTRPCRouter({
         const userSwipesPromise = ctx.dbMovieSwipe.swipes
           .find({
             userId: ctx.user,
+
+            //cast should overlap
+            cast: cast.length > 0 ? { $in: cast } : { $exists: true },
 
             //genres should overlap
             movie_genre_ids:
@@ -103,20 +115,10 @@ export const movie_feed = createTRPCRouter({
           };
         }
 
-        // If user hasn't watched an ad and not allowed to fetch new movies,
-        // we should try to serve him his latest page,
-        // while filtering out movies they has swiped on
-        let shouldServeLatestCachedFeedResponse = false;
-
         if (!user.fullAccessPurchaseId) {
           const state = await ctx.userFeedDeliveryCache.getDeliveryState(
             ctx.user,
           );
-
-          logger.info({
-            state,
-            user: ctx.user,
-          });
 
           // If user has been delivered feed earlier this day
           if (state) {
@@ -124,8 +126,8 @@ export const movie_feed = createTRPCRouter({
               return {
                 cursor: null,
                 hasToWatchAd: true,
-                feed: []
-              }
+                feed: [],
+              };
             }
           }
         }
@@ -148,6 +150,8 @@ export const movie_feed = createTRPCRouter({
             userId: { $in: connectedUserIds },
             movieId: { $nin: excludeMovieIds },
             liked: true,
+
+            cast: cast.length > 0 ? { $in: cast } : { $exists: true },
 
             movie_genre_ids:
               !quick_match_mode && genres.length > 0
@@ -208,6 +212,7 @@ export const movie_feed = createTRPCRouter({
           fetch: getMovies,
           fetchParams: {
             region,
+            with_cast: cast,
             watchProviderIds,
             genres,
           },
@@ -228,7 +233,9 @@ export const movie_feed = createTRPCRouter({
           MOVIES_PER_PAGE / MOVIES_PER_TMDB_PAGE,
         );
 
-        await ctx.dbMovieSwipe.movies.insertMany(movies, { ordered: false });
+        if (movies.length > 0) {
+          await ctx.dbMovieSwipe.movies.insertMany(movies, { ordered: false });
+        }
 
         /**
          * Only update review state if we had to fetch more movies than we expected
@@ -243,8 +250,12 @@ export const movie_feed = createTRPCRouter({
           await ctx.dbMovieSwipe.reviewState.updateOne(
             {
               userId: ctx.user,
+              cast: cast.length > 0 ? cast : { $exists: true },
               genre_ids: genres.length > 0 ? genres : { $exists: true },
-              watch_providers: watchProviderIds,
+              watch_providers:
+                watchProviderIds.length > 0
+                  ? watchProviderIds
+                  : { $exists: true },
             },
             {
               $set: {
@@ -318,6 +329,7 @@ export async function fetchMissingMovies({
   fetch: typeof getMovies;
   fetchParams: {
     region: string;
+    with_cast: number[];
     watchProviderIds: number[];
     genres: number[];
   };
@@ -340,8 +352,10 @@ export async function fetchMissingMovies({
     for (let p = 0; p < batch; pageOffset++, p++) {
       promises.push(
         fetch({
-          ...fetchParams,
-          genres: fetchParams.genres.join(","),
+          with_watch_providers: fetchParams.watchProviderIds.join(","),
+          watch_region: fetchParams.region,
+          with_genres: fetchParams.genres.join(","),
+          with_cast: fetchParams.with_cast.join(","),
           page: nextTmdbPage + pageOffset + 1,
         }),
       );
@@ -392,7 +406,10 @@ export async function fetchMissingMovies({
 
 async function getReviewState(
   db: DbMovieSwipe,
-  params: Pick<ReviewState, "genre_ids" | "watch_providers" | "userId">,
+  params: Pick<
+    ReviewState,
+    "genre_ids" | "watch_providers" | "userId" | "cast"
+  >,
 ): Promise<ReviewState> {
   console.log({
     userId: params.userId,
@@ -408,6 +425,8 @@ async function getReviewState(
 
   const reviewState = await db.reviewState.findOne({
     userId: params.userId,
+
+    cast: params.cast.length > 0 ? { $in: params.cast } : { $exists: true },
     genre_ids:
       params.genre_ids.length > 0
         ? { $all: params.genre_ids }
@@ -425,6 +444,7 @@ async function getReviewState(
       id: cuid2.createId(),
       userId: params.userId,
       genre_ids: params.genre_ids,
+      cast: [],
       watch_providers: params.watch_providers,
       remoteApiPage: 0,
       remoteApiResponseMovieIdx: 0,

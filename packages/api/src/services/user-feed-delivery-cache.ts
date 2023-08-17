@@ -71,8 +71,6 @@ export class UserFeedDeliveryCache {
 
     const result = userFeedDeliveryStateSchema.safeParse(state);
 
-    logger.info({ result, state }, "getDeliveryState");
-
     if (!result.success) {
       await this.client.del(userId);
 

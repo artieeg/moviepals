@@ -19,6 +19,7 @@ import {
   SCREEN_SWIPE,
 } from "~/navigators/SwipeNavigator";
 import { useFilterStore } from "~/stores";
+import { SCREEN_CAST_LIST } from "./CastListScreen";
 import { MainLayout } from "./layouts/MainLayout";
 
 export function PrepareSwipeScreen() {
@@ -27,13 +28,6 @@ export function PrepareSwipeScreen() {
   useAdmob();
 
   const navigation = useNavigation();
-
-  const genres = api.genres.fetchAllGenres.useQuery();
-
-  const enabledGenres = useMemo(
-    () => genres.data?.filter((g) => g.enabled),
-    [genres.data],
-  );
 
   function onStartSwiping() {
     navigation.navigate(SCREEN_SWIPE, { quickMatchMode });
@@ -78,8 +72,8 @@ function QuickMatchMode({
 }) {
   return (
     <Section
-      title="quick match mode"
-      subtitle="include friend movies even if they don't match your genre selection"
+      title="Quick match mode"
+      subtitle="Include friend movies even if they don't match your genre selection"
       {...rest}
       right={
         <View className="ml-4">
@@ -101,7 +95,7 @@ function GenreFilter(props: TouchableOpacityProps) {
 
   return (
     <Section
-      title="genre filter"
+      title="Genre filter"
       subtitle={
         enabledGenreCount > 0
           ? `${enabledGenreCount} enabled genres`
@@ -125,7 +119,7 @@ function MyStreamingServicesSection() {
 
   return (
     <Section
-      title="my streaming services"
+      title="My streaming services"
       onPress={onPress}
       showArrowRight
       subtitle={
@@ -157,9 +151,29 @@ function MyStreamingServicesSection() {
 }
 
 function CastFilter(props: TouchableOpacityProps) {
-  return <Section title="cast filter" subtitle="coming soon" {...props} />;
+  const navigation = useNavigation();
+
+  const enabledCastCount = useFilterStore((state) => state.cast.length);
+
+  function onOpen() {
+    navigation.navigate(SCREEN_CAST_LIST);
+  }
+
+  return (
+    <Section
+      onPress={onOpen}
+      title="Cast filter"
+      showArrowRight
+      subtitle={
+        enabledCastCount > 0
+          ? `filter by ${enabledCastCount} cast members`
+          : "any cast"
+      }
+      {...props}
+    />
+  );
 }
 
 function DirectorFilter(props: TouchableOpacityProps) {
-  return <Section title="director filter" subtitle="coming soon" {...props} />;
+  return <Section title="Director filter" subtitle="Coming soon" {...props} />;
 }
