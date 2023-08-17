@@ -24,6 +24,7 @@ export const connection_requests = createTRPCRouter({
     const requests = await ctx.prisma.connectionRequest.findMany({
       where: {
         secondUserId: ctx.user,
+        rejected: false
       },
       include: {
         firstUser: true,
@@ -37,13 +38,14 @@ export const connection_requests = createTRPCRouter({
     const count = await ctx.prisma.connectionRequest.count({
       where: {
         secondUserId: ctx.user,
+        rejected: false
       },
     });
 
     return { count };
   }),
 
-  deleteConnectionRequest: protectedProcedure
+  rejectConnectionRequest: protectedProcedure
     .input(z.object({ user: z.string() }))
     .mutation(async ({ ctx, input: { user } }) => {
       //getting hacky here, cant use transaction because prisma throws if not found
@@ -51,24 +53,30 @@ export const connection_requests = createTRPCRouter({
 
       //await ctx.prisma.$transaction([
       try {
-        await ctx.prisma.connectionRequest.delete({
+        await ctx.prisma.connectionRequest.update({
           where: {
             firstUserId_secondUserId: {
               firstUserId: ctx.user,
               secondUserId: user,
             },
           },
+          data: {
+            rejected: true,
+          }
         });
       } catch {}
 
       try {
-        await ctx.prisma.connectionRequest.delete({
+        await ctx.prisma.connectionRequest.update({
           where: {
             firstUserId_secondUserId: {
               firstUserId: user,
               secondUserId: ctx.user,
             },
           },
+          data: {
+            rejected: true,
+          }
         });
       } catch {}
       //]);

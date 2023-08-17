@@ -63,6 +63,7 @@ model ConnectionRequest {
 
   firstUserId  String
   secondUserId String
+  rejected     Boolean @default(false)
 
   firstUser  User @relation("connection_request_first_user", fields: [firstUserId], references: [id])
   secondUser User @relation("connection_request_second_user", fields: [secondUserId], references: [id])

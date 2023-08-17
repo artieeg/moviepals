@@ -7,7 +7,6 @@ import { z } from "zod";
 import { UserInviteLink } from "@moviepals/db";
 
 import { logger } from "../logger";
-import { isValidCountry } from "../services";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { env } from "../utils/env";
 import { createToken } from "../utils/jwt";
@@ -22,6 +21,26 @@ const signInMethodSchema = z.discriminatedUnion("provider", [
 ]);
 
 export const user = createTRPCRouter({
+  deleteMyAccount: protectedProcedure.mutation(async ({ ctx }) => {
+    const delUserPromise = ctx.prisma.user.delete({
+      where: { id: ctx.user },
+    });
+
+    const delSwipesPromise = ctx.dbMovieSwipe.swipes.deleteMany({
+      userId: ctx.user,
+    });
+
+    const delReviewStatePromise = ctx.dbMovieSwipe.reviewState.deleteMany({
+      userId: ctx.user,
+    });
+
+    await Promise.all([
+      delUserPromise,
+      delSwipesPromise,
+      delReviewStatePromise,
+    ]);
+  }),
+
   /**
    * Returns the data of the currently logged in user
    * */

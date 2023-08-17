@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import Toast from "react-native-toast-message";
 
-import { api } from "~/utils/api";
+import { api, signOut } from "~/utils/api";
 import { Section, UserAvatar } from "~/components";
 import { useNavigation } from "~/hooks";
 import { SCREEN_INVITE } from "./InviteScreen";
@@ -66,11 +66,25 @@ export function MeScreen() {
 
   function onPurchasePremium() {}
 
+  const deleteMyAccount = api.user.deleteMyAccount.useMutation({
+    onSuccess() {
+      signOut();
+    },
+  });
+
+  function onSignOut() {
+    signOut();
+  }
+
+  function onDeleteAccount() {
+    deleteMyAccount.mutate();
+  }
+
   return (
     <MainLayout canGoBack title="Me">
       <ScrollView
         className="-mx-8"
-        contentContainerStyle={{ paddingHorizontal: 32 }}
+        contentContainerStyle={{ paddingHorizontal: 32, paddingBottom: 128 }}
       >
         {user.isSuccess && (
           <View className="flex-1 space-y-8">
@@ -120,6 +134,18 @@ export function MeScreen() {
               />
 
               <Text className="font-primary-regular text-neutral-2 text-base">
+                Need help? Send a message to{" "}
+                <Pressable
+                  onPress={() => Linking.openURL("mailto:help@moviepals.io")}
+                  className="translate-y-0.5"
+                >
+                  <Text className="font-primary-regular text-neutral-2 text-base underline">
+                    help@moviepals.io
+                  </Text>
+                </Pressable>
+              </Text>
+
+              <Text className="font-primary-regular text-neutral-2 text-base">
                 MoviePals is powered by{" "}
                 <Pressable
                   onPress={() => Linking.openURL("https://www.themoviedb.org")}
@@ -128,8 +154,7 @@ export function MeScreen() {
                   <Text className="font-primary-regular text-neutral-2 text-base underline">
                     themoviedb.org
                   </Text>
-                </Pressable>{" "}
-                for movies, cast, directors, etc. and{" "}
+                </Pressable>{" "}and{" "}
                 <Pressable
                   onPress={() => Linking.openURL("https://www.justwatch.com")}
                   className="translate-y-0.5"
@@ -137,19 +162,20 @@ export function MeScreen() {
                   <Text className="font-primary-regular text-neutral-2 text-base underline">
                     justwatch.com
                   </Text>
-                </Pressable>{" "}
-                for streaming service availability.
+                </Pressable>
               </Text>
 
               <View className="h-3" />
               <Section
                 title="Sign Out"
                 showArrowRight
+                onPress={onSignOut}
                 subtitle="End your session"
               />
 
               <Section
                 danger
+                onPress={onDeleteAccount}
                 title="Delete Account"
                 showArrowRight
                 subtitle="Erase your data from our servers"

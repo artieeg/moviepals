@@ -69,7 +69,7 @@ export function FriendsListScreen() {
     });
 
   const deleteConnectionRequest =
-    api.connection_requests.deleteConnectionRequest.useMutation({
+    api.connection_requests.rejectConnectionRequest.useMutation({
       onMutate({ user }) {
         ctx.user.search.setData(
           { query: debouncedQuery },

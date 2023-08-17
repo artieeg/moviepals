@@ -3,21 +3,17 @@ import {
   Alert,
   FlatList,
   Text,
-  Touchable,
   TouchableOpacity,
   View,
   ViewProps,
 } from "react-native";
-import { MoreHoriz, NavArrowRight, Search } from "iconoir-react-native";
 import { produce } from "immer";
-import { useDebounce } from "use-debounce";
 
 import { api } from "~/utils/api";
-import { Input, ListItem } from "~/components";
+import { ListItem } from "~/components";
 import { MainLayout } from "./layouts/MainLayout";
 
 export function FriendRequestListScreen() {
-  const user = api.user.getMyData.useQuery();
   const friendRequestList =
     api.connection_requests.listConnectionRequests.useQuery();
 
@@ -48,8 +44,8 @@ export function FriendRequestListScreen() {
       },
     });
 
-  const deleteConnectionRequest =
-    api.connection_requests.deleteConnectionRequest.useMutation({
+  const rejectConnectionRequest =
+    api.connection_requests.rejectConnectionRequest.useMutation({
       onMutate({ user }) {
         ctx.connection_requests.countConnectionRequests.setData(
           undefined,
@@ -78,7 +74,19 @@ export function FriendRequestListScreen() {
   }
 
   function onRejectRequest(user: string) {
-    deleteConnectionRequest.mutate({ user: user });
+    Alert.alert("Block user", "Are you sure you want to block this user?", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Block",
+        style: "destructive",
+        onPress() {
+          rejectConnectionRequest.mutate({ user: user });
+        },
+      },
+    ]);
   }
 
   return (
@@ -135,7 +143,9 @@ function FriendRequestItem({
       />
       <View className="flex-row justify-between">
         <TouchableOpacity onPress={() => onRejectRequest(userId)}>
-          <Text className="text-red-1 font-primary-bold text-lg">reject</Text>
+          <Text className="text-red-1 font-primary-bold text-lg">
+            reject & block
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => onAcceptRequest(connectionId)}>
