@@ -376,6 +376,10 @@ export async function fetchMissingMovies({
 
     movies.push(...selectedMovies);
 
+    if ((results.at(-1)?.length ?? 0) < moviesPerTmdbPage) {
+      break;
+    }
+
     if (movies.length >= moviesLeftToFetch) {
       nextMovieToStartFrom =
         nextTmdbStartFromMovieIdx === 0

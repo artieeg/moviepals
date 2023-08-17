@@ -1,5 +1,14 @@
 import React from "react";
-import { Linking, Pressable, ScrollView, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  Linking,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
+import Toast from "react-native-toast-message";
 
 import { api } from "~/utils/api";
 import { Section, UserAvatar } from "~/components";
@@ -11,6 +20,7 @@ import { SCREEN_MY_SWIPE_LIST } from "./MySwipeListScreen";
 export const SCREEN_ME = "MeScreen";
 
 export function MeScreen() {
+  const ctx = api.useContext();
   const user = api.user.getMyData.useQuery();
 
   const navigation = useNavigation();
@@ -21,6 +31,37 @@ export function MeScreen() {
 
   function onViewSwipes() {
     navigation.navigate(SCREEN_MY_SWIPE_LIST);
+  }
+
+  const resetSwipes = api.swipe.reset.useMutation();
+
+  function onResetSwipes() {
+    Alert.alert(
+      "Reset swipes",
+      "Are you sure you want to reset your swipes? This will reset your swipes and you will see movies you have already swiped on.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Reset",
+          style: "destructive",
+          onPress: () => {
+            resetSwipes.mutate(undefined, {
+              onSuccess() {
+                ctx.swipe.fetchMySwipes.invalidate();
+
+                Toast.show({
+                  text1: "Your swipes have been reset!",
+                  type: "success",
+                });
+              },
+            });
+          },
+        },
+      ],
+    );
   }
 
   function onPurchasePremium() {}
@@ -51,6 +92,17 @@ export function MeScreen() {
                 onPress={onViewSwipes}
                 showArrowRight
                 subtitle="View your swipes"
+              />
+
+              <Section
+                title="Reset Swipes"
+                onPress={onResetSwipes}
+                right={
+                  resetSwipes.isLoading ? (
+                    <ActivityIndicator size="small" color="black" />
+                  ) : null
+                }
+                subtitle="Start swiping from scratch"
               />
 
               <Section
