@@ -12,6 +12,7 @@ import {
   createTRPCContext,
   dbMovieSwipe,
   handleFullAccessPurchase,
+  LatestFeedResponseCache,
   prisma,
   UserFeedDeliveryCache,
   verifyRewardedAdCallback,
@@ -38,11 +39,23 @@ export async function main() {
     lazyConnect: true,
   });
 
+  const lastestFeedResponseCacheClient = new Redis(
+    env.LATEST_FEED_RESPONSE_CACHE_REDIS_URL,
+    {
+      lazyConnect: true,
+    },
+  );
+
   await Promise.all([
     prisma.$connect(),
     dbMovieSwipe.connect(),
     userDeliveryCacheClient.connect(),
+    lastestFeedResponseCacheClient.connect(),
   ]);
+
+  const latestFeedResponseCache = new LatestFeedResponseCache(
+    lastestFeedResponseCacheClient,
+  );
 
   const userFeedDeliveryCache = new UserFeedDeliveryCache(
     userDeliveryCacheClient,
@@ -61,6 +74,7 @@ export async function main() {
           authorization,
           ip: ip as string,
           userFeedDeliveryCache,
+          latestFeedResponseCache,
         });
       },
     },

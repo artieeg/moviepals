@@ -5,6 +5,7 @@ import { env } from "./env";
 
 const reviewStateSchema = z
   .object({
+    id: z.string(),
     userId: z.string(),
     remoteApiPage: z.number(),
     remoteApiResponseMovieIdx: z.number(),

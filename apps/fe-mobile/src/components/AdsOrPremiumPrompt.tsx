@@ -1,6 +1,6 @@
 import React from "react";
 import { Platform, ViewProps } from "react-native";
-import { AdsConsent, AdsConsentStatus } from "react-native-google-mobile-ads";
+import { AdEventType, AdsConsent, AdsConsentStatus } from "react-native-google-mobile-ads";
 import { PERMISSIONS, request } from "react-native-permissions";
 import { PurchasesError } from "react-native-purchases";
 import Animated, {
@@ -8,6 +8,7 @@ import Animated, {
   useDerivedValue,
   withTiming,
 } from "react-native-reanimated";
+import Toast from "react-native-toast-message";
 import { BrightStar } from "iconoir-react-native";
 
 import {
@@ -101,11 +102,30 @@ export function AdsOrPremiumPrompt({
   }
 
   async function onWatchRewardedAd() {
-    try {
-      console.log(ad)
-      await ad.data?.show();
+    let data = ad.data;
 
-      onProceed();
+    if (!data) {
+      const refetchResult = await ad.refetch();
+
+      if (refetchResult.data) {
+        data = refetchResult.data;
+      } else {
+        Toast.show({
+          type: "error",
+          text1:
+            "Oops, something went wrong when fetching the ad, please try again later",
+        });
+      }
+    }
+
+    try {
+      if (data) {
+        await data.show();
+
+        data.addAdEventListener(AdEventType.CLOSED, () => {
+          onProceed();
+        })
+      }
     } finally {
       ad.refetch();
     }

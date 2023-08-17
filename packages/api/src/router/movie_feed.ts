@@ -1,11 +1,12 @@
+import cuid2 from "@paralleldrive/cuid2";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import { DbMovieSwipe, Movie, ReviewState } from "@moviepals/dbmovieswipe";
 
+import { logger } from "../logger";
 import { getMovies } from "../services";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import {logger} from "../logger";
 
 /** Number of movies that TMDB returns */
 const MOVIES_PER_TMDB_PAGE = 20;
@@ -87,6 +88,11 @@ export const movie_feed = createTRPCRouter({
           });
         }
 
+        // If user hasn't watched an ad and not allowed to fetch new movies,
+        // we should try to serve him his latest page,
+        // while filtering out movies they has swiped on
+        let shouldServeLatestCachedFeedResponse = false;
+
         if (!user.fullAccessPurchaseId) {
           const state = await ctx.userFeedDeliveryCache.getDeliveryState(
             ctx.user,
@@ -95,16 +101,38 @@ export const movie_feed = createTRPCRouter({
           logger.info({
             state,
             user: ctx.user,
-          })
+          });
 
           // If user has been delivered feed earlier this day
           if (state) {
             if (state.page + 1 > state.ads_watched) {
-              throw new TRPCError({
-                code: "BAD_REQUEST",
-                message: "Daily swipe limit"
-              })
+              shouldServeLatestCachedFeedResponse = true;
             }
+          }
+        }
+
+        if (shouldServeLatestCachedFeedResponse) {
+          const response =
+            await ctx.latestFeedResponseCache.getLatestFeedResponse(
+              reviewState.id,
+            );
+
+          logger.info({
+            response,
+          });
+
+          if (!response) {
+            return {
+              feed: [],
+              cursor: null,
+            };
+          } else {
+            return {
+              feed: response.filter(
+                (m) => !userSwipes.some((s) => s.movieId === m.id),
+              ),
+              cursor: null,
+            };
           }
         }
 
@@ -237,18 +265,24 @@ export const movie_feed = createTRPCRouter({
           );
         }
 
-        const feed = [...movies, ...mixInMovies].map((movie) => {
+        const moviesWithLikes = [...movies, ...mixInMovies].map((movie) => {
           return {
             ...movie,
             likedByFriends: selectedFriendSwipeMovieIds.includes(movie.id),
           };
         });
 
-        const shuffled = feed.sort(() => Math.random() - 0.5);
+        const feed = moviesWithLikes.sort(() => Math.random() - 0.5);
 
-        await ctx.userFeedDeliveryCache.incPage(ctx.user);
+        await Promise.all([
+          ctx.userFeedDeliveryCache.incPage(ctx.user),
+          ctx.latestFeedResponseCache.setLatestFeedResponse(
+            reviewState.id,
+            feed,
+          ),
+        ]);
 
-        return { feed: shuffled, cursor };
+        return { feed, cursor };
       },
     ),
 });
@@ -322,9 +356,11 @@ export async function fetchMissingMovies({
     const results = await Promise.all(promises);
 
     const fetchedMovies = results.flat();
+
     const filteredMovies = fetchedMovies.filter(
       (movie) => !excludeMovieIds.includes(movie.id),
     );
+
     const selectedMovies = filteredMovies.slice(
       nextTmdbStartFromMovieIdx,
       nextTmdbStartFromMovieIdx + moviesLeftToFetch,
@@ -364,20 +400,35 @@ async function getReviewState(
   db: DbMovieSwipe,
   params: Pick<ReviewState, "genre_ids" | "watch_providers" | "userId">,
 ): Promise<ReviewState> {
+  console.log({
+    userId: params.userId,
+    genre_ids:
+      params.genre_ids.length > 0
+        ? { $all: params.genre_ids }
+        : { $exists: true },
+    watch_providers:
+      params.watch_providers.length > 0
+        ? { $all: params.watch_providers }
+        : { $exists: true },
+  });
+
   const reviewState = await db.reviewState.findOne({
     userId: params.userId,
-    genre_ids: params.genre_ids
-      ? { $all: params.genre_ids }
-      : { $exists: true },
-    watch_providers: params.watch_providers
-      ? { $all: params.watch_providers }
-      : { $exists: true },
+    genre_ids:
+      params.genre_ids.length > 0
+        ? { $all: params.genre_ids }
+        : { $exists: true },
+    watch_providers:
+      params.watch_providers.length > 0
+        ? { $all: params.watch_providers }
+        : { $exists: true },
   });
 
   if (reviewState) {
     return reviewState;
   } else {
     const reviewState: ReviewState = {
+      id: cuid2.createId(),
       userId: params.userId,
       genre_ids: params.genre_ids,
       watch_providers: params.watch_providers,

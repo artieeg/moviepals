@@ -14,7 +14,7 @@ import { prisma } from "@moviepals/db";
 import { dbMovieSwipe } from "@moviepals/dbmovieswipe";
 
 import { logger } from "./logger";
-import { UserFeedDeliveryCache } from "./services";
+import { LatestFeedResponseCache, UserFeedDeliveryCache } from "./services";
 import { verifyToken } from "./utils/jwt";
 
 /**
@@ -30,6 +30,7 @@ interface CreateContextOptions {
   user: string | null;
   ip: string;
   userFeedDeliveryCache: UserFeedDeliveryCache;
+  latestFeedResponseCache: LatestFeedResponseCache;
 }
 
 /**
@@ -58,10 +59,12 @@ export const createTRPCContext = async ({
   authorization,
   ip,
   userFeedDeliveryCache,
+  latestFeedResponseCache,
 }: {
   authorization?: string;
   ip: string;
   userFeedDeliveryCache: UserFeedDeliveryCache;
+  latestFeedResponseCache: LatestFeedResponseCache;
 }) => {
   const token = authorization?.split(" ")[1];
   const claims = token ? verifyToken(token) : null;
@@ -69,6 +72,7 @@ export const createTRPCContext = async ({
   return createInnerTRPCContext({
     user: claims?.user ?? null,
     userFeedDeliveryCache,
+    latestFeedResponseCache,
     ip,
   });
 };
@@ -125,35 +129,37 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
 /**
  * Logger middleware
  */
-export const loggerMiddleware = t.middleware(async ({ ctx, path, input, next }) => {
-  try {
-    const p = performance.now();
+export const loggerMiddleware = t.middleware(
+  async ({ ctx, path, input, next }) => {
+    try {
+      const p = performance.now();
 
-    const response = await next({
-      ctx,
-    });
+      const response = await next({
+        ctx,
+      });
 
-    const time = performance.now() - p;
+      const time = performance.now() - p;
 
-    logger.info({
-      elapsed: `${time.toFixed(2)}ms`,
-      request: {
-        path,
-        ctx: {
-          ip: ctx.ip,
-          user: ctx.user,
+      logger.info({
+        elapsed: `${time.toFixed(2)}ms`,
+        request: {
+          path,
+          ctx: {
+            ip: ctx.ip,
+            user: ctx.user,
+          },
+          input,
         },
-        input,
-      },
-    });
+      });
 
-    return response;
-  } catch (e) {
-    logger.error(e);
+      return response;
+    } catch (e) {
+      logger.error(e);
 
-    throw e;
-  }
-});
+      throw e;
+    }
+  },
+);
 
 /**
  * Public (unauthed) procedure
