@@ -52,6 +52,19 @@ export const premium = createTRPCRouter({
         throw new TRPCError({ code: "NOT_FOUND" });
       }
 
+      const alreadyShared = await ctx.prisma.sharedPremium.findMany({
+        where: {
+          purchaseId: fullPurchase.fullAccessPurchase?.id,
+        },
+      });
+
+      if (alreadyShared.length >= 4) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "You can only share with 4 people",
+        });
+      }
+
       await ctx.prisma.$transaction(
         userIds.map((sharedWithId) => {
           return ctx.prisma.sharedPremium.create({

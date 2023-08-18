@@ -16,6 +16,7 @@ import { useNavigation } from "~/hooks";
 import { SCREEN_INVITE } from "./InviteScreen";
 import { MainLayout } from "./layouts/MainLayout";
 import { SCREEN_MY_SWIPE_LIST } from "./MySwipeListScreen";
+import {SCREEN_SHARE_PREMIUM} from "./SharePremiumScreen";
 
 export const SCREEN_ME = "MeScreen";
 
@@ -24,6 +25,10 @@ export function MeScreen() {
   const user = api.user.getMyData.useQuery();
 
   const navigation = useNavigation();
+
+  function onSharePremium() {
+    navigation.navigate(SCREEN_SHARE_PREMIUM);
+  }
 
   function onInvitePeople() {
     navigation.navigate(SCREEN_INVITE);
@@ -131,6 +136,13 @@ export function MeScreen() {
               />
 
               <Section
+                title="Share Premium"
+                onPress={onSharePremium}
+                showArrowRight
+                subtitle="You have premium, wanna share it with other people?"
+              />
+
+              <Section
                 title="Get Premium"
                 onPress={onPurchasePremium}
                 showArrowRight
@@ -171,6 +183,7 @@ export function MeScreen() {
               </Text>
 
               <View className="h-3" />
+
               <Section
                 title="Sign Out"
                 showArrowRight

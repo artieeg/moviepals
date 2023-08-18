@@ -17,3 +17,4 @@ export * from "./CheckInviteScreen";
 export * from "./MySwipeListScreen";
 export * from "./CastListScreen";
 export * from "./DirectorListScreen";
+export * from "./SharePremiumScreen";

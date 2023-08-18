@@ -9,6 +9,8 @@ import {
   SCREEN_INVITE_SUCCESS,
   SCREEN_ME,
   SCREEN_MY_SWIPE_LIST,
+  SCREEN_SHARE_PREMIUM,
+  SharePremiumScreen,
 } from "~/screens";
 import { options } from "./options";
 
@@ -34,6 +36,12 @@ export default function MeNavigator() {
         options={options}
         name={SCREEN_MY_SWIPE_LIST}
         component={MySwipeListScreen}
+      />
+
+      <Stack.Screen
+        options={options}
+        name={SCREEN_SHARE_PREMIUM}
+        component={SharePremiumScreen}
       />
     </Stack.Navigator>
   );
