@@ -2,9 +2,11 @@ import { createStackNavigator } from "@react-navigation/stack";
 
 import {
   CastListScreen,
+  DirectorListScreen,
   GenreFilterScreen,
   PrepareSwipeScreen,
   SCREEN_CAST_LIST,
+  SCREEN_DIRECTOR_LIST,
   StreamingServiceList,
   SwipeScreen,
   ThankYouScreen,
@@ -32,6 +34,12 @@ export default function SwipeNavigator() {
         options={options}
         name={SCREEN_SWIPE}
         component={SwipeScreen}
+      />
+
+      <Stack.Screen
+        options={options}
+        name={SCREEN_DIRECTOR_LIST}
+        component={DirectorListScreen}
       />
 
       <Stack.Screen

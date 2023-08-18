@@ -8,7 +8,6 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useRoute } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";
 import { Cancel, Heart } from "iconoir-react-native";
 
@@ -43,6 +42,7 @@ export function SwipeScreen() {
       genres: filters.genres,
       watchProviderIds: filters.streamingServices.map((s) => s.provider_id),
       cast: filters.cast.map((c) => c.id),
+      directors: filters.director ? [filters.director.id] : [],
       region: filters.country,
       quick_match_mode: filters.quickMatchMode,
     },
@@ -102,6 +102,7 @@ export function SwipeScreen() {
       movieId: currentMovie.id,
       cast: filters.cast.map((c) => c.id),
       liked: true,
+      directors: filters.director ? [filters.director.id] : [],
       watch_providers: filters.streamingServices.map((s) => s.provider_id),
       genres: filters.genres,
       watch_region: filters.country,
@@ -120,6 +121,7 @@ export function SwipeScreen() {
 
     swipe.mutate({
       movieId: currentMovie.id,
+      directors: filters.director ? [filters.director.id] : [],
       cast: filters.cast.map((c) => c.id),
       liked: true,
       watch_providers: filters.streamingServices.map((s) => s.provider_id),

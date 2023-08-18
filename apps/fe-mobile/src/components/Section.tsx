@@ -8,6 +8,14 @@ import {
 import { NavArrowRight } from "iconoir-react-native";
 import { twJoin } from "tailwind-merge";
 
+export type SectionProps = TouchableOpacityProps & {
+  title: string;
+  subtitle: string | React.ReactNode;
+  showArrowRight?: boolean;
+  right?: React.ReactNode;
+  danger?: boolean;
+};
+
 export function Section({
   title,
   subtitle,
@@ -15,15 +23,10 @@ export function Section({
   right,
   danger,
   ...rest
-}: TouchableOpacityProps & {
-  title: string;
-  subtitle: string | React.ReactNode;
-  showArrowRight?: boolean;
-  right?: React.ReactNode;
-  danger?: boolean;
-}) {
+}: SectionProps) {
   return (
     <TouchableOpacity
+      activeOpacity={0.9}
       className="flex-row items-center justify-between"
       {...rest}
     >

@@ -3,9 +3,9 @@ import { z } from "zod";
 
 import { Movie, movieSchema } from "@moviepals/dbmovieswipe";
 
+import { logger } from "../logger";
 import { env } from "../utils/env";
 import { cachify } from "./cache";
-import {logger} from "../logger";
 
 export const tmdb = axios.create({
   baseURL: "https://api.themoviedb.org/3/",
@@ -45,7 +45,7 @@ const streamingServicesResponseSchema = z.object({
 });
 
 export async function getMovies(params: unknown) {
-  logger.info(params, "getMovies")
+  logger.info(params, "getMovies");
 
   const r = await tmdb.get("discover/movie", {
     params,
@@ -75,7 +75,7 @@ const personSchema = z.object({
   known_for_department: z.string(),
   name: z.string(),
   popularity: z.number(),
-  profile_path: z.string(),
+  profile_path: z.string().nullable(),
 });
 
 export type Person = z.infer<typeof personSchema>;
@@ -99,4 +99,13 @@ export async function searchCast(query: string) {
   const { results } = castFetchResultSchema.parse(r.data);
 
   return results.filter((r) => r.known_for_department === "Acting");
+}
+
+export async function searchDirectors(query: string) {
+  const r = await tmdb.get("search/person", { params: { query } });
+
+  console.log(r.data);
+  const { results } = castFetchResultSchema.parse(r.data);
+
+  return results.filter((r) => r.known_for_department === "Directing");
 }

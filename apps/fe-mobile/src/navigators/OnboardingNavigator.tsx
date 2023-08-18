@@ -16,6 +16,7 @@ export default function OnboardingNavigator() {
         name={SCREEN_WELCOME}
         component={WelcomeScreen}
       />
+
       <Stack.Screen
         options={options}
         name={SCREEN_WHATS_YOUR_NAME}

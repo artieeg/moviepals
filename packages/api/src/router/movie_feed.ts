@@ -24,6 +24,7 @@ export const movie_feed = createTRPCRouter({
         region: z.string(),
         watchProviderIds: z.array(z.number()),
         genres: z.array(z.number()),
+        directors: z.array(z.number()),
         cast: z.array(z.number()),
         cursor: z.number().nullish(),
         quick_match_mode: z.boolean(),
@@ -35,6 +36,7 @@ export const movie_feed = createTRPCRouter({
         input: {
           genres,
           quick_match_mode,
+          directors,
           cursor,
           region,
           cast,
@@ -45,6 +47,7 @@ export const movie_feed = createTRPCRouter({
           cast,
           genre_ids: genres,
           watch_providers: watchProviderIds,
+          directors,
           userId: ctx.user,
         });
 
@@ -71,14 +74,18 @@ export const movie_feed = createTRPCRouter({
           .find({
             userId: ctx.user,
 
+            //Filters below are not necessary,
+            //but they help reduce the load
+
+            directors:
+              directors.length > 0 ? { $in: directors } : { $exists: true },
+
             //cast should overlap
             cast: cast.length > 0 ? { $in: cast } : { $exists: true },
 
-            //genres should overlap
             movie_genre_ids:
               genres.length > 0 ? { $in: genres } : { $exists: true },
 
-            // movie providers should overlap
             watch_providers:
               watchProviderIds.length > 0
                 ? { $in: watchProviderIds }
@@ -213,6 +220,7 @@ export const movie_feed = createTRPCRouter({
           fetchParams: {
             region,
             with_cast: cast,
+            with_people: directors,
             watchProviderIds,
             genres,
           },
@@ -330,6 +338,7 @@ export async function fetchMissingMovies({
   fetchParams: {
     region: string;
     with_cast: number[];
+    with_people: number[];
     watchProviderIds: number[];
     genres: number[];
   };
@@ -356,6 +365,7 @@ export async function fetchMissingMovies({
           watch_region: fetchParams.region,
           with_genres: fetchParams.genres.join(","),
           with_cast: fetchParams.with_cast.join(","),
+          with_people: fetchParams.with_people.join(","),
           page: nextTmdbPage + pageOffset + 1,
         }),
       );
@@ -412,24 +422,16 @@ async function getReviewState(
   db: DbMovieSwipe,
   params: Pick<
     ReviewState,
-    "genre_ids" | "watch_providers" | "userId" | "cast"
+    "genre_ids" | "watch_providers" | "userId" | "cast" | "directors"
   >,
 ): Promise<ReviewState> {
-  console.log({
-    userId: params.userId,
-    genre_ids:
-      params.genre_ids.length > 0
-        ? { $all: params.genre_ids }
-        : { $exists: true },
-    watch_providers:
-      params.watch_providers.length > 0
-        ? { $all: params.watch_providers }
-        : { $exists: true },
-  });
-
   const reviewState = await db.reviewState.findOne({
     userId: params.userId,
 
+    directors:
+      params.directors.length > 0
+        ? { $in: params.directors }
+        : { $exists: true },
     cast: params.cast.length > 0 ? { $in: params.cast } : { $exists: true },
     genre_ids:
       params.genre_ids.length > 0
@@ -448,6 +450,7 @@ async function getReviewState(
       id: cuid2.createId(),
       userId: params.userId,
       genre_ids: params.genre_ids,
+      directors: [],
       cast: [],
       watch_providers: params.watch_providers,
       remoteApiPage: 0,

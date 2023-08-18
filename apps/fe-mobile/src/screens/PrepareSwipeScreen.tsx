@@ -1,17 +1,19 @@
-import React, { useMemo } from "react";
+import React from "react";
 import {
+  ActivityIndicator,
+  Alert,
   FlatList,
-  Text,
-  TouchableOpacity,
+  ScrollView,
   TouchableOpacityProps,
   View,
+  ViewProps,
 } from "react-native";
 import FastImage from "react-native-fast-image";
-import { NavArrowRight } from "iconoir-react-native";
+import Toast from "react-native-toast-message";
 
 import { api } from "~/utils/api";
 import { getTMDBStaticUrl } from "~/utils/uri";
-import { Button, Section, Switch } from "~/components";
+import { Button, Section, SectionProps, Switch } from "~/components";
 import { useAdmob, useNavigation } from "~/hooks";
 import {
   SCREEN_GENRE_FILTER,
@@ -20,6 +22,7 @@ import {
 } from "~/navigators/SwipeNavigator";
 import { useFilterStore } from "~/stores";
 import { SCREEN_CAST_LIST } from "./CastListScreen";
+import { SCREEN_DIRECTOR_LIST } from "./DirectorListScreen";
 import { MainLayout } from "./layouts/MainLayout";
 
 export function PrepareSwipeScreen() {
@@ -35,22 +38,31 @@ export function PrepareSwipeScreen() {
 
   return (
     <MainLayout title="movies">
-      <View className="space-y-6 pb-3">
-        <MyStreamingServicesSection />
+      <ScrollView
+        className="-mx-8"
+        contentContainerStyle={{
+          paddingHorizontal: 32,
+          paddingBottom: 128,
+        }}
+      >
+        <View className="space-y-6 pb-3">
+          <MyStreamingServicesSection />
+          <GenreFilter />
+          <CastFilter />
+          <DirectorFilter />
+          <QuickMatchMode
+            enabled={quickMatchMode}
+            onToggle={(v) => {
+              setQuickMatchMode(v);
+            }}
+          />
+        </View>
 
-        <GenreFilter />
-
-        <CastFilter />
-
-        <DirectorFilter />
-
-        <QuickMatchMode
-          enabled={quickMatchMode}
-          onToggle={(v) => {
-            setQuickMatchMode(v);
-          }}
-        />
-      </View>
+        <View className="border-neutral-2-10 mt-6 space-y-6 border-t pt-6">
+          <ResetFilters />
+          <ResetSwipes />
+        </View>
+      </ScrollView>
 
       <Button
         onPress={onStartSwiping}
@@ -59,6 +71,82 @@ export function PrepareSwipeScreen() {
         start swiping
       </Button>
     </MainLayout>
+  );
+}
+
+function ResetSwipes(props: ViewProps) {
+  const resetSwipes = api.swipe.reset.useMutation({
+    onSuccess() {
+      Toast.show({
+        type: "success",
+        text1: "Swipes reset",
+        text2: "Your swipes have been reset",
+      });
+    },
+  });
+
+  function onReset() {
+    Alert.alert("Reset swipes", "Are you sure you want to reset your swipes?", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Yes",
+        onPress: () => {
+          resetSwipes.mutate();
+        },
+      },
+    ]);
+  }
+
+  return (
+    <Section
+      {...props}
+      onPress={onReset}
+      right={
+        resetSwipes.isLoading ? (
+          <View className="h-5 w-5">
+            <ActivityIndicator />
+          </View>
+        ) : (
+          <View className="w-5" />
+        )
+      }
+      title="Reset swipes"
+      subtitle="Reset your swipes and start swiping from a clean slate"
+    />
+  );
+}
+
+function ResetFilters(props: ViewProps) {
+  function onReset() {
+    Alert.alert(
+      "Reset filters",
+      "Are you sure you want to reset all filters?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        {
+          text: "Yes",
+          onPress: () => {
+            useFilterStore.getState().reset();
+          },
+        },
+      ],
+    );
+  }
+
+  return (
+    <Section
+      {...props}
+      onPress={onReset}
+      title="Reset filters"
+      subtitle="Reset all filters"
+    />
   );
 }
 
@@ -74,6 +162,7 @@ function QuickMatchMode({
     <Section
       title="Quick match mode"
       subtitle="Include friend movies even if they don't match your genre selection"
+      onPress={() => onToggle(!enabled)}
       {...rest}
       right={
         <View className="ml-4">
@@ -175,5 +264,21 @@ function CastFilter(props: TouchableOpacityProps) {
 }
 
 function DirectorFilter(props: TouchableOpacityProps) {
-  return <Section title="Director filter" subtitle="Coming soon" {...props} />;
+  const director = useFilterStore((state) => state.director);
+
+  const navigation = useNavigation();
+
+  function onOpen() {
+    navigation.navigate(SCREEN_DIRECTOR_LIST);
+  }
+
+  return (
+    <Section
+      title="Director filter"
+      subtitle={director ? `filter by ${director.name}` : "any director"}
+      showArrowRight
+      onPress={onOpen}
+      {...props}
+    />
+  );
 }

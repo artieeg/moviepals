@@ -7,6 +7,7 @@ const reviewStateSchema = z
   .object({
     id: z.string(),
     userId: z.string(),
+    directors: z.array(z.number()),
     remoteApiPage: z.number(),
     remoteApiResponseMovieIdx: z.number(),
     genre_ids: z.array(z.number()),

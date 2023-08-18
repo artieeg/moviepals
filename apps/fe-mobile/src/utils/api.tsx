@@ -9,6 +9,7 @@ import superjson from "superjson";
 import { type AppRouter } from "@moviepals/api";
 
 import { env } from "./env";
+import {GoogleSignin} from "@react-native-google-signin/google-signin";
 
 /**
  * A set of typesafe hooks for consuming your API.
@@ -46,6 +47,10 @@ export async function loadAuthToken() {
 }
 
 export async function signOut() {
+  if (await GoogleSignin.isSignedIn()) {
+    await GoogleSignin.signOut();
+  }
+
   await AsyncStorage.removeItem(AS_ACCESS_TOKEN_KEY);
   authToken = undefined;
 

@@ -19,9 +19,15 @@ export interface FilterStore {
   /** Contains a list of selected cast members */
   cast: Person[];
 
+  /** Contains a list of selected directors */
+  director?: Person;
+
+  toggleDirector: (person: Person) => void;
   toggleStreamingService: (service: StreamingService) => void;
   toggleGenre: (id: number) => void;
   toggleCast: (person: Person) => void;
+
+  reset(): void;
 }
 
 export const useFilterStore = create<FilterStore>()(
@@ -32,6 +38,27 @@ export const useFilterStore = create<FilterStore>()(
       streamingServices: [],
       genres: [],
       cast: [],
+      reset() {
+        set(
+          produce<FilterStore>((state) => {
+            state.streamingServices = [];
+            state.genres = [];
+            state.cast = [];
+            state.director = undefined;
+          }),
+        );
+      },
+      toggleDirector(person) {
+        set(
+          produce<FilterStore>((state) => {
+            if (state.director?.id === person.id) {
+              state.director = undefined;
+            } else {
+              state.director = person;
+            }
+          }),
+        );
+      },
       toggleStreamingService: (service: StreamingService) => {
         set(
           produce<FilterStore>((state) => {

@@ -73,6 +73,7 @@ export const swipe = createTRPCRouter({
         movieId: z.number(),
         watch_providers: z.array(z.number()),
         cast: z.array(z.number()),
+        directors: z.array(z.number()),
         genres: z.array(z.number()),
         liked: z.boolean(),
         watch_region: z.string(),
@@ -89,12 +90,14 @@ export const swipe = createTRPCRouter({
           watch_providers,
           watch_region,
           cast,
+          directors,
           movie_language,
         },
       }) => {
         await ctx.dbMovieSwipe.swipes.insertOne({
           id: cuid.createId(),
           userId: ctx.user,
+          directors,
           cast,
           movieId,
           liked,

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { FlatList, View } from "react-native";
+import { FlatList, Text, View } from "react-native";
 import FastImage from "react-native-fast-image";
 import { Search } from "iconoir-react-native";
 import { useDebounce } from "use-debounce";
@@ -8,69 +8,63 @@ import { Person } from "@moviepals/api";
 
 import { api } from "~/utils/api";
 import { getTMDBStaticUrl } from "~/utils/uri";
-import { Button, Input, ListItem, LoadingIndicator } from "~/components";
+import { Button, Input, ListItem } from "~/components";
 import { useNavigation } from "~/hooks";
 import { useFilterStore } from "~/stores";
 import { MainLayout } from "./layouts/MainLayout";
 
-export const SCREEN_CAST_LIST = "CastListScreen";
+export const SCREEN_DIRECTOR_LIST = "DirectorListScreen";
 
-export function CastListScreen() {
+export function DirectorListScreen() {
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebounce(search, 300);
 
-  const enabledCast = useFilterStore((state) => state.cast);
+  const director = useFilterStore((state) => state.director);
 
   const navigation = useNavigation();
 
-  /**
-   * This function only updates the list locally.
-   * */
-  function onToggleCastMember(person: Person) {
-    useFilterStore.getState().toggleCast(person);
+  function onToggleDirector(person: Person) {
+    useFilterStore.getState().toggleDirector(person);
   }
 
   function onDone() {
     navigation.goBack();
   }
 
-  const popular = api.cast.fetchPopularCast.useInfiniteQuery(
-    {},
-    {
-      initialCursor: 1,
-      getNextPageParam: (lastPage) => lastPage.nextCursor,
-    },
-  );
-
-  const castSearch = api.cast.search.useQuery(
+  const directorSearch = api.director.search.useQuery(
     { query: debouncedSearch },
     { enabled: !!debouncedSearch },
   );
 
   const cast = useMemo(() => {
-    if (debouncedSearch && castSearch.data) {
-      return castSearch.data.cast;
-    } else {
-      const data = popular.data?.pages.flatMap((page) => page.cast) ?? [];
-      const missingSelectedCast = enabledCast.filter(
-        (c) => !data.some((s) => s.id === c.id),
-      );
-      return [...missingSelectedCast, ...data];
+    let source: Person[] = [];
+
+    if (debouncedSearch && directorSearch.data) {
+      source = directorSearch.data.directors;
     }
-  }, [castSearch.data, debouncedSearch, enabledCast, popular.data?.pages]);
+
+    if (director && !source.some((s) => s.id === director.id)) {
+      return [director, ...source];
+    } else {
+      return source;
+    }
+  }, [directorSearch.data, debouncedSearch, director]);
 
   return (
-    <MainLayout onGoBack={onDone} canGoBack title="cast">
+    <MainLayout onGoBack={onDone} canGoBack title="directors">
       <FlatList
         className="-mx-8 flex-1"
         data={cast}
         contentContainerStyle={{ paddingHorizontal: 32, paddingBottom: 128 }}
-        onEndReached={() => {
-          if (!debouncedSearch) {
-            popular.fetchNextPage();
-          }
-        }}
         ItemSeparatorComponent={() => <View className="h-3" />}
+        ListFooterComponent={
+          <View className="flex-1 items-center justify-center mt-4">
+            <Text className="font-primary-regular text-neutral-2">
+              Type something in the search bar. Right now, you can only filter
+              by one director at the time
+            </Text>
+          </View>
+        }
         renderItem={({ item }) => {
           return (
             <ListItem
@@ -84,21 +78,10 @@ export function CastListScreen() {
               }
               itemId={item.id}
               title={item.name}
-              right="checkbox"
-              checked={enabledCast.some((s) => s.id === item.id)}
-              onToggle={() => onToggleCastMember(item)}
+              right="radio"
+              checked={director?.id === item.id}
+              onToggle={() => onToggleDirector(item)}
             />
-          );
-        }}
-        ListFooterComponent={() => {
-          if (!popular.isLoading) {
-            return null;
-          }
-
-          return (
-            <View className="py-12">
-              <LoadingIndicator />
-            </View>
           );
         }}
         ListHeaderComponent={

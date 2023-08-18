@@ -113,8 +113,12 @@ export function MeScreen() {
                 onPress={onResetSwipes}
                 right={
                   resetSwipes.isLoading ? (
-                    <ActivityIndicator size="small" color="black" />
-                  ) : null
+                    <View className="h-5 w-5">
+                      <ActivityIndicator />
+                    </View>
+                  ) : (
+                    <View className="w-5" />
+                  )
                 }
                 subtitle="Start swiping from scratch"
               />
@@ -154,7 +158,8 @@ export function MeScreen() {
                   <Text className="font-primary-regular text-neutral-2 text-base underline">
                     themoviedb.org
                   </Text>
-                </Pressable>{" "}and{" "}
+                </Pressable>{" "}
+                and{" "}
                 <Pressable
                   onPress={() => Linking.openURL("https://www.justwatch.com")}
                   className="translate-y-0.5"
