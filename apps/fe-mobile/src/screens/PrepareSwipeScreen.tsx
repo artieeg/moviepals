@@ -68,7 +68,7 @@ export function PrepareSwipeScreen() {
         onPress={onStartSwiping}
         className="absolute bottom-0 left-8 right-8"
       >
-        start swiping
+        Start Swiping
       </Button>
     </MainLayout>
   );

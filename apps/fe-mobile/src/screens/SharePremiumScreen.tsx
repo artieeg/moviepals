@@ -88,6 +88,7 @@ export function SharePremiumScreen() {
           renderItem={({ item }) => {
             return (
               <UserOption
+                hideCheckbox={!canShare}
                 shared={
                   sharedList.data?.some((u) => u.id === item.id) ??
                   idsToShare.includes(item.id)
