@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  Linking,
   Platform,
   Text,
   View,
@@ -12,6 +13,7 @@ import { check, PERMISSIONS, request } from "react-native-permissions";
 import SendSMS from "react-native-sms";
 import { Toast } from "react-native-toast-message/lib/src/Toast";
 import Clipboard from "@react-native-clipboard/clipboard";
+import { useFocusEffect } from "@react-navigation/native";
 import { FlashList } from "@shopify/flash-list";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Copy, MessageText, Search } from "iconoir-react-native";
@@ -78,8 +80,18 @@ export function InviteScreen() {
     setLinkCopied(true);
   }, [inviteUrl.isSuccess, inviteUrl.data?.link]);
 
+  useFocusEffect(
+    useCallback(() => {
+      permission.refetch();
+    }, []),
+  );
+
   function onRequestPermission() {
     request.mutate();
+  }
+
+  function onOpenSettings() {
+    Linking.openSettings();
   }
 
   const [_query, setQuery] = useState("");
@@ -194,10 +206,15 @@ export function InviteScreen() {
           title="Contacts Permission"
           subtitle="We need your permission so we can fetch the list of people you can invite. This data won't be transferred or stored anywhere."
           buttons={[
-            {
-              title: "Allow Access",
-              onPress: onRequestPermission,
-            },
+            permission.data === "denied"
+              ? {
+                  title: "Allow Access",
+                  onPress: onRequestPermission,
+                }
+              : {
+                  title: "Open Settings",
+                  onPress: onOpenSettings,
+                },
             {
               kind: "outline",
               title: "Copy the link instead",

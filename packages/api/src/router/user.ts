@@ -2,6 +2,7 @@ import crypto from "crypto";
 import { TRPCError } from "@trpc/server";
 import appleSignInAuth from "apple-signin-auth";
 import { OAuth2Client } from "google-auth-library";
+import { DateTime } from "luxon";
 import { z } from "zod";
 
 import { UserInviteLink } from "@moviepals/db";
@@ -100,6 +101,17 @@ export const user = createTRPCRouter({
       } else {
         throw new TRPCError({ code: "NOT_FOUND" });
       }
+    }),
+
+  setTimezoneOffset: protectedProcedure
+    .input(z.object({ timezone: z.string() }))
+    .mutation(async ({ input: { timezone }, ctx }) => {
+      const timezoneOffset = DateTime.now().setZone(timezone).offset / 60;
+
+      await ctx.prisma.user.update({
+        where: { id: ctx.user },
+        data: { timezoneOffset },
+      });
     }),
 
   createNewAccount: publicProcedure

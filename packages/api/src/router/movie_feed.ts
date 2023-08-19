@@ -112,11 +112,14 @@ export const movie_feed = createTRPCRouter({
             reviewState.id,
           );
 
-        if (latestFeedResponse) {
+        const notSwipedFromLatestFeedResponse =
+          latestFeedResponse?.filter(
+            (m) => !userSwipes.some((s) => s.movieId === m.id),
+          ) ?? [];
+
+        if (notSwipedFromLatestFeedResponse.length > 0) {
           return {
-            feed: latestFeedResponse.filter(
-              (m) => !userSwipes.some((s) => s.movieId === m.id),
-            ),
+            feed: notSwipedFromLatestFeedResponse,
             cursor: null,
           };
         }

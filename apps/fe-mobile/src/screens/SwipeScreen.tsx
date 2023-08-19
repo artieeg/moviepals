@@ -35,7 +35,6 @@ function useAdConsentPromptStatus() {
 }
 
 export function SwipeScreen() {
-  const user = api.user.getMyData.useQuery();
   const filters = useFilterStore((state) => state);
 
   const swipe = api.swipe.swipe.useMutation();
@@ -67,9 +66,10 @@ export function SwipeScreen() {
   const unableToFindMovies = latestPage?.unableToFindMovies;
 
   console.log({
-    hasToWatchAd,
-    noMoreMovies,
-    unableToFindMovies,
+    hasToWatchAd: latestPage?.hasToWatchAd,
+    noMoreMovies: latestPage?.noMoreMovies,
+    unableToFindMovies: latestPage?.unableToFindMovies,
+    feed: latestPage?.feed.length
   });
 
   useEffect(() => {
@@ -108,6 +108,7 @@ export function SwipeScreen() {
 
   useEffect(() => {
     if (currentMovieIdx > 0 && !currentMovie) {
+      console.log("fetching next page")
       result.fetchNextPage();
     }
   }, [currentMovieIdx, currentMovie]);

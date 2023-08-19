@@ -1,13 +1,14 @@
 import { createTRPCRouter } from "../trpc";
+import { ad_impression } from "./ad_impression_fallback";
 import { cast } from "./cast";
 import { connection } from "./connection";
 import { connection_requests } from "./connection_requests";
-import {director} from "./director";
+import { director } from "./director";
 import { genres } from "./genres";
 import { invite } from "./invite";
 import { matches } from "./matches";
 import { movie_feed } from "./movie_feed";
-import {premium} from "./premium";
+import { premium } from "./premium";
 import { streaming_service } from "./streaming_service";
 import { swipe } from "./swipe";
 import { user } from "./user";
@@ -18,6 +19,7 @@ export const appRouter = createTRPCRouter({
   streaming_service,
   premium,
   genres,
+  ad_impression,
   connection,
   connection_requests,
   swipe,

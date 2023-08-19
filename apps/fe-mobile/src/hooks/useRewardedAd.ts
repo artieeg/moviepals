@@ -15,6 +15,7 @@ const ad = Platform.select({
 
 export function useRewardedAd() {
   const user = api.user.getMyData.useQuery();
+  const adCallback = api.ad_impression.adImpression.useMutation();
 
   return useQuery(["rewarded-ad", user.data?.id], async () => {
     return new Promise<RewardedAd>((resolve) => {
@@ -24,6 +25,15 @@ export function useRewardedAd() {
           customData: ad,
         },
       });
+
+      const watchedUnsub = rewarded.addAdEventListener(
+        RewardedAdEventType.EARNED_REWARD,
+        () => {
+          watchedUnsub();
+
+          adCallback.mutate()
+        },
+      );
 
       const loadedUnsub = rewarded.addAdEventListener(
         RewardedAdEventType.LOADED,
