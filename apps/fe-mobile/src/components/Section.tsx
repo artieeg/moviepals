@@ -30,7 +30,7 @@ export function Section({
       className="flex-row items-center justify-between"
       {...rest}
     >
-      <View className="flex-1">
+      <View className="flex-1 space-y-1">
         <Text
           className={twJoin(
             "font-primary-bold text-neutral-1 text-xl",

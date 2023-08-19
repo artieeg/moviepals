@@ -8248,6 +8248,11 @@ react-native-linear-gradient@^2.8.2:
   resolved "https://registry.yarnpkg.com/react-native-linear-gradient/-/react-native-linear-gradient-2.8.2.tgz#9811c91751be673ef928ef4aa3ff3a70b82935d6"
   integrity sha512-hgmCsgzd58WNcDCyPtKrvxsaoETjb/jLGxis/dmU3Aqm2u4ICIduj4ECjbil7B7pm9OnuTkmpwXu08XV2mpg8g==
 
+react-native-localize@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/react-native-localize/-/react-native-localize-3.0.2.tgz#43fa75c0097dbdb24a54ff320b3c8ad732407365"
+  integrity sha512-/l/oE1LVNgIRRhLbhmfFMHiWV0xhUn0A0iz1ytLVRYywL7FTp8Rx2vkJS/q/RpExDvV7yLw2493XZBYIM1dnLQ==
+
 react-native-permissions@^3.8.4:
   version "3.8.4"
   resolved "https://registry.yarnpkg.com/react-native-permissions/-/react-native-permissions-3.8.4.tgz#20f203f1dd659c28fb770fc26bbbf0126faa797e"

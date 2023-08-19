@@ -1,4 +1,5 @@
 export * from "./IconButton";
+export * from "./NoMoreMoviesPrompt";
 export * from "./BottomTabBar";
 export * from "./Input";
 export * from "./Selectable";
@@ -15,3 +16,4 @@ export * from "./Section";
 export * from "./UserAvatar";
 export * from "./MovieList";
 export * from "./Prompt";
+export * from "./UnableToFindMoviesPrompt";

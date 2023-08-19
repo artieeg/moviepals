@@ -4,7 +4,6 @@ import { z } from "zod";
 
 import { DbMovieSwipe, Movie, ReviewState } from "@moviepals/dbmovieswipe";
 
-import { logger } from "../logger";
 import { getMovies } from "../services";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
@@ -26,7 +25,7 @@ export const movie_feed = createTRPCRouter({
         genres: z.array(z.number()),
         directors: z.array(z.number()),
         cast: z.array(z.number()),
-        cursor: z.number().nullish(),
+        cursor: z.number().default(0),
         quick_match_mode: z.boolean(),
       }),
     )
@@ -129,7 +128,7 @@ export const movie_feed = createTRPCRouter({
 
           // If user has been delivered feed earlier this day
           if (state) {
-            if (state.page + 1 > state.ads_watched) {
+            if (state.page > state.ads_watched) {
               return {
                 cursor: null,
                 hasToWatchAd: true,
@@ -287,13 +286,26 @@ export const movie_feed = createTRPCRouter({
 
         const feed = moviesWithLikes.sort(() => Math.random() - 0.5);
 
-        await Promise.all([
-          ctx.userFeedDeliveryCache.incPage(ctx.user),
-          ctx.latestFeedResponseCache.setLatestFeedResponse(
-            reviewState.id,
-            feed,
-          ),
-        ]);
+        let responseShouldBeCounted = true;
+
+        if (feed.length === 0) {
+          if (cursor === 0) {
+            responseShouldBeCounted = false;
+            return { feed, cursor, unableToFindMovies: true };
+          } else {
+            return { feed, cursor, noMoreMovies: true };
+          }
+        }
+
+        if (responseShouldBeCounted) {
+          await Promise.all([
+            ctx.userFeedDeliveryCache.incPage(ctx.user),
+            ctx.latestFeedResponseCache.setLatestFeedResponse(
+              reviewState.id,
+              feed,
+            ),
+          ]);
+        }
 
         return { feed, cursor };
       },

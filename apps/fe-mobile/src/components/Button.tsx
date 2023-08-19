@@ -12,7 +12,7 @@ export function Button({ children, kind = "primary", ...rest }: ButtonProps) {
   return (
     <TouchableScale
       className={twJoin(
-        "h-12 items-center justify-center rounded-full",
+        "h-12 items-center justify-center rounded-lg",
         kind === "primary" && "bg-brand-1",
         rest.disabled && "bg-neutral-4",
         kind === "outline" && "border-brand-1 border bg-transparent",

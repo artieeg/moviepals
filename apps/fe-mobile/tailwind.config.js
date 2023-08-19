@@ -6,7 +6,7 @@ module.exports = {
       fontFamily: {
         //"primary-regular": "Montserrat-Regular",
         "primary-bold": "Montserrat-Bold",
-        "primary-regular": "Nunito-Regular",
+        "primary-regular": "Poppins-Medium",
         //"primary-bold": "Nunito-Bold",
       },
       borderRadius: {

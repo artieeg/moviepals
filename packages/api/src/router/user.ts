@@ -6,7 +6,6 @@ import { z } from "zod";
 
 import { UserInviteLink } from "@moviepals/db";
 
-import { logger } from "../logger";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { env } from "../utils/env";
 import { createToken } from "../utils/jwt";
@@ -82,7 +81,7 @@ export const user = createTRPCRouter({
   findExistingUser: publicProcedure
     .input(z.object({ method: signInMethodSchema }))
     .query(async ({ input: { method }, ctx }) => {
-      const email =
+      const { sub } =
         method.provider === "google"
           ? await getEmailFromGoogleToken(method.idToken)
           : await getEmailFromAppleToken({
@@ -90,10 +89,8 @@ export const user = createTRPCRouter({
               nonce: method.nonce,
             });
 
-      logger.info({ method, email }, "Data from social sign-in provider");
-
       const existingUser = await ctx.prisma.user.findUnique({
-        where: { email },
+        where: { sub },
       });
 
       if (existingUser) {
@@ -116,13 +113,20 @@ export const user = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       const { name, username, method } = input;
 
-      const email =
+      const { email, sub } =
         method.provider === "google"
           ? await getEmailFromGoogleToken(method.idToken)
           : await getEmailFromAppleToken({
               idToken: method.idToken,
               nonce: method.nonce,
             });
+
+      if (!email) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Email not found",
+        });
+      }
 
       let inviteLink: UserInviteLink | undefined = undefined;
 
@@ -138,6 +142,7 @@ export const user = createTRPCRouter({
 
       const user = await ctx.prisma.user.create({
         data: {
+          sub,
           name,
           username,
           email,
@@ -240,13 +245,13 @@ async function getEmailFromAppleToken({
   idToken: string;
   nonce: string;
 }) {
-  const { email } = await appleSignInAuth.verifyIdToken(idToken, {
+  const { email, sub } = await appleSignInAuth.verifyIdToken(idToken, {
     nonce: nonce
       ? crypto.createHash("sha256").update(nonce).digest("hex")
       : undefined,
   });
 
-  return email;
+  return { email, sub };
 }
 
 async function getEmailFromGoogleToken(googleIdToken: string) {
@@ -260,10 +265,11 @@ async function getEmailFromGoogleToken(googleIdToken: string) {
   const payload = ticket.getPayload();
 
   const email = payload?.email;
+  const sub = payload?.sub;
 
-  if (!email) {
+  if (!sub) {
     throw new TRPCError({ code: "BAD_REQUEST" });
   }
 
-  return email;
+  return { email, sub };
 }

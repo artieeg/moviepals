@@ -58,7 +58,7 @@ export function WelcomeScreen() {
         },
       });
 
-      navigation.navigate(SCREEN_WHATS_YOUR_NAME)
+      navigation.navigate(SCREEN_WHATS_YOUR_NAME);
     } catch {}
   }
 
@@ -73,7 +73,7 @@ export function WelcomeScreen() {
         const storedAppleAuth = await AsyncStorage.getItem("@apple-auth");
 
         if (storedAppleAuth) {
-          appleAuthResponse = JSON.parse(storedAppleAuth) as any ;
+          appleAuthResponse = JSON.parse(storedAppleAuth) as any;
         }
       } else {
         AsyncStorage.setItem("@apple-auth", JSON.stringify(appleAuthResponse));
@@ -92,7 +92,7 @@ export function WelcomeScreen() {
         },
       });
 
-      navigation.navigate(SCREEN_WHATS_YOUR_NAME)
+      navigation.navigate(SCREEN_WHATS_YOUR_NAME);
     } catch {}
   }
 
@@ -103,13 +103,13 @@ export function WelcomeScreen() {
       </View>
       <View className="flex-1 px-8">
         <View className="space-y-6">
-          <View className="space-y-2">
+          <View className="space-y-3">
             <Text className="font-primary-bold text-neutral-1 text-2xl">
-              welcome to moviepals 🎉
+              Welcome to MoviePals 🎉
             </Text>
             <Text className="font-primary-regular text-neutral-2 text-base">
-              it’s here to help you find something to watch together, please
-              sign in using apple or google
+              It’s here to help you find something to watch together. Please,
+              sign in with your Apple or Google account
             </Text>
           </View>
           <View className="flex-row space-x-6">

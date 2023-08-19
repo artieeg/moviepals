@@ -2,6 +2,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import {
   FlatList,
   Linking,
+  Platform,
   Pressable,
   Text,
   TouchableOpacity,
@@ -109,7 +110,7 @@ export function StreamingServiceList() {
                 />
               }
               itemId={item.provider_id}
-              title={item.provider_name.toLowerCase()}
+              title={item.provider_name}
               right="checkbox"
               checked={enabledStreamingServices.some(
                 (s) => s.provider_id === item.provider_id,
@@ -142,16 +143,25 @@ export function StreamingServiceList() {
                   Select the services you use. Powered by{" "}
                   <Pressable
                     onPress={() => Linking.openURL("https://www.justwatch.com")}
-                    className="translate-y-0.5"
+                    className={Platform.select({
+                      ios: "translate-y-0.5",
+                      default: "translate-y-[7px]",
+                    })}
                   >
                     <Text className="font-primary-regular text-neutral-2 text-base underline">
                       justwatch.com
                     </Text>
                   </Pressable>{" "}
                   and{" "}
-                  <Pressable 
-                    onPress={() => Linking.openURL("https://www.themoviedb.org")}
-                    className="translate-y-0.5">
+                  <Pressable
+                    onPress={() =>
+                      Linking.openURL("https://www.themoviedb.org")
+                    }
+                    className={Platform.select({
+                      ios: "translate-y-0.5",
+                      default: "translate-y-[7px]",
+                    })}
+                  >
                     <Text className="font-primary-regular text-neutral-2 text-base underline">
                       themoviedb.org
                     </Text>

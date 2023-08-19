@@ -1,5 +1,5 @@
 import { Text, View, ViewProps } from "react-native";
-import { BrightStar, IconoirProvider } from "iconoir-react-native";
+import { IconoirProvider } from "iconoir-react-native";
 
 import { Button, ButtonProps } from "./Button";
 
@@ -8,10 +8,12 @@ export function Prompt({
   subtitle,
   buttons,
   icon,
+  shouldFillIcon = false,
   ...rest
 }: {
   title: string;
   icon: React.ReactNode;
+  shouldFillIcon?: boolean;
   subtitle: string;
   buttons: ((ButtonProps & { title: string }) | undefined)[];
 } & ViewProps) {
@@ -22,7 +24,7 @@ export function Prompt({
           <IconoirProvider
             iconProps={{
               color: "#6867AA",
-              fill: "#6867AA",
+              fill: shouldFillIcon ? "#6867AA" : "transparent",
               width: 32,
               height: 32,
             }}
@@ -32,7 +34,7 @@ export function Prompt({
         </View>
 
         <View className="items-center justify-center space-y-2">
-          <Text className="font-primary-bold text-xl">{title}</Text>
+          <Text className="font-primary-bold text-xl text-neutral-1">{title}</Text>
           <Text className="font-primary-regular text-neutral-2 text-center text-base">
             {subtitle}
           </Text>

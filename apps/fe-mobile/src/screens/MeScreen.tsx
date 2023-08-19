@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   Alert,
   Linking,
+  Platform,
   Pressable,
   ScrollView,
   Text,
@@ -16,7 +17,7 @@ import { useNavigation } from "~/hooks";
 import { SCREEN_INVITE } from "./InviteScreen";
 import { MainLayout } from "./layouts/MainLayout";
 import { SCREEN_MY_SWIPE_LIST } from "./MySwipeListScreen";
-import {SCREEN_SHARE_PREMIUM} from "./SharePremiumScreen";
+import { SCREEN_SHARE_PREMIUM } from "./SharePremiumScreen";
 
 export const SCREEN_ME = "MeScreen";
 
@@ -153,7 +154,10 @@ export function MeScreen() {
                 Need help? Send a message to{" "}
                 <Pressable
                   onPress={() => Linking.openURL("mailto:help@moviepals.io")}
-                  className="translate-y-0.5"
+                  className={Platform.select({
+                    ios: "translate-y-0.5",
+                    default: "translate-y-[7px]",
+                  })}
                 >
                   <Text className="font-primary-regular text-neutral-2 text-base underline">
                     help@moviepals.io
@@ -165,7 +169,10 @@ export function MeScreen() {
                 MoviePals is powered by{" "}
                 <Pressable
                   onPress={() => Linking.openURL("https://www.themoviedb.org")}
-                  className="translate-y-0.5"
+                  className={Platform.select({
+                    ios: "translate-y-0.5",
+                    default: "translate-y-[7px]",
+                  })}
                 >
                   <Text className="font-primary-regular text-neutral-2 text-base underline">
                     themoviedb.org
@@ -174,12 +181,16 @@ export function MeScreen() {
                 and{" "}
                 <Pressable
                   onPress={() => Linking.openURL("https://www.justwatch.com")}
-                  className="translate-y-0.5"
+                  className={Platform.select({
+                    ios: "translate-y-0.5",
+                    default: "translate-y-[7px]",
+                  })}
                 >
                   <Text className="font-primary-regular text-neutral-2 text-base underline">
                     justwatch.com
                   </Text>
                 </Pressable>
+                , and is not endorsed or certified by TMDb or JustWatch.
               </Text>
 
               <View className="h-3" />

@@ -6,16 +6,8 @@
       "sha1": "04052dc3b846609216de1e0cbcec337c6b6e74f6"
     },
     {
-      "path": "assets/fonts/Montserrat-Regular.ttf",
-      "sha1": "de57aa03e4821fdbe6c34ec2c895e8b5c914e837"
-    },
-    {
-      "path": "assets/fonts/Nunito-Bold.ttf",
-      "sha1": "dea5eec0aca2aef62e3bfc625cf95f9d45b59687"
-    },
-    {
-      "path": "assets/fonts/Nunito-Regular.ttf",
-      "sha1": "4b7236ba666cb77f00d8cb2a17696cc0dc2b2cc9"
+      "path": "assets/fonts/Poppins-Medium.ttf",
+      "sha1": "283f21b44efbdbf276ba802be2d949a36bbc4233"
     }
   ]
 }

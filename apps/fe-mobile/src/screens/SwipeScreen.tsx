@@ -8,6 +8,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";
 import { Cancel, Heart } from "iconoir-react-native";
 
@@ -19,6 +20,8 @@ import {
   MovieCardRef,
   MovieDetailsBottomSheet,
   MovieDetailsBottomSheetRef,
+  NoMoreMoviesPrompt,
+  UnableToFindMoviesPrompt,
 } from "~/components";
 import { useFilterStore } from "~/stores";
 import { MainLayout } from "./layouts/MainLayout";
@@ -57,6 +60,18 @@ export function SwipeScreen() {
 
   const adConsentPromptStatus = useAdConsentPromptStatus();
 
+  const latestPage = result.data?.pages[result.data.pages.length - 1];
+
+  const hasToWatchAd = latestPage?.hasToWatchAd;
+  const noMoreMovies = latestPage?.noMoreMovies;
+  const unableToFindMovies = latestPage?.unableToFindMovies;
+
+  console.log({
+    hasToWatchAd,
+    noMoreMovies,
+    unableToFindMovies,
+  });
+
   useEffect(() => {
     if (currentMovieIdx === 3) {
       setShowAdPermissionPrompt(true);
@@ -84,6 +99,18 @@ export function SwipeScreen() {
   }
 
   const currentMovieCard = useRef<MovieCardRef>(null);
+
+  const navigation = useNavigation();
+
+  function onGoBack() {
+    navigation.goBack();
+  }
+
+  useEffect(() => {
+    if (currentMovieIdx > 0 && !currentMovie) {
+      result.fetchNextPage();
+    }
+  }, [currentMovieIdx, currentMovie]);
 
   function onProceedAfterPurchaseOrAd() {
     setTimeout(async () => {
@@ -156,10 +183,16 @@ export function SwipeScreen() {
 
                       swipe.mutate({
                         movieId: currentMovie.id,
+                        directors: filters.director
+                          ? [filters.director.id]
+                          : [],
+                        cast: filters.cast.map((c) => c.id),
                         liked,
-                        watch_providers: watchProviders.data ?? [],
-                        genres: currentMovie.genre_ids,
-                        watch_region: user.data!.country,
+                        watch_providers: filters.streamingServices.map(
+                          (s) => s.provider_id,
+                        ),
+                        genres: filters.genres,
+                        watch_region: filters.country,
                         movie_language: currentMovie.original_language,
                       });
 
@@ -181,7 +214,27 @@ export function SwipeScreen() {
           </Animated.View>
         )}
 
-        {!currentMovie && !showAdPermissionPrompt && (
+        {noMoreMovies && (
+          <Animated.View
+            className="flex-1 pb-8"
+            entering={FadeIn}
+            exiting={FadeOut}
+          >
+            <NoMoreMoviesPrompt onGoBack={onGoBack} />
+          </Animated.View>
+        )}
+
+        {unableToFindMovies && (
+          <Animated.View
+            className="flex-1 pb-8"
+            entering={FadeIn}
+            exiting={FadeOut}
+          >
+            <UnableToFindMoviesPrompt onGoBack={onGoBack} />
+          </Animated.View>
+        )}
+
+        {hasToWatchAd && !currentMovie && (
           <Animated.View
             className="flex-1 pb-8"
             entering={FadeIn}
@@ -189,7 +242,6 @@ export function SwipeScreen() {
           >
             <AdsOrPremiumPrompt
               mode="ad"
-              visible
               onProceed={() => {
                 onProceedAfterPurchaseOrAd();
                 setShowAdPermissionPrompt(false);
@@ -209,7 +261,6 @@ export function SwipeScreen() {
               onSkip={() => {
                 setShowAdPermissionPrompt(false);
               }}
-              visible
               onProceed={() => {
                 onProceedAfterPurchaseOrAd();
 
