@@ -8,6 +8,7 @@ export { appRouter, type AppRouter } from "./src/router/root";
 export { createTRPCContext } from "./src/trpc";
 
 export * from "./src/services";
+export * from "./src/workers";
 
 export * from "@moviepals/db";
 export * from "@moviepals/dbmovieswipe";

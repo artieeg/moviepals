@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Alert, Platform, Text, View } from "react-native";
+import React from "react";
+import { Text, View } from "react-native";
 import Animated from "react-native-reanimated";
 import Toast from "react-native-toast-message";
 import Clipboard from "@react-native-clipboard/clipboard";
@@ -8,8 +8,8 @@ import { api } from "~/utils/api";
 import { Button } from "~/components";
 import { useNavigation } from "~/hooks";
 import { NAVIGATOR_MAIN } from "~/navigators/RootNavigator";
+import { SCREEN_JOIN_MAILING_LIST } from "./JoinMailingListScreen";
 import { MainLayout } from "./layouts/MainLayout";
-import { User } from ".prisma/client";
 
 export const SCREEN_CHECK_INVITE = "CheckInviteScreen";
 
@@ -20,13 +20,15 @@ export function CheckInviteScreen() {
         type: "success",
         text1: `Accepted an invite from ${inviter.name}!`,
       });
+
+      navigation.navigate(SCREEN_JOIN_MAILING_LIST);
     },
   });
 
   const navigation = useNavigation();
 
   function onSkip() {
-    navigation.navigate(NAVIGATOR_MAIN);
+    navigation.navigate(SCREEN_JOIN_MAILING_LIST);
   }
 
   async function onCheckInvite() {

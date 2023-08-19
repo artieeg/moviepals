@@ -103,6 +103,20 @@ export const user = createTRPCRouter({
       }
     }),
 
+  allowPushNotifications: protectedProcedure.mutation(async ({ ctx }) => {
+    await ctx.prisma.user.update({
+      where: { id: ctx.user },
+      data: { allowPushNotifications: true },
+    });
+  }),
+
+  joinMailingList: protectedProcedure.mutation(async ({ ctx }) => {
+    await ctx.prisma.user.update({
+      where: { id: ctx.user },
+      data: { joinedMailingList: true },
+    });
+  }),
+
   setTimezoneOffset: protectedProcedure
     .input(z.object({ timezone: z.string() }))
     .mutation(async ({ input: { timezone }, ctx }) => {

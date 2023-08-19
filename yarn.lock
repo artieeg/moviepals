@@ -2388,6 +2388,11 @@
     opencollective-postinstall "^2.0.1"
     superstruct "^0.6.2"
 
+"@react-native-firebase/messaging@^18.3.0":
+  version "18.3.0"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/messaging/-/messaging-18.3.0.tgz#062e4844d1a5e409e035efc13ecd68f403165568"
+  integrity sha512-MolNWboyN+ZwfHgFTQ4NspIzpFxbtlROxrsiGjwpfzBcKL6cjpfS6uxwupidycuzVL+gaIq1xbCLQaNhv/bToA==
+
 "@react-native-google-signin/google-signin@^10.0.1":
   version "10.0.1"
   resolved "https://registry.yarnpkg.com/@react-native-google-signin/google-signin/-/google-signin-10.0.1.tgz#5ca5208c6677aca7e8b12f73699de3048d9a5a31"

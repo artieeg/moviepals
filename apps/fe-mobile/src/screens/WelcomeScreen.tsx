@@ -37,7 +37,7 @@ export function WelcomeScreen() {
       onSuccess({ token }) {
         setAuthToken(token);
 
-        navigation.navigate(NAVIGATOR_MAIN);
+        navigation.replace(NAVIGATOR_MAIN);
       },
     },
   );

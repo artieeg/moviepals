@@ -1,6 +1,15 @@
 import { createStackNavigator } from "@react-navigation/stack";
 
-import { CheckInviteScreen, SCREEN_CHECK_INVITE, WelcomeScreen, WhatsYourNameScreen } from "~/screens";
+import {
+  CheckInviteScreen,
+  JoinMailingListScreen,
+  NotificationPermissionRequestScreen,
+  SCREEN_CHECK_INVITE,
+  SCREEN_JOIN_MAILING_LIST,
+  SCREEN_NOTIFICATION_PERMISSION,
+  WelcomeScreen,
+  WhatsYourNameScreen,
+} from "~/screens";
 import { options } from "./options";
 
 const Stack = createStackNavigator();
@@ -27,6 +36,18 @@ export default function OnboardingNavigator() {
         options={options}
         name={SCREEN_CHECK_INVITE}
         component={CheckInviteScreen}
+      />
+
+      <Stack.Screen
+        options={options}
+        name={SCREEN_NOTIFICATION_PERMISSION}
+        component={NotificationPermissionRequestScreen}
+      />
+
+      <Stack.Screen
+        options={options}
+        name={SCREEN_JOIN_MAILING_LIST}
+        component={JoinMailingListScreen}
       />
     </Stack.Navigator>
   );

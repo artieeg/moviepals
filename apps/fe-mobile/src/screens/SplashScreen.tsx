@@ -34,7 +34,7 @@ export function SplashScreen() {
 
     if (userData.isError) {
       if (userData.error.data?.code === "NOT_FOUND") {
-        return navigation.navigate(NAVIGATOR_ONBOARDING);
+        return navigation.replace(NAVIGATOR_ONBOARDING);
       } else {
         return Toast.show({
           type: "error",
@@ -45,9 +45,9 @@ export function SplashScreen() {
 
     if (animationFinished && tokenStatus) {
       if (tokenStatus === "available") {
-        navigation.navigate(NAVIGATOR_MAIN);
+        navigation.replace(NAVIGATOR_MAIN);
       } else {
-        navigation.navigate(NAVIGATOR_ONBOARDING);
+        navigation.replace(NAVIGATOR_ONBOARDING);
       }
     }
   }, [animationFinished, tokenStatus, userData.isError, userData.isLoading]);

@@ -8,14 +8,17 @@ datasource db {
 }
 
 model User {
-  id             String @id @default(cuid())
+  id             String  @id @default(cuid())
   name           String
-  email          String @unique()
-  sub            String @unique()
-  username       String @unique()
-  timezoneOffset Int    @default(0)
+  email          String  @unique()
+  sub            String  @unique()
+  username       String  @unique()
+  timezoneOffset Int     @default(0)
+  fcmToken       String?
 
-  emoji String @default("🐵")
+  allowPushNotifications Boolean @default(false)
+  joinedMailingList      Boolean @default(false)
+  emoji                  String  @default("🐵")
 
   userInviteLinkId String         @unique() @map("userInviteSlugId")
   userInviteLink   UserInviteLink @relation(fields: [userInviteLinkId], references: [id])

@@ -15,9 +15,9 @@ import { api, setAuthToken } from "~/utils/api";
 import { IconButton } from "~/components/IconButton";
 import { Input } from "~/components";
 import { useNavigation } from "~/hooks";
-import { NAVIGATOR_MAIN } from "~/navigators/RootNavigator";
 import { useOnboardingStore } from "~/stores";
 import { SCREEN_CHECK_INVITE } from "./CheckInviteScreen";
+import { SCREEN_JOIN_MAILING_LIST } from "./JoinMailingListScreen";
 
 export function WhatsYourNameScreen() {
   const navigation = useNavigation();
@@ -29,7 +29,7 @@ export function WhatsYourNameScreen() {
       if (await Clipboard.hasURL()) {
         navigation.navigate(SCREEN_CHECK_INVITE);
       } else {
-        navigation.navigate(NAVIGATOR_MAIN);
+        navigation.navigate(SCREEN_JOIN_MAILING_LIST);
       }
     },
     onError(e) {
