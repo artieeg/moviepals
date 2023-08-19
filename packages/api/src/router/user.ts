@@ -103,6 +103,30 @@ export const user = createTRPCRouter({
       }
     }),
 
+  isPaid: protectedProcedure.query(async ({ ctx }) => {
+    const user = await ctx.prisma.user.findUnique({
+      where: { id: ctx.user },
+    });
+
+    if (!user) {
+      throw new TRPCError({ code: "NOT_FOUND" });
+    }
+
+    let isPaid = false;
+
+    if (user.fullAccessPurchaseId) {
+      isPaid = true;
+    } else {
+      const sharedPremium = await ctx.prisma.sharedPremium.findUnique({
+        where: { userId: ctx.user },
+      });
+
+      isPaid = !!sharedPremium;
+    }
+
+    return { isPaid };
+  }),
+
   allowPushNotifications: protectedProcedure.mutation(async ({ ctx }) => {
     await ctx.prisma.user.update({
       where: { id: ctx.user },

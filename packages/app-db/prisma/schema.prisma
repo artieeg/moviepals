@@ -55,7 +55,7 @@ model SharedPremium {
   id String @id @default(cuid())
 
   createdAt DateTime @default(now())
-  userId    String?
+  userId    String?  @unique()
   User      User?    @relation(fields: [userId], references: [id])
 
   purchaseId String?
