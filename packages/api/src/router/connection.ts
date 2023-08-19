@@ -16,8 +16,22 @@ export const connection = createTRPCRouter({
         ],
       },
       include: {
-        firstUser: true,
-        secondUser: true,
+        firstUser: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            emoji: true,
+          }
+        },
+        secondUser: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            emoji: true,
+          }
+        },
       },
     });
 

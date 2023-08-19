@@ -24,10 +24,17 @@ export const connection_requests = createTRPCRouter({
     const requests = await ctx.prisma.connectionRequest.findMany({
       where: {
         secondUserId: ctx.user,
-        rejected: false
+        rejected: false,
       },
       include: {
-        firstUser: true,
+        firstUser: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+            emoji: true,
+          },
+        },
       },
     });
 
@@ -38,7 +45,7 @@ export const connection_requests = createTRPCRouter({
     const count = await ctx.prisma.connectionRequest.count({
       where: {
         secondUserId: ctx.user,
-        rejected: false
+        rejected: false,
       },
     });
 
@@ -62,7 +69,7 @@ export const connection_requests = createTRPCRouter({
           },
           data: {
             rejected: true,
-          }
+          },
         });
       } catch {}
 
@@ -76,7 +83,7 @@ export const connection_requests = createTRPCRouter({
           },
           data: {
             rejected: true,
-          }
+          },
         });
       } catch {}
       //]);
@@ -106,8 +113,22 @@ export const connection_requests = createTRPCRouter({
             secondUserId: connectionRequest.secondUserId,
           },
           include: {
-            firstUser: true,
-            secondUser: true,
+            firstUser: {
+              select: {
+                id: true,
+                username: true,
+                name: true,
+                emoji: true,
+              },
+            },
+            secondUser: {
+              select: {
+                id: true,
+                username: true,
+                name: true,
+                emoji: true,
+              },
+            },
           },
         }),
         ctx.prisma.connectionRequest.delete({

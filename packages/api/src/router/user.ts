@@ -212,6 +212,12 @@ export const user = createTRPCRouter({
             },
           ],
         },
+        select: {
+          id: true,
+          username: true,
+          name: true,
+          emoji: true,
+        },
         take: 50,
       });
 
