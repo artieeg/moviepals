@@ -24,7 +24,7 @@ import { ArrowRight, AtSign } from "iconoir-react-native";
 
 import { api, setAuthToken } from "~/utils/api";
 import { IconButton } from "~/components/IconButton";
-import { Input, ListItem, Section } from "~/components";
+import { Input, ListItem } from "~/components";
 import { useNavigation } from "~/hooks";
 import { useOnboardingStore } from "~/stores";
 import { SCREEN_CHECK_INVITE } from "./CheckInviteScreen";
@@ -126,6 +126,7 @@ export function WhatsYourNameScreen() {
             <Input
               icon={<AtSign />}
               autoCapitalize="none"
+              maxLength={32}
               placeholder="username"
               onChangeText={setUsername}
               autoFocus
@@ -190,7 +191,6 @@ export const EmojiPickerBottomSheet = React.forwardRef<
     },
     close() {
       bottomSheetRef.current?.close();
-      console.log("close");
     },
   }));
 

@@ -155,13 +155,25 @@ export const user = createTRPCRouter({
   createNewAccount: publicProcedure
     .input(
       z.object({
-        username: z.string(),
+        username: z.string().max(32),
         name: z.string(),
         emoji: z.string(),
         method: signInMethodSchema,
       }),
     )
     .mutation(async ({ input: { name, username, emoji, method }, ctx }) => {
+      //Check if username is available
+      const existingUser = await ctx.prisma.user.findUnique({
+        where: { username },
+      });
+
+      if (existingUser) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Username already taken",
+        });
+      }
+
       const { email, sub } =
         method.provider === "google"
           ? await getEmailFromGoogleToken(method.idToken)
