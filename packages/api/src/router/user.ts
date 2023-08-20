@@ -157,12 +157,11 @@ export const user = createTRPCRouter({
       z.object({
         username: z.string(),
         name: z.string(),
+        emoji: z.string(),
         method: signInMethodSchema,
       }),
     )
-    .mutation(async ({ input, ctx }) => {
-      const { name, username, method } = input;
-
+    .mutation(async ({ input: { name, username, emoji, method }, ctx }) => {
       const { email, sub } =
         method.provider === "google"
           ? await getEmailFromGoogleToken(method.idToken)
@@ -195,6 +194,7 @@ export const user = createTRPCRouter({
           sub,
           name,
           username,
+          emoji,
           email,
           userInviteLinkId: inviteLink.id,
         },

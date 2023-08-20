@@ -9,6 +9,7 @@ import {
   NAVIGATOR_MAIN,
   NAVIGATOR_ONBOARDING,
 } from "~/navigators/RootNavigator";
+import {SCREEN_WHATS_YOUR_NAME} from "~/navigators/MainNavigator";
 
 export function SplashScreen() {
   const navigation = useNavigation();
