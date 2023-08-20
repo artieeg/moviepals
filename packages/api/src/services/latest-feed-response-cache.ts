@@ -2,7 +2,6 @@ import Redis from "ioredis";
 import { DateTime } from "luxon";
 import { z } from "zod";
 
-import { movieSchema } from "@moviepals/dbmovieswipe";
 import { movieSchemaWithLikes } from "@moviepals/dbmovieswipe/src/movies";
 
 function getKey(reviewStateId: string) {
@@ -19,8 +18,6 @@ export class LatestFeedResponseCache {
 
   async getLatestFeedResponse(reviewStateId: string) {
     const data = await this.client.get(getKey(reviewStateId));
-
-    console.log(getKey(reviewStateId), data);
 
     return data ? contentSchema.parse(JSON.parse(data)) : null;
   }

@@ -140,9 +140,9 @@ export function AdsOrPremiumPrompt({
       subtitle={
         mode === "ad"
           ? canServeAds.data === true
-            ? "Swipe-oops, you've hit the daily limit! 🙅 Wait until tomorrow, or watch a short ad and get +40 swipes. You can also buy premium for unlimited access (you can share it with up to 4 people 🙌)"
+            ? "Swipe-oops, you've hit the daily limit! 🙅 Wait until tomorrow, or watch a short ad and get +40 swipes. You can also buy premium for unlimited access (... and share it with up to 4 people 🙌)"
             : "Swipe-oops, you've hit the daily limit! 🙅 Wait until tomorrow, or buy premium for an unlimited access (you can share it with up to 4 people 🙌).\n\nYou can also watch a short ad to get +40 swipes, but you need to configure your GDPR consent"
-          : "MoviePals depends on occassional ads. They are like the popcorn to our movie marathon  – helps us keep the reels spinning.\n\nWe need your permission for a better ad experience. You can always do that later from the settings!\n\nYou can also get premium for an unlimited ad-free experience. You can share it with up to 4 people 🙌"
+          : "MoviePals depends on occassional ads. They are like the popcorn to our movie marathon  – helps us keep the reels spinning.\n\nWe need your permission for a better ad experience. You can always do that later from the settings!\n\nYou can also get premium for an unlimited ad-free experience and share it with up to 4 people 🙌"
       }
       buttons={[
         {

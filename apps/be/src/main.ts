@@ -7,13 +7,13 @@ import { Redis } from "ioredis";
 import { z } from "zod";
 
 import {
-  admobSchema,
   appRouter,
   createTRPCContext,
   dbMovieSwipe,
   handleFullAccessPurchase,
   LatestFeedResponseCache,
   prisma,
+  ServedMovieIdsCache,
   UserFeedDeliveryCache,
   verifyRewardedAdCallback,
 } from "@moviepals/api";
@@ -46,12 +46,24 @@ export async function main() {
     },
   );
 
+  const servedMovieIdsCacheClient = new Redis(
+    env.SERVED_MOVIE_IDS_CACHE_REDIS_URL,
+    {
+      lazyConnect: true,
+    },
+  );
+
   await Promise.all([
     prisma.$connect(),
     dbMovieSwipe.connect(),
     userDeliveryCacheClient.connect(),
     lastestFeedResponseCacheClient.connect(),
+    servedMovieIdsCacheClient.connect(),
   ]);
+
+  const servedMovieIdsCache = new ServedMovieIdsCache(
+    lastestFeedResponseCacheClient,
+  );
 
   const latestFeedResponseCache = new LatestFeedResponseCache(
     lastestFeedResponseCacheClient,
@@ -75,6 +87,7 @@ export async function main() {
           ip: ip as string,
           userFeedDeliveryCache,
           latestFeedResponseCache,
+          servedMovieIdsCache,
         });
       },
     },

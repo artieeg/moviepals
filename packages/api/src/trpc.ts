@@ -14,7 +14,7 @@ import { prisma } from "@moviepals/db";
 import { dbMovieSwipe } from "@moviepals/dbmovieswipe";
 
 import { logger } from "./logger";
-import { LatestFeedResponseCache, UserFeedDeliveryCache } from "./services";
+import { LatestFeedResponseCache, ServedMovieIdsCache, UserFeedDeliveryCache } from "./services";
 import { verifyToken } from "./utils/jwt";
 
 /**
@@ -31,6 +31,7 @@ interface CreateContextOptions {
   ip: string;
   userFeedDeliveryCache: UserFeedDeliveryCache;
   latestFeedResponseCache: LatestFeedResponseCache;
+  servedMovieIdsCache: ServedMovieIdsCache;
 }
 
 /**
@@ -60,11 +61,13 @@ export const createTRPCContext = async ({
   ip,
   userFeedDeliveryCache,
   latestFeedResponseCache,
+  servedMovieIdsCache,
 }: {
   authorization?: string;
   ip: string;
   userFeedDeliveryCache: UserFeedDeliveryCache;
   latestFeedResponseCache: LatestFeedResponseCache;
+  servedMovieIdsCache: ServedMovieIdsCache;
 }) => {
   const token = authorization?.split(" ")[1];
   const claims = token ? verifyToken(token) : null;
@@ -73,6 +76,7 @@ export const createTRPCContext = async ({
     user: claims?.user ?? null,
     userFeedDeliveryCache,
     latestFeedResponseCache,
+    servedMovieIdsCache,
     ip,
   });
 };
@@ -180,5 +184,5 @@ export const publicProcedure = t.procedure.use(loggerMiddleware);
  * @see https://trpc.io/docs/procedures
  */
 export const protectedProcedure = t.procedure
-  .use(loggerMiddleware)
+  //.use(loggerMiddleware)
   .use(enforceUserIsAuthed);

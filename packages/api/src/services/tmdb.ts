@@ -45,26 +45,30 @@ const streamingServicesResponseSchema = z.object({
 });
 
 export async function getMovies(params: unknown) {
-  logger.info(params, "getMovies");
+  try {
+    const r = await tmdb.get("discover/movie", {
+      params,
+    });
 
-  const r = await tmdb.get("discover/movie", {
-    params,
-  });
+    const movies = r.data.results
+      .map((movie: unknown) => {
+        const r = movieSchema.safeParse(movie);
 
-  const movies = r.data.results
-    .map((movie: unknown) => {
-      const r = movieSchema.safeParse(movie);
+        return r.success ? r.data : null;
+      })
+      .filter(Boolean) as Movie[];
 
-      return r.success ? r.data : null;
-    })
-    .filter(Boolean) as Movie[];
+    /** Replace the poster urls with full path  */
+    movies.forEach((movie) => {
+      movie.poster_path = `https://image.tmdb.org/t/p/original${movie.poster_path}`;
+    });
 
-  /** Replace the poster urls with full path  */
-  movies.forEach((movie) => {
-    movie.poster_path = `https://image.tmdb.org/t/p/original${movie.poster_path}`;
-  });
+    return movies;
+  } catch (e) {
+    console.log(e);
 
-  return movies;
+    throw e;
+  }
 }
 
 const personSchema = z.object({

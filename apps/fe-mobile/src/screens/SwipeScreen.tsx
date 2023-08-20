@@ -1,5 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Text, TouchableOpacity, View, ViewProps } from "react-native";
+import {
+  ActivityIndicator,
+  Text,
+  TouchableOpacity,
+  View,
+  ViewProps,
+} from "react-native";
 import Animated, {
   FadeIn,
   FadeOut,
@@ -28,7 +34,7 @@ import { MainLayout } from "./layouts/MainLayout";
 
 function useAdConsentPromptStatus() {
   return useQuery(["ad-consent"], async () => {
-    const value = await AsyncStorage.getItem("ad-concent");
+    const value = await AsyncStorage.getItem("ad-consent");
 
     return { shown: Boolean(value) };
   });
@@ -65,28 +71,68 @@ export function SwipeScreen() {
   const noMoreMovies = latestPage?.noMoreMovies;
   const unableToFindMovies = latestPage?.unableToFindMovies;
 
-  console.log({
-    hasToWatchAd: latestPage?.hasToWatchAd,
-    noMoreMovies: latestPage?.noMoreMovies,
-    unableToFindMovies: latestPage?.unableToFindMovies,
-    feed: latestPage?.feed.length
-  });
+  const premiumStatus = api.user.isPaid.useQuery();
+
+  const pages = useMemo(() => {
+    if (!result.data?.pages) {
+      return [];
+    }
+
+    const pages = result.data.pages.flatMap((page) => page.feed) ?? [];
+
+    const ids = new Set();
+    const duplicateIds = [];
+
+    for (let pageIdx = 0; pageIdx < result.data.pages.length; pageIdx++) {
+      for (const movie of result.data.pages[pageIdx].feed) {
+        if (ids.has(movie.id)) {
+          duplicateIds.push(movie.id);
+          console.log("duplicate on page", pageIdx);
+          console.log(result.data.pages.map((p) => p.feed.map((m) => m.id)));
+        }
+
+        ids.add(movie.id);
+      }
+    }
+
+    console.log({ duplicateIds });
+
+    return pages;
+  }, [result.data?.pages]);
 
   useEffect(() => {
-    if (currentMovieIdx === 3) {
+    if (!premiumStatus.isSuccess) {
+      return;
+    }
+
+    if (premiumStatus.data.isPaid) {
+      if (currentMovieIdx === pages.length - 4) {
+        result.fetchNextPage();
+      }
+    }
+  }, [
+    premiumStatus.data?.isPaid,
+    premiumStatus.isSuccess,
+    currentMovieIdx,
+    pages.length,
+  ]);
+
+  useEffect(() => {
+    if (currentMovieIdx === 3 && !adConsentPromptStatus.data?.shown) {
       setShowAdPermissionPrompt(true);
 
-      AsyncStorage.setItem("ad-concent", "true");
+      AsyncStorage.setItem("ad-consent", "true");
     }
   }, [currentMovieIdx, adConsentPromptStatus.data?.shown]);
 
   const deck = useMemo(() => {
-    const currentPage = result.data?.pages[result.data.pages.length - 1];
-
-    return currentPage?.feed.slice(currentMovieIdx, currentMovieIdx + 3);
-  }, [result.data?.pages, currentMovieIdx]);
+    return pages.slice(currentMovieIdx, currentMovieIdx + 3);
+  }, [pages, currentMovieIdx]);
 
   const currentMovie = deck?.[0];
+
+  const loadingIndicator =
+    !currentMovie && (result.isFetchingNextPage || result.isFetching);
 
   const movieDetailsRef = useRef<MovieDetailsBottomSheetRef>(null);
 
@@ -108,7 +154,6 @@ export function SwipeScreen() {
 
   useEffect(() => {
     if (currentMovieIdx > 0 && !currentMovie) {
-      console.log("fetching next page")
       result.fetchNextPage();
     }
   }, [currentMovieIdx, currentMovie]);
@@ -117,7 +162,7 @@ export function SwipeScreen() {
     setTimeout(async () => {
       await result.fetchNextPage();
 
-      setCurrentMovieIdx(0);
+      //setCurrentMovieIdx(0);
     }, 1000);
   }
 
@@ -169,7 +214,14 @@ export function SwipeScreen() {
         {currentMovie && !showAdPermissionPrompt && (
           <Animated.View entering={FadeIn} exiting={FadeOut} className="flex-1">
             <View className="aspect-[2/3] translate-y-8">
-              {result.isSuccess &&
+              {loadingIndicator && (
+                <View className="items-center justify-center">
+                  <ActivityIndicator size="large" />
+                </View>
+              )}
+
+              {!loadingIndicator &&
+                result.isSuccess &&
                 deck &&
                 deck.map((movie, idx) => (
                   <MovieCard

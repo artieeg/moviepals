@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { DbMovieSwipe, Movie, ReviewState } from "@moviepals/dbmovieswipe";
 
+import { logger } from "../logger";
 import { getMovies } from "../services";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
@@ -106,41 +107,6 @@ export const movie_feed = createTRPCRouter({
           });
         }
 
-        //Try to serve the latest feed response ...
-        const latestFeedResponse =
-          await ctx.latestFeedResponseCache.getLatestFeedResponse(
-            reviewState.id,
-          );
-
-        const notSwipedFromLatestFeedResponse =
-          latestFeedResponse?.filter(
-            (m) => !userSwipes.some((s) => s.movieId === m.id),
-          ) ?? [];
-
-        if (notSwipedFromLatestFeedResponse.length > 0) {
-          return {
-            feed: notSwipedFromLatestFeedResponse,
-            cursor: null,
-          };
-        }
-
-        if (!user.fullAccessPurchaseId) {
-          const state = await ctx.userFeedDeliveryCache.getDeliveryState(
-            ctx.user,
-          );
-
-          // If user has been delivered feed earlier this day
-          if (state) {
-            if (state.page > state.ads_watched) {
-              return {
-                cursor: null,
-                hasToWatchAd: true,
-                feed: [],
-              };
-            }
-          }
-        }
-
         const connectedUserIds = connections.map((connection) =>
           connection.firstUserId === ctx.user
             ? connection.secondUserId
@@ -148,6 +114,10 @@ export const movie_feed = createTRPCRouter({
         );
 
         const excludeMovieIds = userSwipes.map((swipe) => swipe.movieId);
+
+        const servedMovieIds = await ctx.servedMovieIdsCache.getMovieIds(
+          ctx.user,
+        );
 
         /**
          * Fetch movies that friends have swiped on
@@ -183,6 +153,8 @@ export const movie_feed = createTRPCRouter({
           (swipe) => swipe.movieId,
         );
 
+        excludeMovieIds.push(...servedMovieIds);
+
         excludeMovieIds.push(...selectedFriendSwipeMovieIds);
 
         //If user has quick match mode enabled, and we couldn't find enough relevant friend-liked movies,
@@ -211,6 +183,39 @@ export const movie_feed = createTRPCRouter({
           excludeMovieIds.push(...selectedAllFriendSwipeMovieIds);
         }
 
+        //Try to serve the latest feed response ...
+        const latestFeedResponse =
+          await ctx.latestFeedResponseCache.getLatestFeedResponse(
+            reviewState.id,
+          );
+
+        const validMoviesFromLatestResponse =
+          latestFeedResponse?.filter((m) => !excludeMovieIds.includes(m.id)) ??
+          [];
+
+        if (validMoviesFromLatestResponse.length > 0) {
+          return {
+            feed: validMoviesFromLatestResponse,
+            cursor: null,
+          };
+        }
+
+        if (!user.fullAccessPurchaseId) {
+          const state = await ctx.userFeedDeliveryCache.getDeliveryState(
+            ctx.user,
+          );
+
+          // If user has been delivered feed earlier this day
+          if (state) {
+            if (state.page > state.ads_watched) {
+              return {
+                cursor: null,
+                hasToWatchAd: true,
+                feed: [],
+              };
+            }
+          }
+        }
         const missingMoviesPromise = fetchMissingMovies({
           count: MOVIES_PER_PAGE,
           excludeMovieIds,
@@ -247,6 +252,15 @@ export const movie_feed = createTRPCRouter({
           await ctx.dbMovieSwipe.movies.insertMany(movies, { ordered: false });
         }
 
+        logger.info({
+          nextPageToStartFrom,
+          remoteApiPage: reviewState.remoteApiPage,
+          expectedRemoteApiRequestCount,
+          result:
+            nextPageToStartFrom - reviewState.remoteApiPage >=
+            expectedRemoteApiRequestCount * 2,
+        });
+
         /**
          * Only update review state if we had to fetch more movies than we expected
          *
@@ -260,20 +274,20 @@ export const movie_feed = createTRPCRouter({
           await ctx.dbMovieSwipe.reviewState.updateOne(
             {
               userId: ctx.user,
-              cast: cast.length > 0 ? cast : { $exists: true },
-              genre_ids: genres.length > 0 ? genres : { $exists: true },
+
+              directors:
+                directors.length > 0 ? { $in: directors } : { $exists: true },
+              cast: cast.length > 0 ? { $in: cast } : { $exists: true },
+              genre_ids:
+                genres.length > 0 ? { $all: genres } : { $exists: true },
               watch_providers:
                 watchProviderIds.length > 0
-                  ? watchProviderIds
+                  ? { $all: watchProviderIds }
                   : { $exists: true },
             },
             {
               $set: {
-                //If the user hasn't finished the deck, this will
-                //allow to continue from where they left off (more or less)
-                remoteApiPage:
-                  nextPageToStartFrom -
-                  Math.ceil(expectedRemoteApiRequestCount / 2),
+                remoteApiPage: nextPageToStartFrom,
                 remoteApiResponseMovieIdx: nextMovieToStartFrom,
               },
             },
@@ -310,7 +324,17 @@ export const movie_feed = createTRPCRouter({
           ]);
         }
 
-        return { feed, cursor };
+        console.log({
+          previouslyServedMovieIds: servedMovieIds,
+          newMovieIds: feed.map((m) => m.id),
+        });
+
+        ctx.servedMovieIdsCache.addMovieIds(
+          ctx.user,
+          feed.map((m) => m.id),
+        );
+
+        return { feed, cursor: cursor + 1 };
       },
     ),
 });
@@ -335,7 +359,6 @@ export async function fetchMissingMovies({
   count,
   excludeMovieIds,
   nextTmdbPage,
-  nextTmdbStartFromMovieIdx,
   mixInMovieCount,
   moviesPerTmdbPage,
   fetch,
@@ -361,6 +384,51 @@ export async function fetchMissingMovies({
   const moviesLeftToFetch = count - mixInMovieCount;
   const tmdbPagesToFetch = Math.ceil(moviesLeftToFetch / moviesPerTmdbPage);
 
+  const promises: Promise<Movie[]>[] = [];
+
+  //Refetching the same page is intended
+  for (let page = 0; page <= tmdbPagesToFetch; page++) {
+    promises.push(
+      fetch({
+        with_watch_providers: fetchParams.watchProviderIds.join(","),
+        watch_region: fetchParams.region,
+        with_genres: fetchParams.genres.join(","),
+        with_cast: fetchParams.with_cast.join(","),
+        with_people: fetchParams.with_people.join(","),
+        page: nextTmdbPage + page,
+      }),
+    );
+  }
+
+  const results = await Promise.all(promises);
+
+  const movies: Movie[] = [];
+  let nextPageToStartFrom = nextTmdbPage;
+
+  for (const result of results) {
+    for (const movie of result) {
+      if (!excludeMovieIds.includes(movie.id)) {
+        movies.push(movie);
+      }
+    }
+
+    if (movies.length >= moviesLeftToFetch) {
+      break;
+    } else {
+      nextPageToStartFrom++;
+    }
+  }
+
+  return {
+    movies,
+    nextMovieToStartFrom: 0,
+    nextPageToStartFrom,
+  };
+
+  /*
+  const moviesLeftToFetch = count - mixInMovieCount;
+  const tmdbPagesToFetch = Math.ceil(moviesLeftToFetch / moviesPerTmdbPage);
+
   let pageOffset = 0;
   let batch = tmdbPagesToFetch;
 
@@ -381,7 +449,7 @@ export async function fetchMissingMovies({
           with_genres: fetchParams.genres.join(","),
           with_cast: fetchParams.with_cast.join(","),
           with_people: fetchParams.with_people.join(","),
-          page: nextTmdbPage + pageOffset + 1,
+          page: nextTmdbPage + pageOffset,
         }),
       );
     }
@@ -412,7 +480,6 @@ export async function fetchMissingMovies({
           : nextTmdbPage - nextTmdbStartFromMovieIdx;
 
       nextPageToStartFrom = nextTmdbPage + pageOffset;
-
       break;
     } else {
       batch = Math.ceil(batch / 2);
@@ -431,6 +498,7 @@ export async function fetchMissingMovies({
       nextPageToStartFrom,
     };
   }
+   * */
 }
 
 async function getReviewState(
@@ -468,7 +536,7 @@ async function getReviewState(
       directors: [],
       cast: [],
       watch_providers: params.watch_providers,
-      remoteApiPage: 0,
+      remoteApiPage: 1,
       remoteApiResponseMovieIdx: 0,
     };
 

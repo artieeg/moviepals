@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from "react";
 import { View } from "react-native";
-import { useDebounce } from "use-debounce";
 
 import { api } from "~/utils/api";
 import { MovieList } from "~/components";
