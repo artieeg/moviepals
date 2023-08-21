@@ -12,8 +12,7 @@
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest",
-    "svgr": "svgr ./assets/svg -d ./src/components/icons --native --typescript --ignore-existing --svgo-config .svgorc.json",
-    "postinstall": "react-native setup-ios-permissions && pod-install"
+    "svgr": "svgr ./assets/svg -d ./src/components/icons --native --typescript --ignore-existing --svgo-config .svgorc.json"
   },
   "dependencies": {
     "@gorhom/bottom-sheet": "^4",
