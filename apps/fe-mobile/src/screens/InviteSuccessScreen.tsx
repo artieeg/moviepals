@@ -18,10 +18,10 @@ export function InviteSuccessScreen() {
     <MainLayout canGoBack title="Invites">
       <View className="flex-1">
         <View className="flex-1 space-y-1">
-          <Text className="font-primary-bold text-neutral-1 text-2xl">
+          <Text className="font-primary-bold text-neutral-1 dark:text-white text-2xl">
             Thank you for inviting your friends on the app!
           </Text>
-          <Text className="font-primary-regular text-neutral-2 text-base">
+          <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
             Give them some time to join and then you can start swiping together!
           </Text>
         </View>

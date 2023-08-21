@@ -17,9 +17,9 @@ export function Selectable({
       activeOpacity={0.8}
       onPress={() => onToggle(!checked)}
       className={twMerge(
-        "border-neutral-4 h-6 w-6 items-center justify-center border bg-white",
+        "border-neutral-4 h-6 w-6 items-center justify-center border bg-white dark:bg-neutral-1",
         mode === "checkbox" ? "rounded-lg" : "rounded-full",
-        checked ? "bg-brand-1 border-brand-1" : "border-neutral-4 bg-white",
+        checked ? "bg-brand-1 border-brand-1" : "border-neutral-4 bg-white dark:bg-neutral-1",
       )}
     >
       {checked && (

@@ -62,7 +62,7 @@ function _ListItem(
           <Text
             numberOfLines={props.subtitle ? 1 : undefined}
             ellipsizeMode="tail"
-            className="font-primary-bold text-neutral-1 text-xl"
+            className="font-primary-bold text-neutral-1 dark:text-white text-xl"
           >
             {props.title}
           </Text>
@@ -71,7 +71,7 @@ function _ListItem(
             <Text
               numberOfLines={1}
               ellipsizeMode="tail"
-              className="font-primary-regular text-neutral-2 flex-1 text-base"
+              className="font-primary-regular text-neutral-2 dark:text-neutral-5 flex-1 text-base"
             >
               {props.subtitle}
             </Text>

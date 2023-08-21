@@ -34,7 +34,7 @@ export function Input({
         </View>
       )}
       <TextInput
-        className="font-primary-bold h-full flex-1 text-base text-neutral-1"
+        className="font-primary-bold h-full flex-1 text-base text-neutral-1 dark:text-white"
         placeholderTextColor="#71707B"
         {...rest}
       />

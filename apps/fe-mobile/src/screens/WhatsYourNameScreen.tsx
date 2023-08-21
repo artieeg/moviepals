@@ -97,14 +97,14 @@ export function WhatsYourNameScreen() {
 
 
   return (
-    <KeyboardAvoidingView behavior="padding" className="flex-1 bg-white">
+    <KeyboardAvoidingView behavior="padding" className="flex-1 bg-white dark:bg-neutral-1">
       <SafeAreaView className="flex-1 px-8">
         <View className="flex-1 space-y-6">
           <View className="space-y-3">
-            <Text className="font-primary-bold text-neutral-1 pt-8 text-2xl">
+            <Text className="font-primary-bold text-neutral-1 dark:text-white pt-8 text-2xl">
               Hey, introduce{"\n"}yourself please 😄
             </Text>
-            <Text className="font-primary-regular text-neutral-2 text-base">
+            <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
               Your friends will be able to find you by your username
             </Text>
           </View>
@@ -133,7 +133,7 @@ export function WhatsYourNameScreen() {
               value={username}
             />
             <View className="flex-row">
-              <Text className="font-primary-regular text-neutral-2 text-sm">
+              <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-sm">
                 By continuing, you agree to our{" "}
                 <Pressable
                   className="translate-y-[3px]"
@@ -141,7 +141,7 @@ export function WhatsYourNameScreen() {
                     Linking.openURL("https://moviepals.io/privacy-policy");
                   }}
                 >
-                  <Text className="font-primary-regular text-neutral-2 text-sm underline">
+                  <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-sm underline">
                     Privacy Policy
                   </Text>
                 </Pressable>{" "}
@@ -152,7 +152,7 @@ export function WhatsYourNameScreen() {
                     Linking.openURL("https://moviepals.io/terms-of-service");
                   }}
                 >
-                  <Text className="font-primary-regular text-neutral-2 text-sm underline">
+                  <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-sm underline">
                     Terms of Service
                   </Text>
                 </Pressable>

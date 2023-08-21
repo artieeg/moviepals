@@ -24,6 +24,7 @@ module.exports = {
         "neutral-2-50": "rgba(113, 112, 123, 0.50)", //"#71707B1A",
         "neutral-3": "#D4D4D4",
         "neutral-4": "#C7C5DA",
+        "neutral-5": "#9CA3AF",
         "red-1": "#FC7B71",
         "brand-1": "#6867AA",
         "brand-1-10": "rgba(104, 103, 170, 0.10)", //"#71707B1A",

@@ -33,7 +33,7 @@ export function Section({
       <View className="flex-1 space-y-1">
         <Text
           className={twJoin(
-            "font-primary-bold text-neutral-1 text-xl",
+            "font-primary-bold text-neutral-1 dark:text-white text-xl",
             danger && "text-red-1",
           )}
         >
@@ -42,7 +42,7 @@ export function Section({
 
         <View className="flex-row items-center">
           {typeof subtitle === "string" ? (
-            <Text className="font-primary-regular text-neutral-2 text-base">
+            <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
               {subtitle}
             </Text>
           ) : (

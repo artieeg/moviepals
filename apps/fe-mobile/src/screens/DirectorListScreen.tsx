@@ -59,7 +59,7 @@ export function DirectorListScreen() {
         ItemSeparatorComponent={() => <View className="h-3" />}
         ListFooterComponent={
           <View className="flex-1 items-center justify-center mt-4">
-            <Text className="font-primary-regular text-neutral-2">
+            <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5">
               Type something in the search bar. Right now, you can only filter
               by one director at the time
             </Text>

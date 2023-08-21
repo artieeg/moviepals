@@ -124,7 +124,7 @@ export const MovieCard = React.forwardRef<
             <View className="rounded-4xl flex-1 overflow-hidden">
               <FastImage
                 resizeMode="cover"
-                className="flex-1 bg-white"
+                className="flex-1 bg-white dark:bg-neutral-1"
                 source={{ uri: movie.poster_path }}
               />
 

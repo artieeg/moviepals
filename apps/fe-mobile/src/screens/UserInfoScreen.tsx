@@ -26,11 +26,11 @@ export function UserInfoScreen() {
           <View className="my-4 items-center justify-center">
             <UserAvatar emoji={user.data.user.emoji} />
 
-            <Text className="font-primary-bold text-neutral-1 text-xl">
+            <Text className="font-primary-bold text-neutral-1 dark:text-white text-xl">
               {user.data.user.name}
             </Text>
 
-            <Text className="text-neutral-2 font-primary-regular text-base">
+            <Text className="text-neutral-2 dark:text-neutral-5 font-primary-regular text-base">
               @{user.data.user.username}
             </Text>
           </View>

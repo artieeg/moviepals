@@ -44,10 +44,13 @@ const streamingServicesResponseSchema = z.object({
   results: z.array(streamingServiceSchema),
 });
 
-export async function getMovies(params: unknown) {
+export async function getMovies(params: Record<string, unknown>) {
   try {
     const r = await tmdb.get("discover/movie", {
-      params,
+      params: {
+        ...params,
+        include_adult: false,
+      },
     });
 
     const movies = r.data.results

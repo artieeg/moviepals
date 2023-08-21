@@ -210,7 +210,7 @@ export function SwipeScreen() {
 
   return (
     <>
-      <MainLayout title="swipe" canGoBack>
+      <MainLayout goBackCloseIcon title="swipe" canGoBack>
         {currentMovie && !showAdPermissionPrompt && (
           <Animated.View entering={FadeIn} exiting={FadeOut} className="flex-1">
             <View className="aspect-[2/3] translate-y-8">
@@ -363,7 +363,7 @@ function Controls({
         onPress={onOpenMovieDetails}
         className="bg-neutral-2-10 h-16 flex-1 items-center justify-center rounded-full"
       >
-        <Text className="font-primary-bold text-neutral-1">details</Text>
+        <Text className="font-primary-bold text-neutral-1 dark:text-white">details</Text>
       </TouchableOpacity>
 
       <IconButton variant="primary" onPress={onLike}>

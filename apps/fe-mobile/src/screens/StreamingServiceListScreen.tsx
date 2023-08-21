@@ -136,10 +136,10 @@ export function StreamingServiceList() {
 
             <View className="space-y-6">
               <View className="space-y-1">
-                <Text className="font-primary-bold text-neutral-1 text-xl">
+                <Text className="font-primary-bold text-neutral-1 dark:text-white text-xl">
                   Services available
                 </Text>
-                <Text className="font-primary-regular text-neutral-2 text-base">
+                <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
                   Select the services you use. Powered by{" "}
                   <Pressable
                     onPress={() => Linking.openURL("https://www.justwatch.com")}
@@ -148,7 +148,7 @@ export function StreamingServiceList() {
                       default: "translate-y-[7px]",
                     })}
                   >
-                    <Text className="font-primary-regular text-neutral-2 text-base underline">
+                    <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base underline">
                       justwatch.com
                     </Text>
                   </Pressable>{" "}
@@ -162,7 +162,7 @@ export function StreamingServiceList() {
                       default: "translate-y-[7px]",
                     })}
                   >
-                    <Text className="font-primary-regular text-neutral-2 text-base underline">
+                    <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base underline">
                       themoviedb.org
                     </Text>
                   </Pressable>
@@ -188,7 +188,7 @@ export function StreamingServiceList() {
                   onToggle={onToggleAnyService}
                 />
 
-                <View className="border-neutral-4 h-4 border-b" />
+                <View className="border-neutral-4 dark:border-neutral-2-50 h-4 border-b" />
               </View>
             </View>
           </View>
@@ -227,10 +227,10 @@ function YourCountry({
         {...props}
       >
         <View className="space-y-1">
-          <Text className="font-primary-bold text-neutral-1 text-xl">
+          <Text className="font-primary-bold text-neutral-1 dark:text-white text-xl">
             your country
           </Text>
-          <Text className="font-primary-regular text-neutral-2 text-base">
+          <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
             we will fetch a list of streaming services for this country
           </Text>
         </View>

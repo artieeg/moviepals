@@ -57,10 +57,10 @@ export function CheckInviteScreen() {
     >
       <View className="flex-1">
         <Animated.View className="flex-1 space-y-1">
-          <Text className="font-primary-bold text-neutral-1 text-2xl">
+          <Text className="font-primary-bold text-neutral-1 dark:text-white text-2xl">
             Do you have an invite?
           </Text>
-          <Text className="font-primary-regular text-neutral-2 text-base">
+          <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
             If you don't have an invite, you can skip this step. If another
             person has invited you via link, we can instantly connect you
             together 🤗

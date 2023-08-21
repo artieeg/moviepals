@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import {
   Alert,
   FlatList,
@@ -8,6 +8,7 @@ import {
   ViewProps,
 } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import { useFocusEffect } from "@react-navigation/native";
 import { MoreHoriz, NavArrowRight, Search } from "iconoir-react-native";
 import { produce } from "immer";
 import { useDebounce } from "use-debounce";
@@ -36,6 +37,12 @@ export function FriendsListScreen() {
   useEffect(() => {
     friends.refetch();
   }, [query]);
+
+  useFocusEffect(
+    useCallback(() => {
+      friends.refetch();
+    }, []),
+  );
 
   const deleteConnection = api.connection.deleteConnection.useMutation({
     onMutate({ connectionId }) {

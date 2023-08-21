@@ -26,7 +26,7 @@ export function MeScreen() {
   const ctx = api.useContext();
   const user = api.user.getMyData.useQuery();
 
-  const { colorScheme, toggleColorScheme, setColorScheme } = useColorScheme();
+  const { colorScheme, toggleColorScheme } = useColorScheme();
 
   const paidStatus = api.user.isPaid.useQuery();
 
@@ -75,7 +75,7 @@ export function MeScreen() {
     );
   }
 
-  function onPurchasePremium() { }
+  function onPurchasePremium() {}
 
   const deleteMyAccount = api.user.deleteMyAccount.useMutation({
     onSuccess() {
@@ -102,11 +102,11 @@ export function MeScreen() {
             <View className="my-4 items-center justify-center">
               <UserAvatar emoji={user.data.emoji} />
 
-              <Text className="font-primary-bold text-white text-xl">
+              <Text className="font-primary-bold text-neutral-1 dark:text-white text-xl">
                 {user.data.name}
               </Text>
 
-              <Text className="text-neutral-2 font-primary-regular text-base">
+              <Text className="text-neutral-2 dark:text-neutral-5 font-primary-regular text-base">
                 @{user.data.username}
               </Text>
             </View>
@@ -177,7 +177,7 @@ export function MeScreen() {
                 />
               )}
 
-              <Text className="font-primary-regular text-neutral-2 text-base">
+              <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
                 Need help? Send a message to{" "}
                 <Pressable
                   onPress={() => Linking.openURL("mailto:help@moviepals.io")}
@@ -186,13 +186,13 @@ export function MeScreen() {
                     default: "translate-y-[7px]",
                   })}
                 >
-                  <Text className="font-primary-regular text-neutral-2 text-base underline">
+                  <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base underline">
                     help@moviepals.io
                   </Text>
                 </Pressable>
               </Text>
 
-              <Text className="font-primary-regular text-neutral-2 text-base">
+              <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
                 MoviePals is powered by{" "}
                 <Pressable
                   onPress={() => Linking.openURL("https://www.themoviedb.org")}
@@ -201,7 +201,7 @@ export function MeScreen() {
                     default: "translate-y-[7px]",
                   })}
                 >
-                  <Text className="font-primary-regular text-neutral-2 text-base underline">
+                  <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base underline">
                     themoviedb.org
                   </Text>
                 </Pressable>{" "}
@@ -213,7 +213,7 @@ export function MeScreen() {
                     default: "translate-y-[7px]",
                   })}
                 >
-                  <Text className="font-primary-regular text-neutral-2 text-base underline">
+                  <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base underline">
                     justwatch.com
                   </Text>
                 </Pressable>

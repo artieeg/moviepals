@@ -29,7 +29,7 @@ export function BottomTabBar(props: BottomTabBarProps) {
       style={{
         paddingBottom: bottom ? bottom : 12,
       }}
-      className="flex-row justify-between bg-white px-4"
+      className="flex-row justify-between bg-white dark:bg-neutral-1 px-4"
     >
       <Pressable
         onPress={() => navigation.navigate(NAVIGATOR_SWIPE)}
@@ -43,7 +43,7 @@ export function BottomTabBar(props: BottomTabBarProps) {
         <Text
           className={twJoin(
             "font-primary-bold",
-            isSwipeNavigator ? "text-neutral-1" : "text-neutral-2",
+            isSwipeNavigator ? "text-neutral-1 dark:text-white" : "text-neutral-2 dark:text-neutral-5",
           )}
         >
           movies
@@ -62,7 +62,7 @@ export function BottomTabBar(props: BottomTabBarProps) {
         <Text
           className={twJoin(
             "font-primary-bold",
-            isFriendsNavigator ? "text-neutral-1" : "text-neutral-2",
+            isFriendsNavigator ? "text-neutral-1 dark:text-white" : "text-neutral-2 dark:text-neutral-5",
           )}
         >
           friends
@@ -81,7 +81,7 @@ export function BottomTabBar(props: BottomTabBarProps) {
         <Text
           className={twJoin(
             "font-primary-bold",
-            isEventsNavigator ? "text-neutral-1" : "text-neutral-2",
+            isEventsNavigator ? "text-neutral-1 dark:text-white" : "text-neutral-2 dark:text-neutral-5",
           )}
         >
           events
@@ -100,7 +100,7 @@ export function BottomTabBar(props: BottomTabBarProps) {
         <Text
           className={twJoin(
             "font-primary-bold",
-            isMeNavigator ? "text-neutral-1" : "text-neutral-2",
+            isMeNavigator ? "text-neutral-1 dark:text-white" : "text-neutral-2 dark:text-neutral-5",
           )}
         >
           me

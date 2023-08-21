@@ -50,17 +50,17 @@ export function NotificationPermissionRequestScreen() {
   }
 
   return (
-    <KeyboardAvoidingView behavior="padding" className="flex-1 bg-white">
+    <KeyboardAvoidingView behavior="padding" className="flex-1 bg-white dark:bg-neutral-1">
       <SafeAreaView className="flex-1 px-8">
         <View className="flex-1 space-y-6">
           <View className="space-y-3">
-            <Text className="font-primary-bold text-neutral-1 pt-8 text-2xl">
+            <Text className="font-primary-bold text-neutral-1 dark:text-white pt-8 text-2xl">
               One last thing... 🙏
             </Text>
-            <Text className="font-primary-regular text-neutral-2 text-base">
+            <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
               Is it cool if we send you notifications?
             </Text>
-            <Text className="font-primary-regular text-neutral-2 text-base">
+            <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
               We'll use it to let you know when you have new movie matches with
               friends
             </Text>

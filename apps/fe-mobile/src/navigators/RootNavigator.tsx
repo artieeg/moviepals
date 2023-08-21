@@ -1,9 +1,10 @@
 import { createStackNavigator } from "@react-navigation/stack";
 
-import { CheckInviteScreen, SCREEN_CHECK_INVITE, SplashScreen } from "~/screens";
+import { CheckInviteScreen, SCREEN_CHECK_INVITE, SplashScreen, SwipeScreen } from "~/screens";
 import MainNavigator from "./MainNavigator";
 import OnboardingNavigator from "./OnboardingNavigator";
 import { options } from "./options";
+import {SCREEN_SWIPE} from "./SwipeNavigator";
 
 const Stack = createStackNavigator();
 
@@ -32,6 +33,12 @@ export default function RootNavigator() {
         options={options}
         name={NAVIGATOR_MAIN}
         component={MainNavigator}
+      />
+
+      <Stack.Screen
+        options={options}
+        name={SCREEN_SWIPE}
+        component={SwipeScreen}
       />
     </Stack.Navigator>
   );

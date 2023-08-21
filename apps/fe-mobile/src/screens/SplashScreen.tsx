@@ -54,7 +54,7 @@ export function SplashScreen() {
   }, [animationFinished, tokenStatus, userData.isError, userData.isLoading]);
 
   return (
-    <View className="flex-1 items-center justify-center bg-white">
+    <View className="flex-1 items-center justify-center bg-white dark:bg-neutral-1">
       <View className="items-center justify-center space-y-2">
         <View className="h-16 w-16">
           <Rive
@@ -64,7 +64,7 @@ export function SplashScreen() {
             resourceName="logo"
           />
         </View>
-        <Text className="font-primary-bold text-neutral-1 text-base">
+        <Text className="font-primary-bold text-neutral-1 dark:text-white text-base">
           moviepals
         </Text>
       </View>

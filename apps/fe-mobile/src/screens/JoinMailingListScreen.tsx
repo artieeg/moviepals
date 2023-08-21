@@ -30,18 +30,18 @@ export function JoinMailingListScreen() {
   }
 
   return (
-    <KeyboardAvoidingView behavior="padding" className="flex-1 bg-white">
+    <KeyboardAvoidingView behavior="padding" className="flex-1 bg-white dark:bg-neutral-1">
       <SafeAreaView className="flex-1 px-8">
         <View className="flex-1 space-y-6">
           <View className="space-y-3">
-            <Text className="font-primary-bold text-neutral-1 pt-8 text-2xl">
+            <Text className="font-primary-bold text-neutral-1 dark:text-white pt-8 text-2xl">
               Sweet, nice to{"\n"}meet you! 🤝
             </Text>
-            <Text className="font-primary-regular text-neutral-2 text-base">
+            <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
               Would you like to join our mailing list? We share movie news, host
               trivia, and do other cool stuff
             </Text>
-            <Text className="font-primary-regular text-neutral-2 text-base">
+            <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
               If you agree, we'll send an invite to your email
             </Text>
           </View>

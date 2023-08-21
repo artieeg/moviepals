@@ -32,12 +32,6 @@ export default function SwipeNavigator() {
 
       <Stack.Screen
         options={options}
-        name={SCREEN_SWIPE}
-        component={SwipeScreen}
-      />
-
-      <Stack.Screen
-        options={options}
         name={SCREEN_DIRECTOR_LIST}
         component={DirectorListScreen}
       />

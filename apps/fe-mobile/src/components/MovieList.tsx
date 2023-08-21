@@ -74,7 +74,7 @@ function _MovieItem({ movie, ...rest }: { movie: Movie } & PressableProps) {
       <Text
         numberOfLines={2}
         ellipsizeMode="tail"
-        className="text-neutral-1 font-primary-regular flex-1 text-xl"
+        className="text-neutral-1 dark:text-white font-primary-regular flex-1 text-xl"
       >
         {movie.title}
       </Text>

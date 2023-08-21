@@ -76,10 +76,10 @@ export function SharePremiumScreen() {
           ItemSeparatorComponent={() => <View className="h-4" />}
           ListHeaderComponent={
             <View className="mb-8">
-              <Text className="font-primary-bold text-neutral-1 text-2xl">
+              <Text className="font-primary-bold text-neutral-1 dark:text-white text-2xl">
                 Share Premium
               </Text>
-              <Text className="font-primary-regular text-neutral-2 mt-1 text-base">
+              <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 mt-1 text-base">
                 Choose carefully, gifts are not meant to be taken back 😉
               </Text>
             </View>

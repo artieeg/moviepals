@@ -161,10 +161,10 @@ export function InviteScreen() {
   return (
     <MainLayout canGoBack title="Invites">
       <View className="space-y-1">
-        <Text className="font-primary-bold text-neutral-1 text-2xl">
+        <Text className="font-primary-bold text-neutral-1 dark:text-white text-2xl">
           Swipe Together
         </Text>
-        <Text className="font-primary-regular text-neutral-2 text-base">
+        <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
           Select people you want to pick movies with. Pressing the “invite”
           button will open your messenger app with a pre-filled message.
         </Text>
