@@ -47,8 +47,7 @@ export function InviteScreen() {
   );
 
   async function onInvite() {
-    const s = await Clipboard.getString();
-
+    console.log(inviteUrl);
     if (!inviteUrl.isSuccess) return;
 
     SendSMS.send(
@@ -57,6 +56,7 @@ export function InviteScreen() {
         recipients: selected.map((s) => s.phoneNumbers[0].number),
       },
       (completed, cancelled, error) => {
+        console.log(completed, cancelled, error)
         if (completed) {
           navigation.replace(SCREEN_INVITE_SUCCESS);
         }

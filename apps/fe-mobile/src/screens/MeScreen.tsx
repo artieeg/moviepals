@@ -10,6 +10,7 @@ import {
   View,
 } from "react-native";
 import Toast from "react-native-toast-message";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useColorScheme } from "nativewind";
 
 import { api, signOut } from "~/utils/api";
@@ -91,6 +92,15 @@ export function MeScreen() {
     deleteMyAccount.mutate();
   }
 
+  async function onToggleDarkMode() {
+    toggleColorScheme();
+
+    await AsyncStorage.setItem(
+      "theme",
+      colorScheme === "dark" ? "light" : "dark",
+    );
+  }
+
   return (
     <MainLayout canGoBack title="Me">
       <ScrollView
@@ -148,12 +158,12 @@ export function MeScreen() {
                     ? "Go back to light ☀️"
                     : "Switch to the dark side 🌙"
                 }
-                onPress={() => toggleColorScheme()}
+                onPress={onToggleDarkMode}
                 right={
                   <View className="ml-4">
                     <Switch
                       enabled={colorScheme === "dark"}
-                      onToggle={() => toggleColorScheme()}
+                      onToggle={onToggleDarkMode}
                     />
                   </View>
                 }

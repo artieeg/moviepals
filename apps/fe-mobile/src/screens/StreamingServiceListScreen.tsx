@@ -188,7 +188,7 @@ export function StreamingServiceList() {
                   onToggle={onToggleAnyService}
                 />
 
-                <View className="border-neutral-4 dark:border-neutral-2-50 h-4 border-b" />
+                <View className="border-neutral-2-10 h-4 border-b" />
               </View>
             </View>
           </View>

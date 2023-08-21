@@ -3,6 +3,7 @@ import { Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { Bell, CinemaOld, Group, PeopleTag } from "iconoir-react-native";
+import { useColorScheme } from "nativewind";
 import { twJoin } from "tailwind-merge";
 
 import { useNavigation } from "~/hooks";
@@ -13,9 +14,21 @@ import {
   NAVIGATOR_SWIPE,
 } from "~/navigators/MainNavigator";
 
+function useThemedSelectionColors() {
+  const { colorScheme } = useColorScheme();
+
+  if (colorScheme === "light") {
+    return { selected: "#0E0C10", unselected: "#71707B" };
+  } else {
+    return { selected: "white", unselected: "#9CA3AF" };
+  }
+}
+
 export function BottomTabBar(props: BottomTabBarProps) {
   const navigation = useNavigation();
   const currentRoute = props.state.routes[props.state.index].name;
+
+  const { selected, unselected } = useThemedSelectionColors();
 
   const isSwipeNavigator = currentRoute === NAVIGATOR_SWIPE;
   const isFriendsNavigator = currentRoute === NAVIGATOR_FRIENDS;
@@ -38,12 +51,14 @@ export function BottomTabBar(props: BottomTabBarProps) {
         <CinemaOld
           width="24"
           height="24"
-          color={isSwipeNavigator ? "#0E0C10" : "#71707B"}
+          color={isSwipeNavigator ? selected : unselected}
         />
         <Text
           className={twJoin(
             "font-primary-bold",
-            isSwipeNavigator ? "text-neutral-1 dark:text-white" : "text-neutral-2 dark:text-neutral-5",
+            isSwipeNavigator
+              ? "text-neutral-1 dark:text-white"
+              : "text-neutral-2 dark:text-neutral-5",
           )}
         >
           movies
@@ -57,12 +72,14 @@ export function BottomTabBar(props: BottomTabBarProps) {
         <Group
           width="24"
           height="24"
-          color={isFriendsNavigator ? "#0E0C10" : "#71707B"}
+          color={isFriendsNavigator ? selected : unselected}
         />
         <Text
           className={twJoin(
             "font-primary-bold",
-            isFriendsNavigator ? "text-neutral-1 dark:text-white" : "text-neutral-2 dark:text-neutral-5",
+            isFriendsNavigator
+              ? "text-neutral-1 dark:text-white"
+              : "text-neutral-2 dark:text-neutral-5",
           )}
         >
           friends
@@ -74,14 +91,16 @@ export function BottomTabBar(props: BottomTabBarProps) {
         className="flex-1 items-center justify-center space-y-1 pt-4"
       >
         <Bell
-          color={isEventsNavigator ? "#0E0C10" : "#71707B"}
+          color={isEventsNavigator ? selected : unselected}
           width="24"
           height="24"
         />
         <Text
           className={twJoin(
             "font-primary-bold",
-            isEventsNavigator ? "text-neutral-1 dark:text-white" : "text-neutral-2 dark:text-neutral-5",
+            isEventsNavigator
+              ? "text-neutral-1 dark:text-white"
+              : "text-neutral-2 dark:text-neutral-5",
           )}
         >
           events
@@ -93,14 +112,16 @@ export function BottomTabBar(props: BottomTabBarProps) {
         className="flex-1 items-center justify-center space-y-1 pt-4"
       >
         <PeopleTag
-          color={isMeNavigator ? "#0E0C10" : "#71707B"}
+          color={isMeNavigator ? selected : unselected}
           width="24"
           height="24"
         />
         <Text
           className={twJoin(
             "font-primary-bold",
-            isMeNavigator ? "text-neutral-1 dark:text-white" : "text-neutral-2 dark:text-neutral-5",
+            isMeNavigator
+              ? "text-neutral-1 dark:text-white"
+              : "text-neutral-2 dark:text-neutral-5",
           )}
         >
           me

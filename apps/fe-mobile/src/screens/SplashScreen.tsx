@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Text, View } from "react-native";
 import { Toast } from "react-native-toast-message/lib/src/Toast";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useQuery } from "@tanstack/react-query";
+import { useColorScheme } from "nativewind";
 import Rive from "rive-react-native";
 
 import { api, loadAuthToken } from "~/utils/api";
@@ -9,9 +12,22 @@ import {
   NAVIGATOR_MAIN,
   NAVIGATOR_ONBOARDING,
 } from "~/navigators/RootNavigator";
-import {SCREEN_WHATS_YOUR_NAME} from "~/navigators/MainNavigator";
+
+function useTheme() {
+  const { colorScheme, setColorScheme } = useColorScheme();
+
+  return useQuery(["theme", colorScheme], async () => {
+    const r = await AsyncStorage.getItem("theme");
+    if (r) {
+      setColorScheme(r as any);
+    }
+
+    return colorScheme;
+  });
+}
 
 export function SplashScreen() {
+  const theme = useTheme();
   const navigation = useNavigation();
   const [tokenStatus, setTokenStatus] = useState<
     "available" | "not-available"
@@ -57,12 +73,14 @@ export function SplashScreen() {
     <View className="flex-1 items-center justify-center bg-white dark:bg-neutral-1">
       <View className="items-center justify-center space-y-2">
         <View className="h-16 w-16">
-          <Rive
-            onPause={() => {
-              setAnimationFinished(true);
-            }}
-            resourceName="logo"
-          />
+          {theme.isSuccess && (
+            <Rive
+              onPause={() => {
+                setAnimationFinished(true);
+              }}
+              resourceName={theme.data === "dark" ? "logo_light" : "logo"}
+            />
+          )}
         </View>
         <Text className="font-primary-bold text-neutral-1 dark:text-white text-base">
           moviepals
