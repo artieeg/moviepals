@@ -10,9 +10,10 @@ import {
   View,
 } from "react-native";
 import Toast from "react-native-toast-message";
+import { useColorScheme } from "nativewind";
 
 import { api, signOut } from "~/utils/api";
-import { Section, UserAvatar } from "~/components";
+import { Section, Switch, UserAvatar } from "~/components";
 import { useNavigation } from "~/hooks";
 import { SCREEN_INVITE } from "./InviteScreen";
 import { MainLayout } from "./layouts/MainLayout";
@@ -24,6 +25,10 @@ export const SCREEN_ME = "MeScreen";
 export function MeScreen() {
   const ctx = api.useContext();
   const user = api.user.getMyData.useQuery();
+
+  const { colorScheme, toggleColorScheme, setColorScheme } = useColorScheme();
+
+  const paidStatus = api.user.isPaid.useQuery();
 
   const navigation = useNavigation();
 
@@ -70,7 +75,7 @@ export function MeScreen() {
     );
   }
 
-  function onPurchasePremium() {}
+  function onPurchasePremium() { }
 
   const deleteMyAccount = api.user.deleteMyAccount.useMutation({
     onSuccess() {
@@ -97,7 +102,7 @@ export function MeScreen() {
             <View className="my-4 items-center justify-center">
               <UserAvatar emoji={user.data.emoji} />
 
-              <Text className="font-primary-bold text-neutral-1 text-xl">
+              <Text className="font-primary-bold text-white text-xl">
                 {user.data.name}
               </Text>
 
@@ -137,18 +142,40 @@ export function MeScreen() {
               />
 
               <Section
-                title="Share Premium"
-                onPress={onSharePremium}
-                showArrowRight
-                subtitle="You have premium, wanna share it with other people?"
+                title="Dark Mode"
+                subtitle={
+                  colorScheme === "dark"
+                    ? "Go back to light ☀️"
+                    : "Switch to the dark side 🌙"
+                }
+                onPress={() => toggleColorScheme()}
+                right={
+                  <View className="ml-4">
+                    <Switch
+                      enabled={colorScheme === "dark"}
+                      onToggle={() => toggleColorScheme()}
+                    />
+                  </View>
+                }
               />
 
-              <Section
-                title="Get Premium"
-                onPress={onPurchasePremium}
-                showArrowRight
-                subtitle="Ad-free, unlimited matches, share with your friends"
-              />
+              {paidStatus.isSuccess && paidStatus.data.isPaid && (
+                <Section
+                  title="Share Premium"
+                  onPress={onSharePremium}
+                  showArrowRight
+                  subtitle="You have premium, wanna share it with other people?"
+                />
+              )}
+
+              {paidStatus.isSuccess && !paidStatus.data.isPaid && (
+                <Section
+                  title="Get Premium"
+                  onPress={onPurchasePremium}
+                  showArrowRight
+                  subtitle="Ad-free, unlimited matches, share with your friends"
+                />
+              )}
 
               <Text className="font-primary-regular text-neutral-2 text-base">
                 Need help? Send a message to{" "}
