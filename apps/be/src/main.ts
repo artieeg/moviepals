@@ -127,5 +127,5 @@ export async function main() {
     }
   });
 
-  await server.listen({ port: env.PORT, host: "0.0.0.0" });
+  await server.listen({ port: env.PORT, host: env.HOST });
 }

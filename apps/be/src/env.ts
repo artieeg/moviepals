@@ -5,6 +5,7 @@ const envSchema = z.object({
   LATEST_FEED_RESPONSE_CACHE_REDIS_URL: z.string(),
   SERVED_MOVIE_IDS_CACHE_REDIS_URL: z.string(),
 
+  HOST: z.string(),
   PORT: z
     .string()
     .default("3000")
