@@ -73,23 +73,6 @@ export const movie_feed = createTRPCRouter({
         const userSwipesPromise = ctx.dbMovieSwipe.swipes
           .find({
             userId: ctx.user,
-
-            //Filters below are not necessary,
-            //but they help reduce the load
-
-            directors:
-              directors.length > 0 ? { $in: directors } : { $exists: true },
-
-            //cast should overlap
-            cast: cast.length > 0 ? { $in: cast } : { $exists: true },
-
-            movie_genre_ids:
-              genres.length > 0 ? { $in: genres } : { $exists: true },
-
-            watch_providers:
-              watchProviderIds.length > 0
-                ? { $in: watchProviderIds }
-                : { $exists: true },
           })
           .toArray();
 
