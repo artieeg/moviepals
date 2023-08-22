@@ -153,7 +153,6 @@ export const movie_feed = createTRPCRouter({
           (swipe) => swipe.movieId,
         );
 
-        excludeMovieIds.push(...servedMovieIds);
 
         excludeMovieIds.push(...selectedFriendSwipeMovieIds);
 
@@ -216,6 +215,9 @@ export const movie_feed = createTRPCRouter({
             }
           }
         }
+
+        excludeMovieIds.push(...servedMovieIds);
+
         const missingMoviesPromise = fetchMissingMovies({
           count: MOVIES_PER_PAGE,
           excludeMovieIds,
