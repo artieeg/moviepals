@@ -12,8 +12,6 @@ jobs:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
     steps:
-      - name: Check out repository code
-
       - uses: actions/checkout@v3
       - uses: superfly/flyctl-actions/setup-flyctl@master
 
