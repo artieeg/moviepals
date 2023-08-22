@@ -7,6 +7,7 @@ import {
   Pressable,
   ScrollView,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 import Toast from "react-native-toast-message";
@@ -20,6 +21,7 @@ import { SCREEN_INVITE } from "./InviteScreen";
 import { MainLayout } from "./layouts/MainLayout";
 import { SCREEN_MY_SWIPE_LIST } from "./MySwipeListScreen";
 import { SCREEN_SHARE_PREMIUM } from "./SharePremiumScreen";
+import { SCREEN_USER_SETTINGS } from "./UserSettingsScreen";
 
 export const SCREEN_ME = "MeScreen";
 
@@ -101,6 +103,10 @@ export function MeScreen() {
     );
   }
 
+  function onUpdateUser() {
+    navigation.navigate(SCREEN_USER_SETTINGS);
+  }
+
   return (
     <MainLayout canGoBack title="Me">
       <ScrollView
@@ -109,17 +115,24 @@ export function MeScreen() {
       >
         {user.isSuccess && (
           <View className="flex-1 space-y-8">
-            <View className="my-4 items-center justify-center">
+            <TouchableOpacity
+              onPress={onUpdateUser}
+              className="my-4 items-center justify-center"
+            >
+              <Text className="mb-2 font-primary-regular text-neutral-2 dark:text-neutral-5 text-sm">
+                Press to edit
+              </Text>
+
               <UserAvatar emoji={user.data.emoji} />
 
-              <Text className="font-primary-bold text-neutral-1 dark:text-white text-xl">
+              <Text className="mt-2 font-primary-bold text-neutral-1 dark:text-white text-xl">
                 {user.data.name}
               </Text>
 
               <Text className="text-neutral-2 dark:text-neutral-5 font-primary-regular text-base">
                 @{user.data.username}
               </Text>
-            </View>
+            </TouchableOpacity>
 
             <View className="space-y-6">
               <Section

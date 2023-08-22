@@ -12,6 +12,8 @@ import {
   SCREEN_SHARE_PREMIUM,
   SharePremiumScreen,
 } from "~/screens";
+import {SCREEN_USER_SETTINGS, UserSettingsScreen} from "~/screens/UserSettingsScreen";
+import {SCREEN_USER_INFO} from "./FriendsNavigator";
 import { options } from "./options";
 
 const Stack = createStackNavigator();
@@ -42,6 +44,12 @@ export default function MeNavigator() {
         options={options}
         name={SCREEN_SHARE_PREMIUM}
         component={SharePremiumScreen}
+      />
+
+      <Stack.Screen
+        options={options}
+        name={SCREEN_USER_SETTINGS}
+        component={UserSettingsScreen}
       />
     </Stack.Navigator>
   );
