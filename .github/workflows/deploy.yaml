@@ -11,6 +11,11 @@ jobs:
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      MOVIE_SWIPE_DATABASE_URL: ${{ secrets.MOVIE_SWIPE_DATABASE_URL }}
+      MOVIE_SWIPE_MOVIE_COLLECTION_NAME: ${{ vars.MOVIE_SWIPE_MOVIE_COLLECTION_NAME }}
+      MOVIE_SWIPE_SWIPE_COLLECTION_NAME: ${{ vars.MOVIE_SWIPE_SWIPE_COLLECTION_NAME }}
+      MOVIE_SWIPE_REVIEW_STATE_COLLECTION_NAME: ${{ vars.MOVIE_SWIPE_REVIEW_STATE_COLLECTION_NAME }}
+      MOVIE_SWIPE_DB_NAME: ${{ vars.MOVIE_SWIPE_DB_NAME }}
     steps:
       - uses: actions/checkout@v3
       - uses: superfly/flyctl-actions/setup-flyctl@master
