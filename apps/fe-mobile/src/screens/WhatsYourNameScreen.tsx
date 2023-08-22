@@ -5,7 +5,6 @@ import React, {
   useState,
 } from "react";
 import {
-  KeyboardAvoidingView,
   Linking,
   Pressable,
   Text,
@@ -13,6 +12,7 @@ import {
   View,
 } from "react-native";
 import EmojiSelector from "react-native-emoji-selector";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import BottomSheet, {
@@ -90,85 +90,66 @@ export function WhatsYourNameScreen() {
       name,
       username,
       method: method!,
-      emoji
+      emoji,
     });
   }
 
-
-
   return (
-    <KeyboardAvoidingView behavior="padding" className="flex-1 bg-white dark:bg-neutral-1">
-      <SafeAreaView className="flex-1 px-8">
-        <View className="flex-1 space-y-6">
-          <View className="space-y-3">
-            <Text className="font-primary-bold text-neutral-1 dark:text-white pt-8 text-2xl">
-              Hey, introduce{"\n"}yourself please 😄
-            </Text>
-            <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
-              Your friends will be able to find you by your username
-            </Text>
-          </View>
-
-          <View className="space-y-4">
-            <ListItem
-              icon={emoji}
-              onPress={onPickEmoji}
-              itemId="emoji"
-              right={undefined}
-              title="Emoji Avatar"
-              subtitle="Pick an emoji to represent you"
-            />
-            <Input
-              placeholder="your name"
-              value={name!}
-              onChangeText={onChangeName}
-            />
-            <Input
-              icon={<AtSign />}
-              autoCapitalize="none"
-              maxLength={32}
-              placeholder="username"
-              onChangeText={setUsername}
-              autoFocus
-              value={username}
-            />
-            <View className="flex-row">
-              <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-sm">
-                By continuing, you agree to our{" "}
-                <Pressable
-                  className="translate-y-[3px]"
-                  onPress={() => {
-                    Linking.openURL("https://moviepals.io/privacy-policy");
-                  }}
-                >
-                  <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-sm underline">
-                    Privacy Policy
-                  </Text>
-                </Pressable>{" "}
-                and{" "}
-                <Pressable
-                  className="translate-y-[3px]"
-                  onPress={() => {
-                    Linking.openURL("https://moviepals.io/terms-of-service");
-                  }}
-                >
-                  <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-sm underline">
-                    Terms of Service
-                  </Text>
-                </Pressable>
+    <>
+      <SafeAreaView className="flex-1 px-8 bg-white dark:bg-neutral-1">
+        <KeyboardAwareScrollView className="flex-1">
+          <View className="space-y-6">
+            <View className="space-y-3">
+              <Text className="font-primary-bold text-neutral-1 dark:text-white pt-8 text-2xl">
+                Hey, introduce{"\n"}yourself please 😄
+              </Text>
+              <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
+                Your friends will be able to find you by your username
               </Text>
             </View>
+
+            <View className="space-y-4">
+              <ListItem
+                icon={emoji}
+                onPress={onPickEmoji}
+                itemId="emoji"
+                right={undefined}
+                title="Emoji Avatar"
+                subtitle="Pick an emoji to represent you"
+              />
+              <Input
+                placeholder="your name"
+                value={name!}
+                onChangeText={onChangeName}
+              />
+              <Input
+                icon={<AtSign />}
+                autoCapitalize="none"
+                maxLength={32}
+                placeholder="username"
+                onChangeText={setUsername}
+                autoFocus
+                value={username}
+              />
+            </View>
           </View>
-        </View>
-        <View className="flex-1 items-end justify-end pb-8">
-          <IconButton onPress={onSubmit} variant="primary">
+        </KeyboardAwareScrollView>
+        <View className="absolute right-8 bottom-8">
+          <IconButton
+            loading={createNewAccount.isLoading}
+            onPress={onSubmit}
+            variant="primary"
+          >
             <ArrowRight width="24" height="24" color="#ffffff" />
           </IconButton>
         </View>
       </SafeAreaView>
 
-      <EmojiPickerBottomSheet onEmojiSelected={onEmojiSelected} ref={emojiPickerBottomSheetRef} />
-    </KeyboardAvoidingView>
+      <EmojiPickerBottomSheet
+        onEmojiSelected={onEmojiSelected}
+        ref={emojiPickerBottomSheetRef}
+      />
+    </>
   );
 }
 
@@ -182,7 +163,7 @@ export const EmojiPickerBottomSheet = React.forwardRef<
   {
     onEmojiSelected(emoji: string): void;
   }
->(({onEmojiSelected}, ref) => {
+>(({ onEmojiSelected }, ref) => {
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   useImperativeHandle(ref, () => ({

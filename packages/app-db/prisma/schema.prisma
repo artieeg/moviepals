@@ -46,6 +46,9 @@ model UserInviteLink {
 model FullAccessPurchase {
   id String @id @default(cuid())
 
+  //RevenueCat or Gift
+  source String
+
   createdAt     DateTime        @default(now())
   User          User?
   SharedPremium SharedPremium[]

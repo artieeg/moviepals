@@ -86,6 +86,7 @@ export function BottomTabBar(props: BottomTabBarProps) {
         </Text>
       </Pressable>
 
+      {/*
       <Pressable
         onPress={() => navigation.navigate(NAVIGATOR_EVENTS)}
         className="flex-1 items-center justify-center space-y-1 pt-4"
@@ -106,6 +107,7 @@ export function BottomTabBar(props: BottomTabBarProps) {
           events
         </Text>
       </Pressable>
+      */}
 
       <Pressable
         onPress={() => navigation.navigate(NAVIGATOR_ME)}
