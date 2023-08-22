@@ -26,14 +26,12 @@ import { SCREEN_DIRECTOR_LIST } from "./DirectorListScreen";
 import { MainLayout } from "./layouts/MainLayout";
 
 export function PrepareSwipeScreen() {
-  const [quickMatchMode, setQuickMatchMode] = React.useState(true);
-
   useTimezone();
 
   const navigation = useNavigation();
 
   function onStartSwiping() {
-    navigation.navigate(SCREEN_SWIPE, { quickMatchMode });
+    navigation.navigate(SCREEN_SWIPE);
   }
 
   return (
@@ -50,12 +48,7 @@ export function PrepareSwipeScreen() {
           <GenreFilter />
           <CastFilter />
           <DirectorFilter />
-          <QuickMatchMode
-            enabled={quickMatchMode}
-            onToggle={(v) => {
-              setQuickMatchMode(v);
-            }}
-          />
+          <QuickMatchMode />
         </View>
 
         <View className="border-neutral-2-10 mt-6 space-y-6 border-t pt-6">
@@ -150,18 +143,17 @@ function ResetFilters(props: ViewProps) {
   );
 }
 
-function QuickMatchMode({
-  enabled,
-  onToggle,
-  ...rest
-}: {
-  enabled: boolean;
-  onToggle(enabled: boolean): void;
-}) {
+function QuickMatchMode({ ...rest }: {}) {
+  const enabled = useFilterStore((state) => state.quickMatchMode);
+
+  function onToggle(v: boolean) {
+    useFilterStore.setState({ quickMatchMode: v });
+  }
+
   return (
     <Section
       title="Quick match mode"
-      subtitle="Include friend movies even if they don't match your genre selection"
+      subtitle="Include friend movies even if they don't match your current filters"
       onPress={() => onToggle(!enabled)}
       {...rest}
       right={

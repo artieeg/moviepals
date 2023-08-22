@@ -3,8 +3,17 @@
   "version": "0.1.0",
   "description": "Store information about movies and user swipes",
   "main": "index.ts",
+  "scripts": {
+    "mdb:index": "ts-node scripts/createIndexes.ts",
+    "mdb:index:dev": "yarn with-env ts-node scripts/createIndexes.ts",
+    "with-env": "npx dotenv -e ../../.env --"
+  },
   "dependencies": {
     "mongodb": "^5.7.0",
     "zod": "^3.21.4"
+  },
+  "devDependencies": {
+    "@dotenv/cli": "^2.2.2",
+    "ts-node": "^10.9.1"
   }
 }

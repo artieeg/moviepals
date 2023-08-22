@@ -124,25 +124,61 @@ export const movie_feed = createTRPCRouter({
          *
          * Make sure the genres and movie providers overlap
          * */
-        const relevantFriendSwipes = await ctx.dbMovieSwipe.swipes
+        const friendSwipes = await ctx.dbMovieSwipe.swipes
           .find({
             userId: { $in: connectedUserIds },
             movieId: { $nin: excludeMovieIds },
             liked: true,
-
-            cast: cast.length > 0 ? { $in: cast } : { $exists: true },
-
-            movie_genre_ids:
-              !quick_match_mode && genres.length > 0
-                ? { $in: genres }
-                : { $exists: true },
-
-            watch_providers:
-              watchProviderIds.length > 0 && !quick_match_mode
-                ? { $in: watchProviderIds }
-                : { $exists: true },
           })
           .toArray();
+
+        const relevantFriendSwipes = quick_match_mode
+          ? friendSwipes
+          : friendSwipes.filter((swipe) => {
+              if (genres.length > 0) {
+                if (
+                  !swipe.movie_genre_ids.some((genreId) =>
+                    genres.includes(genreId),
+                  )
+                ) {
+                  return false;
+                }
+              }
+
+              if (directors.length > 0) {
+                if (
+                  !swipe.directors.some((director) =>
+                    directors.includes(director),
+                  )
+                ) {
+                  return false;
+                }
+              }
+
+              if (watchProviderIds.length > 0) {
+                if (
+                  !swipe.watch_providers.some((providerId) =>
+                    watchProviderIds.includes(providerId),
+                  )
+                ) {
+                  return false;
+                }
+              }
+
+              if (cast.length > 0) {
+                if (!swipe.cast.some((castId) => cast.includes(castId))) {
+                  return false;
+                }
+              }
+
+              return true;
+            });
+
+        logger.info({
+          quick_match_mode,
+          totalFriendSwipes: friendSwipes.length,
+          relevantFriendSwipes: relevantFriendSwipes.length,
+        });
 
         const randomFriendSwipes = pickRandomItems(
           relevantFriendSwipes,
@@ -153,7 +189,6 @@ export const movie_feed = createTRPCRouter({
           (swipe) => swipe.movieId,
         );
 
-
         excludeMovieIds.push(...selectedFriendSwipeMovieIds);
 
         //If user has quick match mode enabled, and we couldn't find enough relevant friend-liked movies,
@@ -162,16 +197,8 @@ export const movie_feed = createTRPCRouter({
           selectedFriendSwipeMovieIds.length < MIX_IN_MOVIES_COUNT &&
           quick_match_mode
         ) {
-          const allFriendSwipes = await ctx.dbMovieSwipe.swipes
-            .find({
-              userId: { $in: connectedUserIds },
-              movieId: { $nin: excludeMovieIds },
-              liked: true,
-            })
-            .toArray();
-
           const randomAllFriendSwipes = pickRandomItems(
-            allFriendSwipes,
+            friendSwipes,
             MIX_IN_MOVIES_COUNT - selectedFriendSwipeMovieIds.length,
           );
 
@@ -180,6 +207,10 @@ export const movie_feed = createTRPCRouter({
           );
 
           excludeMovieIds.push(...selectedAllFriendSwipeMovieIds);
+        }
+
+        if (cursor !== 0) {
+          excludeMovieIds.push(...servedMovieIds);
         }
 
         //Try to serve the latest feed response ...
@@ -216,7 +247,9 @@ export const movie_feed = createTRPCRouter({
           }
         }
 
-        excludeMovieIds.push(...servedMovieIds);
+        if (cursor === 0) {
+          excludeMovieIds.push(...servedMovieIds);
+        }
 
         const missingMoviesPromise = fetchMissingMovies({
           count: MOVIES_PER_PAGE,
@@ -275,17 +308,7 @@ export const movie_feed = createTRPCRouter({
         ) {
           await ctx.dbMovieSwipe.reviewState.updateOne(
             {
-              userId: ctx.user,
-
-              directors:
-                directors.length > 0 ? { $in: directors } : { $exists: true },
-              cast: cast.length > 0 ? { $in: cast } : { $exists: true },
-              genre_ids:
-                genres.length > 0 ? { $all: genres } : { $exists: true },
-              watch_providers:
-                watchProviderIds.length > 0
-                  ? { $all: watchProviderIds }
-                  : { $exists: true },
+              id: reviewState.id,
             },
             {
               $set: {
@@ -325,11 +348,6 @@ export const movie_feed = createTRPCRouter({
             ),
           ]);
         }
-
-        console.log({
-          previouslyServedMovieIds: servedMovieIds,
-          newMovieIds: feed.map((m) => m.id),
-        });
 
         ctx.servedMovieIdsCache.addMovieIds(
           ctx.user,
@@ -426,81 +444,6 @@ export async function fetchMissingMovies({
     nextMovieToStartFrom: 0,
     nextPageToStartFrom,
   };
-
-  /*
-  const moviesLeftToFetch = count - mixInMovieCount;
-  const tmdbPagesToFetch = Math.ceil(moviesLeftToFetch / moviesPerTmdbPage);
-
-  let pageOffset = 0;
-  let batch = tmdbPagesToFetch;
-
-  const movies: Movie[] = [];
-  let nextMovieToStartFrom: number = nextTmdbStartFromMovieIdx;
-  let nextPageToStartFrom: number = nextTmdbPage;
-
-  let attempts = 20; //tmdbPagesToFetch * 2;
-
-  while (attempts--) {
-    const promises: Promise<Movie[]>[] = [];
-
-    for (let p = 0; p < batch; pageOffset++, p++) {
-      promises.push(
-        fetch({
-          with_watch_providers: fetchParams.watchProviderIds.join(","),
-          watch_region: fetchParams.region,
-          with_genres: fetchParams.genres.join(","),
-          with_cast: fetchParams.with_cast.join(","),
-          with_people: fetchParams.with_people.join(","),
-          page: nextTmdbPage + pageOffset,
-        }),
-      );
-    }
-
-    const results = await Promise.all(promises);
-
-    const fetchedMovies = results.flat();
-
-    const filteredMovies = fetchedMovies.filter(
-      (movie) => !excludeMovieIds.includes(movie.id),
-    );
-
-    const selectedMovies = filteredMovies.slice(
-      nextTmdbStartFromMovieIdx,
-      nextTmdbStartFromMovieIdx + moviesLeftToFetch,
-    );
-
-    movies.push(...selectedMovies);
-
-    if ((results.at(-1)?.length ?? 0) < moviesPerTmdbPage) {
-      break;
-    }
-
-    if (movies.length >= moviesLeftToFetch) {
-      nextMovieToStartFrom =
-        nextTmdbStartFromMovieIdx === 0
-          ? 0
-          : nextTmdbPage - nextTmdbStartFromMovieIdx;
-
-      nextPageToStartFrom = nextTmdbPage + pageOffset;
-      break;
-    } else {
-      batch = Math.ceil(batch / 2);
-    }
-  }
-
-  if (movies.length === 0 && attempts === 0) {
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Failed to fetch movies",
-    });
-  } else {
-    return {
-      movies,
-      nextMovieToStartFrom,
-      nextPageToStartFrom,
-    };
-  }
-   * */
 }
 
 async function getReviewState(
@@ -510,22 +453,50 @@ async function getReviewState(
     "genre_ids" | "watch_providers" | "userId" | "cast" | "directors"
   >,
 ): Promise<ReviewState> {
-  const reviewState = await db.reviewState.findOne({
-    userId: params.userId,
+  const reviewStates = await db.reviewState
+    .find({
+      userId: params.userId,
+    })
+    .toArray();
 
-    directors:
-      params.directors.length > 0
-        ? { $in: params.directors }
-        : { $exists: true },
-    cast: params.cast.length > 0 ? { $in: params.cast } : { $exists: true },
-    genre_ids:
-      params.genre_ids.length > 0
-        ? { $all: params.genre_ids }
-        : { $exists: true },
-    watch_providers:
-      params.watch_providers.length > 0
-        ? { $all: params.watch_providers }
-        : { $exists: true },
+  const reviewState = reviewStates.find((reviewState) => {
+    if (params.genre_ids.length > 0) {
+      if (
+        !reviewState.genre_ids.every((genreId) =>
+          params.genre_ids.includes(genreId),
+        )
+      ) {
+        return false;
+      }
+    }
+
+    if (params.directors.length > 0) {
+      if (
+        !reviewState.directors.every((director) =>
+          params.directors.includes(director),
+        )
+      ) {
+        return false;
+      }
+    }
+
+    if (params.watch_providers.length > 0) {
+      if (
+        !reviewState.watch_providers.every((providerId) =>
+          params.watch_providers.includes(providerId),
+        )
+      ) {
+        return false;
+      }
+    }
+
+    if (params.cast.length > 0) {
+      if (!reviewState.cast.every((castId) => params.cast.includes(castId))) {
+        return false;
+      }
+    }
+
+    return true;
   });
 
   if (reviewState) {
