@@ -82,7 +82,7 @@ export function BottomTabBar(props: BottomTabBarProps) {
               : "text-neutral-2 dark:text-neutral-5",
           )}
         >
-          friends
+          people
         </Text>
       </Pressable>
 

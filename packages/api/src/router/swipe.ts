@@ -97,11 +97,6 @@ export const swipe = createTRPCRouter({
         await ctx.dbMovieSwipe.swipes.updateOne(
           {
             userId: ctx.user,
-            movie_genre_ids: genres,
-            watch_providers,
-            movie_language,
-            directors,
-            cast,
             movieId,
           },
           {

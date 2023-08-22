@@ -18,7 +18,7 @@ export function App() {
       StatusBar.setTranslucent(true);
       StatusBar.setBackgroundColor("transparent");
     }
-  }, []);
+  }, [colorScheme]);
 
   return (
     <TRPCProvider>

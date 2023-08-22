@@ -1,4 +1,7 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["index.ts", "src/**/*.ts"]
+  "compilerOptions": {
+    "module": "CommonJS"
+  },
+  "include": ["index.ts", "src/**/*.ts", "scripts/**/*.ts"]
 }

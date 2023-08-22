@@ -1,4 +1,4 @@
-import { connect } from "./src/db";
+import { connect, db } from "./src/db";
 import { movies } from "./src/movies";
 import { reviewState } from "./src/review_state";
 import { swipes } from "./src/swipes";
@@ -8,6 +8,7 @@ export { movieSchema, type Movie } from "./src/movies";
 export { reviewState, type ReviewState } from "./src/review_state";
 
 export const dbMovieSwipe = {
+  db,
   connect,
   movies,
   swipes,

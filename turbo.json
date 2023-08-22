@@ -6,6 +6,9 @@
       "inputs": ["prisma/schema.prisma"],
       "cache": false
     },
+    "mdb:index": {
+      "cache": false
+    },
     "db:push": {
       "inputs": ["prisma/schema.prisma"],
       "dependsOn": ["^be:check"],
@@ -16,7 +19,7 @@
       "dependsOn": ["^db:generate"]
     },
     "be:fly": {
-      "dependsOn": ["^be:check", "^db:generate", "^db:push"]
+      "dependsOn": ["mdb:index", "^be:check", "^db:generate", "^db:push"]
     },
     "dev": {
       "persistent": true,

@@ -36,6 +36,9 @@ export function SplashScreen() {
 
   const userData = api.user.getMyData.useQuery(undefined, {
     enabled: tokenStatus === "available",
+    onError() {
+      return navigation.replace(NAVIGATOR_ONBOARDING);
+    },
   });
 
   useEffect(() => {
