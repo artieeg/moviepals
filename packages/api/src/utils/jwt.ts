@@ -14,7 +14,10 @@ export function createToken(claims: Claims) {
 }
 
 export function verifyToken(token: string) {
-  const content = jwt.verify(token, env.JWT_SECRET);
-
-  return claimsSchema.parse(content);
+  try {
+    const content = jwt.verify(token, env.JWT_SECRET);
+    return claimsSchema.parse(content);
+  } catch (e) {
+    return null;
+  }
 }

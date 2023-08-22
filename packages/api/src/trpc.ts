@@ -70,6 +70,7 @@ export const createTRPCContext = async ({
   servedMovieIdsCache: ServedMovieIdsCache;
 }) => {
   const token = authorization?.split(" ")[1];
+
   const claims = token ? verifyToken(token) : null;
 
   return createInnerTRPCContext({
