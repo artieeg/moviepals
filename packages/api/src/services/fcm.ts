@@ -1,4 +1,4 @@
-import fcm from "firebase-admin";
+const fcm = require("firebase-admin");
 
 //Make sure the FIREBASE_CONFIG env variable is set
 //to the contents of the firebase config file

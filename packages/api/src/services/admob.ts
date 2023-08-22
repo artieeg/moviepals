@@ -1,5 +1,5 @@
-import crypto from "crypto";
-import qs from "querystring";
+import { createVerify } from "crypto";
+import { encode } from "querystring";
 import axios from "axios";
 import { z } from "zod";
 
@@ -45,10 +45,10 @@ async function verifySignature(payload: z.infer<typeof admobSchema>) {
     throw new Error("Key not found");
   }
 
-  const verifier = crypto.createVerify("RSA-SHA256");
+  const verifier = createVerify("RSA-SHA256");
 
   verifier.update(
-    qs.encode({
+    encode({
       ad_network: rest.ad_network,
       ad_unit: rest.ad_unit,
       reward_amount: rest.reward_amount,

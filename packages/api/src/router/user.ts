@@ -1,4 +1,4 @@
-import crypto from "crypto";
+import { createHash, randomBytes } from "crypto";
 import { TRPCError } from "@trpc/server";
 import appleSignInAuth from "apple-signin-auth";
 import { OAuth2Client } from "google-auth-library";
@@ -195,7 +195,7 @@ export const user = createTRPCRouter({
         try {
           inviteLink = await ctx.prisma.userInviteLink.create({
             data: {
-              slug: crypto.randomBytes(4).toString("hex"),
+              slug: randomBytes(4).toString("hex"),
             },
           });
         } catch {}
@@ -308,9 +308,7 @@ async function getEmailFromAppleToken({
   nonce: string;
 }) {
   const { email, sub } = await appleSignInAuth.verifyIdToken(idToken, {
-    nonce: nonce
-      ? crypto.createHash("sha256").update(nonce).digest("hex")
-      : undefined,
+    nonce: nonce ? createHash("sha256").update(nonce).digest("hex") : undefined,
   });
 
   return { email, sub };

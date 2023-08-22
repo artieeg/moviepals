@@ -1,4 +1,4 @@
-import cuid from "@paralleldrive/cuid2";
+import {createId} from "@paralleldrive/cuid2";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
@@ -95,7 +95,7 @@ export const swipe = createTRPCRouter({
         },
       }) => {
         await ctx.dbMovieSwipe.swipes.insertOne({
-          id: cuid.createId(),
+          id: createId(),
           userId: ctx.user,
           directors,
           cast,

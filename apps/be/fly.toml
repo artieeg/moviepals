@@ -4,10 +4,10 @@
 #
 
 app = "moviepals"
-primary_region = "waw"
+primary_region = "lax"
 
 [build]
-  dockerfile = "./apps/be/Dockerfile"
+  dockerfile = "./Dockerfile"
 
 [http_service]
   internal_port = 3000

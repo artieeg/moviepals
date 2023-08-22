@@ -1,11 +1,4 @@
 import Redis from "ioredis";
-import { z } from "zod";
-
-const userFeedDeliveryStateSchema = z.object({
-  served_ids: z.string().transform((v) => parseInt(v)),
-});
-
-export type UserFeedDeliveryState = z.infer<typeof userFeedDeliveryStateSchema>;
 
 /**
  * Used to keep the ids of recenly served movies

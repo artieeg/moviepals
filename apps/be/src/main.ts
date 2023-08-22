@@ -37,12 +37,14 @@ const revenueCatSchema = z
 export async function main() {
   const userDeliveryCacheClient = new Redis(env.USER_DELIVERY_CACHE_REDIS_URL, {
     lazyConnect: true,
+    family: 6,
   });
 
   const lastestFeedResponseCacheClient = new Redis(
     env.LATEST_FEED_RESPONSE_CACHE_REDIS_URL,
     {
       lazyConnect: true,
+      family: 6,
     },
   );
 
@@ -50,6 +52,7 @@ export async function main() {
     env.SERVED_MOVIE_IDS_CACHE_REDIS_URL,
     {
       lazyConnect: true,
+      family: 6,
     },
   );
 

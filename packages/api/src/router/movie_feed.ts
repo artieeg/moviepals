@@ -1,4 +1,4 @@
-import cuid2 from "@paralleldrive/cuid2";
+import { createId } from "@paralleldrive/cuid2";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
@@ -349,7 +349,7 @@ function pickRandomItems<T>(ids: T[], count: number) {
     }
   } while (result.size < count && count < ids.length);
 
-  return [...result];
+  return Array.from(result);
 }
 
 /**
@@ -530,7 +530,7 @@ async function getReviewState(
     return reviewState;
   } else {
     const reviewState: ReviewState = {
-      id: cuid2.createId(),
+      id: createId(),
       userId: params.userId,
       genre_ids: params.genre_ids,
       directors: [],

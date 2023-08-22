@@ -8,7 +8,15 @@
     },
     "db:push": {
       "inputs": ["prisma/schema.prisma"],
+      "dependsOn": ["^be:check"],
       "cache": false
+    },
+    "be:check": {
+      "cache": false,
+      "dependsOn": ["^db:generate"]
+    },
+    "be:fly": {
+      "dependsOn": ["^be:check", "^db:generate", "^db:push"]
     },
     "dev": {
       "persistent": true,
