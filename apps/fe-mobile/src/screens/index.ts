@@ -20,3 +20,4 @@ export * from "./DirectorListScreen";
 export * from "./SharePremiumScreen";
 export * from "./JoinMailingListScreen";
 export * from "./NotificationPermissionRequestScreen";
+export * from "./UserInfoScreen";
