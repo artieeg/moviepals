@@ -115,13 +115,13 @@ export function FriendsListScreen() {
   }
 
   return (
-    <MainLayout title="friends">
+    <MainLayout title="people">
       <View className="flex-1 space-y-8">
         <View className="space-y-2">
           <Input
             onChangeText={setQuery}
             value={query}
-            placeholder="search"
+            placeholder="Search"
             showClearButton
             icon={<Search />}
           />
