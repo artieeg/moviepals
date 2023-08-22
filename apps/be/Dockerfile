@@ -5,7 +5,7 @@ FROM node:18-alpine
 WORKDIR /usr/src/app
 
 # Copy the package.json and package-lock.json files to the container
-COPY apps/be/package.json apps/be/yarn.lock ./
+COPY apps/be/package.json ./
 
 # Copy the entire monorepo into the container
 COPY . .
