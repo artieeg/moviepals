@@ -2,8 +2,6 @@ import Redis from "ioredis";
 import { DateTime } from "luxon";
 import { z } from "zod";
 
-import { logger } from "../logger";
-
 const userFeedDeliveryStateSchema = z.object({
   page: z.string().transform((v) => parseInt(v)),
   ads_watched: z.string().transform((v) => parseInt(v)),
