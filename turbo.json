@@ -16,7 +16,7 @@
       "dependsOn": ["^db:generate"]
     },
     "be:fly": {
-      "dependsOn": []
+      "dependsOn": ["^be:check", "^db:generate", "^db:push"]
     },
     "dev": {
       "persistent": true,
