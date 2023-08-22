@@ -230,6 +230,25 @@ export function MeScreen() {
                 , and is not endorsed or certified by TMDb or JustWatch.
               </Text>
 
+              <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
+                Watching Movie Vectors by{" "}
+                <Pressable
+                  onPress={() =>
+                    Linking.openURL(
+                      "https://www.vecteezy.com/free-vector/watching-movie",
+                    )
+                  }
+                  className={Platform.select({
+                    ios: "translate-y-0.5",
+                    default: "translate-y-[7px]",
+                  })}
+                >
+                  <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base underline">
+                    Vecteezy
+                  </Text>
+                </Pressable>
+              </Text>
+
               <View className="h-3" />
 
               <Section

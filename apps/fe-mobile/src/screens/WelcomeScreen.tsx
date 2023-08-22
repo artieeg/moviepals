@@ -1,14 +1,16 @@
 import React from "react";
-import { Text, View } from "react-native";
+import { Linking, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import appleAuth from "@invertase/react-native-apple-authentication";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import {
+  GoogleSignin,
+} from "@react-native-google-signin/google-signin";
 import { AppleMac, GoogleCircle } from "iconoir-react-native";
+import Rive from "rive-react-native";
 
 import { api, setAuthToken } from "~/utils/api";
 import { env } from "~/utils/env";
-import { HorrorMovie } from "~/components/icons";
 import { IconButton } from "~/components";
 import { useNavigation } from "~/hooks";
 import { SCREEN_WHATS_YOUR_NAME } from "~/navigators/OnboardingNavigator";
@@ -23,8 +25,12 @@ export function WelcomeScreen() {
   const navigation = useNavigation();
 
   const method = useOnboardingStore((state) => state.method);
+  const [googleSignInInProgress, setGoogleSignInInProgress] =
+    React.useState(false);
+  const [appleSignInInProgress, setAppleSignInInProgress] =
+    React.useState(false);
 
-  api.user.findExistingUser.useQuery(
+  api.user.signIn.useQuery(
     { method: method! },
     {
       enabled: !!method,
@@ -44,6 +50,7 @@ export function WelcomeScreen() {
 
   async function onSignInWithGoogle() {
     try {
+      setGoogleSignInInProgress(true);
       const r = await GoogleSignin.signIn();
 
       if (!r.idToken) {
@@ -59,10 +66,14 @@ export function WelcomeScreen() {
       });
 
       navigation.navigate(SCREEN_WHATS_YOUR_NAME);
-    } catch {}
+    } catch {
+    } finally {
+      setGoogleSignInInProgress(false);
+    }
   }
 
   async function onSignInWithApple() {
+    setAppleSignInInProgress(true);
     try {
       let appleAuthResponse = await appleAuth.performRequest({
         requestedOperation: appleAuth.Operation.LOGIN,
@@ -93,33 +104,78 @@ export function WelcomeScreen() {
       });
 
       navigation.navigate(SCREEN_WHATS_YOUR_NAME);
-    } catch {}
+    } catch {
+    } finally {
+      setAppleSignInInProgress(false);
+    }
   }
 
   return (
     <SafeAreaView className="flex-1 bg-white dark:bg-neutral-1">
-      <View className="flex-[2] items-center justify-end">
-        <HorrorMovie width="80%" height="80%" />
-      </View>
       <View className="flex-1 px-8">
-        <View className="space-y-6">
+        <View className="justify-between flex-1 py-8">
           <View className="space-y-3">
             <Text className="font-primary-bold text-neutral-1 dark:text-white text-2xl">
-              Welcome to MoviePals 🎉
+              Welcome to{"\n"}MoviePals 👋
             </Text>
             <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
-              It’s here to help you find something to watch together. Please,
-              sign in with your Apple or Google account
+              We got thousands of movies for you and your friends to choose
+              from, just create an account and let’s roll 🚀
             </Text>
           </View>
-          <View className="flex-row space-x-6">
-            <IconButton onPress={onSignInWithGoogle} variant="outline">
-              <GoogleCircle />
-            </IconButton>
 
-            <IconButton onPress={onSignInWithApple} variant="outline">
-              <AppleMac />
-            </IconButton>
+          <Rive
+            style={{ width: 300, height: 300 }}
+            resourceName="welcome_screen_graphics"
+          />
+
+          <View className="space-y-6">
+            <View className="space-y-3 flex-row justify-between items-center">
+              <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
+                Sign in with
+              </Text>
+              <View className="flex-row space-x-6">
+                <IconButton
+                  onPress={onSignInWithGoogle}
+                  loading={googleSignInInProgress}
+                  variant="outline"
+                >
+                  <GoogleCircle />
+                </IconButton>
+
+                <IconButton
+                  onPress={onSignInWithApple}
+                  loading={appleSignInInProgress}
+                  variant="outline"
+                >
+                  <AppleMac />
+                </IconButton>
+              </View>
+            </View>
+            <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-sm">
+              By continuing, you agree to our{" "}
+              <Pressable
+                className="translate-y-[3px]"
+                onPress={() => {
+                  Linking.openURL("https://moviepals.io/privacy-policy");
+                }}
+              >
+                <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-sm underline">
+                  Privacy Policy
+                </Text>
+              </Pressable>{" "}
+              and{" "}
+              <Pressable
+                className="translate-y-[3px]"
+                onPress={() => {
+                  Linking.openURL("https://moviepals.io/terms-of-service");
+                }}
+              >
+                <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-sm underline">
+                  Terms of Service
+                </Text>
+              </Pressable>
+            </Text>
           </View>
         </View>
       </View>
