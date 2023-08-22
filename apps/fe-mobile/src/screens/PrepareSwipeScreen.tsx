@@ -14,7 +14,7 @@ import Toast from "react-native-toast-message";
 import { api } from "~/utils/api";
 import { getTMDBStaticUrl } from "~/utils/uri";
 import { Button, Section, Switch } from "~/components";
-import { useAdmob, useNavigation, useTimezone } from "~/hooks";
+import { useNavigation, useTimezone } from "~/hooks";
 import {
   SCREEN_GENRE_FILTER,
   SCREEN_STREAMING_SERVICE_LIST,
@@ -29,8 +29,6 @@ export function PrepareSwipeScreen() {
   const [quickMatchMode, setQuickMatchMode] = React.useState(true);
 
   useTimezone();
-
-  useAdmob();
 
   const navigation = useNavigation();
 

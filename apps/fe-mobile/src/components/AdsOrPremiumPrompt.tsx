@@ -7,15 +7,11 @@ import {
 } from "react-native-google-mobile-ads";
 import { PERMISSIONS, request } from "react-native-permissions";
 import { PurchasesError } from "react-native-purchases";
-import Animated, {
-  useAnimatedStyle,
-  useDerivedValue,
-  withTiming,
-} from "react-native-reanimated";
 import Toast from "react-native-toast-message";
 import { BrightStar } from "iconoir-react-native";
 
 import {
+  useAdsConsentQuery,
   useCanServeAds,
   useNavigation,
   usePremiumProduct,
@@ -34,6 +30,7 @@ export function AdsOrPremiumPrompt({
   onSkip?(): void;
   mode: "ad" | "ad-permission";
 }) {
+  const adsConsent = useAdsConsentQuery();
   const premium = usePremiumProduct();
   const ad = useRewardedAd();
   const canServeAds = useCanServeAds();
@@ -74,6 +71,8 @@ export function AdsOrPremiumPrompt({
     }
 
     canServeAds.refetch();
+
+    adsConsent.refetch();
   }
 
   async function onAllowAds() {
@@ -94,6 +93,7 @@ export function AdsOrPremiumPrompt({
       }
     }
 
+    adsConsent.refetch();
     canServeAds.refetch();
 
     onSkip?.();

@@ -118,7 +118,8 @@ export function SwipeScreen() {
   ]);
 
   useEffect(() => {
-    if (currentMovieIdx === 3 && !adConsentPromptStatus.data?.shown) {
+    //if (currentMovieIdx === 3 && !adConsentPromptStatus.data?.shown) {
+    if (currentMovieIdx === 3) {
       setShowAdPermissionPrompt(true);
 
       AsyncStorage.setItem("ad-consent", "true");

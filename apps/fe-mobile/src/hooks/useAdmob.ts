@@ -4,6 +4,7 @@ import mobileAds, {
 } from "react-native-google-mobile-ads";
 import { check, PERMISSIONS, request, RESULTS } from "react-native-permissions";
 import { useQuery } from "@tanstack/react-query";
+import {Alert} from "react-native";
 
 export function useAdmob() {
   const trackingPermission = useAppTrackingPermissionQuery({ enabled: true });
@@ -18,13 +19,14 @@ function useAdMobInit({ enabled }: { enabled: boolean }) {
   return useQuery(
     ["admob-init"],
     async () => {
+      Alert.alert("enabling ads");
       return mobileAds().initialize();
     },
     { enabled },
   );
 }
 
-function useAdsConsentQuery() {
+export function useAdsConsentQuery() {
   return useQuery(["ads-consent"], async () => {
     const consentInfo = await AdsConsent.requestInfoUpdate();
 
@@ -38,7 +40,7 @@ function useAdsConsentQuery() {
     }
 
     return consentInfo.status;
-  });
+  }, {enabled: false});
 }
 
 function useAppTrackingPermissionQuery(
