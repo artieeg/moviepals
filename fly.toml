@@ -7,7 +7,7 @@ app = "moviepals"
 primary_region = "lax"
 
 [build]
-  dockerfile = "./Dockerfile"
+  dockerfile = "./apps/be/Dockerfile"
 
 [http_service]
   internal_port = 3000

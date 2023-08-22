@@ -4,9 +4,6 @@ FROM node:18-alpine
 # Set the working directory inside the container
 WORKDIR /usr/src/app
 
-# Copy the package.json and package-lock.json files to the container
-COPY apps/be/package.json ./
-
 # Copy the entire monorepo into the container
 COPY . .
 
