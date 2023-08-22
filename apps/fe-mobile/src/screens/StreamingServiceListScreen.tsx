@@ -27,6 +27,7 @@ import { Button, Input, ListItem, LoadingIndicator } from "~/components";
 import { useNavigation } from "~/hooks";
 import { useFilterStore } from "~/stores";
 import { MainLayout } from "./layouts/MainLayout";
+import {KeyboardAwareFlatList} from "react-native-keyboard-aware-scroll-view";
 
 export function StreamingServiceList() {
   const [search, setSearch] = useState("");
@@ -95,7 +96,7 @@ export function StreamingServiceList() {
 
   return (
     <MainLayout onGoBack={onSaveData} canGoBack title="services">
-      <FlatList
+      <KeyboardAwareFlatList
         className="-mx-8 flex-1"
         data={streamingServices.data?.services}
         contentContainerStyle={{ paddingHorizontal: 32, paddingBottom: 128 }}

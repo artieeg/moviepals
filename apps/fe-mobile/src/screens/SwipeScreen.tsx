@@ -16,7 +16,7 @@ import Animated, {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";
-import { Cancel, Heart } from "iconoir-react-native";
+import { Cancel, Heart, Undo } from "iconoir-react-native";
 
 import { api } from "~/utils/api";
 import {
@@ -118,13 +118,20 @@ export function SwipeScreen() {
   ]);
 
   useEffect(() => {
-    //if (currentMovieIdx === 3 && !adConsentPromptStatus.data?.shown) {
-    if (currentMovieIdx === 3) {
+    if (
+      currentMovieIdx === 3 &&
+      !adConsentPromptStatus.data?.shown &&
+      !premiumStatus.data?.isPaid
+    ) {
       setShowAdPermissionPrompt(true);
 
       AsyncStorage.setItem("ad-consent", "true");
     }
-  }, [currentMovieIdx, adConsentPromptStatus.data?.shown]);
+  }, [
+    currentMovieIdx,
+    adConsentPromptStatus.data?.shown,
+    !premiumStatus.data?.isPaid,
+  ]);
 
   const deck = useMemo(() => {
     return pages.slice(currentMovieIdx, currentMovieIdx + 3);
@@ -209,6 +216,10 @@ export function SwipeScreen() {
     setTimeout(() => setCurrentMovieIdx((prev) => prev + 1), 200);
   }
 
+  function onUndo() {
+    setCurrentMovieIdx((prev) => (prev > 0 ? prev - 1 : 0));
+  }
+
   return (
     <>
       <MainLayout goBackCloseIcon title="swipe" canGoBack>
@@ -259,6 +270,7 @@ export function SwipeScreen() {
 
             {result.data?.pages && (
               <Controls
+                onUndo={onUndo}
                 visible={!!currentMovie}
                 onDislike={onDislike}
                 onLike={onLike}
@@ -333,11 +345,13 @@ function Controls({
   onDislike,
   onLike,
   onOpenMovieDetails,
+  onUndo,
   visible,
   ...rest
 }: ViewProps & {
   onDislike(): void;
   onLike(): void;
+  onUndo(): void;
   onOpenMovieDetails(): void;
   visible: boolean;
 }) {
@@ -354,8 +368,12 @@ function Controls({
       {...rest}
       pointerEvents={visible ? "auto" : "none"}
       style={[style, rest.style]}
-      className="mt-8 flex-1 flex-row items-center justify-between space-x-3 px-8"
+      className="mt-8 flex-1 flex-row items-center justify-between space-x-3"
     >
+      <IconButton variant="gray" onPress={onUndo}>
+        <Undo />
+      </IconButton>
+
       <IconButton variant="red" onPress={onDislike}>
         <Cancel color="white" />
       </IconButton>
@@ -364,7 +382,9 @@ function Controls({
         onPress={onOpenMovieDetails}
         className="bg-neutral-2-10 h-16 flex-1 items-center justify-center rounded-full"
       >
-        <Text className="font-primary-bold text-neutral-1 dark:text-white">details</Text>
+        <Text className="font-primary-bold text-neutral-1 dark:text-white">
+          details
+        </Text>
       </TouchableOpacity>
 
       <IconButton variant="primary" onPress={onLike}>

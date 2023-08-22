@@ -99,7 +99,7 @@ export function UserSettingsScreen() {
 
   return (
     <>
-      <MainLayout title="Settings">
+      <MainLayout canGoBack title="Settings">
         <KeyboardAwareScrollView className="flex-1">
           <View className="space-y-6">
             <View className="space-y-4">

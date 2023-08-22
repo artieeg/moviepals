@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import {Alert} from "react-native";
 
 export function useAdmob() {
-  const trackingPermission = useAppTrackingPermissionQuery({ enabled: true });
+  const trackingPermission = useAppTrackingPermissionQuery({ enabled: false });
   const consent = useAdsConsentQuery();
 
   return useAdMobInit({

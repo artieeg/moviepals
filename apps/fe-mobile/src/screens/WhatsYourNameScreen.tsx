@@ -97,7 +97,7 @@ export function WhatsYourNameScreen() {
   return (
     <>
       <SafeAreaView className="flex-1 px-8 bg-white dark:bg-neutral-1">
-        <KeyboardAwareScrollView className="flex-1">
+        <KeyboardAwareScrollView extraHeight={16} className="flex-1">
           <View className="space-y-6">
             <View className="space-y-3">
               <Text className="font-primary-bold text-neutral-1 dark:text-white pt-8 text-2xl">
