@@ -19,7 +19,9 @@ export async function handleFullAccessPurchase({
     where: { id: user },
     data: {
       fullAccessPurchase: {
-        create: {},
+        create: {
+          source: "revenuecat",
+        },
       },
     },
   });

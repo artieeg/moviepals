@@ -21,6 +21,32 @@ const signInMethodSchema = z.discriminatedUnion("provider", [
 ]);
 
 export const user = createTRPCRouter({
+  updateUser: protectedProcedure
+    .input(
+      z.object({
+        name: z.string(),
+        username: z.string().max(32),
+        emoji: z.string(),
+      }),
+    )
+    .mutation(async ({ input: { name, username, emoji }, ctx }) => {
+      const existingUser = await ctx.prisma.user.findUnique({
+        where: { username },
+      });
+
+      if (existingUser && existingUser.id !== ctx.user) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Username already taken",
+        });
+      }
+
+      await ctx.prisma.user.update({
+        where: { id: ctx.user },
+        data: { name, username, emoji },
+      });
+    }),
+
   deleteMyAccount: protectedProcedure.mutation(async ({ ctx }) => {
     const delUserPromise = ctx.prisma.user.delete({
       where: { id: ctx.user },
@@ -79,7 +105,7 @@ export const user = createTRPCRouter({
       return { user, matchesCount };
     }),
 
-  findExistingUser: publicProcedure
+  signIn: publicProcedure
     .input(z.object({ method: signInMethodSchema }))
     .query(async ({ input: { method }, ctx }) => {
       const { sub } =
@@ -209,6 +235,17 @@ export const user = createTRPCRouter({
           emoji,
           email,
           userInviteLinkId: inviteLink.id,
+        },
+      });
+
+      await ctx.prisma.fullAccessPurchase.create({
+        data: {
+          User: {
+            connect: {
+              id: user.id,
+            },
+          },
+          source: "gift",
         },
       });
 
