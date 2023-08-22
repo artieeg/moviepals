@@ -6,7 +6,7 @@ on:
       - prod
 
 jobs:
-  Explore-GitHub-Actions:
+  Deploy:
     runs-on: ubuntu-latest
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
