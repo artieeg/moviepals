@@ -1,4 +1,4 @@
-import {createId} from "@paralleldrive/cuid2";
+import { createId } from "@paralleldrive/cuid2";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
@@ -94,19 +94,31 @@ export const swipe = createTRPCRouter({
           movie_language,
         },
       }) => {
-        await ctx.dbMovieSwipe.swipes.insertOne({
-          id: createId(),
-          userId: ctx.user,
-          directors,
-          cast,
-          movieId,
-          liked,
-          movie_genre_ids: genres,
-          watch_providers,
-          movie_language,
-          watch_region,
-          created_at: new Date(),
-        });
+        await ctx.dbMovieSwipe.swipes.updateOne(
+          {
+            userId: ctx.user,
+            movie_genre_ids: genres,
+            watch_providers,
+            movie_language,
+            directors,
+            cast,
+            movieId,
+          },
+          {
+            id: createId(),
+            userId: ctx.user,
+            directors,
+            cast,
+            movieId,
+            liked,
+            movie_genre_ids: genres,
+            watch_providers,
+            movie_language,
+            watch_region,
+            created_at: new Date(),
+          },
+          { upsert: true },
+        );
       },
     ),
 });

@@ -19,7 +19,7 @@ export function IconButton({
   loading,
   ...rest
 }: TouchableOpacityProps & {
-  variant: "primary" | "red" | "outline";
+  variant: "primary" | "red" | "outline" | "gray";
   loading?: boolean;
 }) {
   const scale = useSharedValue(1);
@@ -41,12 +41,18 @@ export function IconButton({
   }, []);
 
   return (
-    <Pressable {...rest} onPressIn={onPressIn} onPressOut={onPressOut}>
+    <Pressable
+      {...rest}
+      onPressIn={onPressIn}
+      onPressOut={onPressOut}
+      disabled={loading}
+    >
       <Animated.View
         style={rStyle}
         className={twMerge(
           "h-16 w-16 items-center justify-center rounded-full",
           variant === "primary" && "bg-brand-1",
+          variant === "gray" && "bg-neutral-2-10",
           variant === "red" && "bg-red-1",
           variant === "outline" && "border-neutral-3 border",
         )}

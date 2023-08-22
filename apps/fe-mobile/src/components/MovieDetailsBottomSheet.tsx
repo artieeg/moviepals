@@ -4,12 +4,13 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useWindowDimensions } from "react-native";
+import { TouchableOpacity, useWindowDimensions, View } from "react-native";
 import WebView from "react-native-webview";
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
 } from "@gorhom/bottom-sheet";
+import { Cancel } from "iconoir-react-native";
 
 export type MovieDetailsBottomSheetRef = {
   open(url: string): void;
@@ -31,7 +32,7 @@ export const MovieDetailsBottomSheet = React.forwardRef<
     },
     close() {
       setUrl(null);
-      bottomSheetRef.current?.collapse();
+      bottomSheetRef.current?.close();
     },
   }));
 
@@ -57,6 +58,17 @@ export const MovieDetailsBottomSheet = React.forwardRef<
       ref={bottomSheetRef}
       index={-1}
       enableContentPanningGesture={false}
+      handleComponent={() => {
+        return (
+          <View className="h-12 rounded-t-lg p-4 flex-row items-center bg-white dark:neutral-1 justify-end">
+            <TouchableOpacity onPress={() => {
+                bottomSheetRef.current?.close();
+              }}>
+              <Cancel />
+            </TouchableOpacity>
+          </View>
+        );
+      }}
       snapPoints={[height * 0.8]}
       onClose={onClose}
       enablePanDownToClose
