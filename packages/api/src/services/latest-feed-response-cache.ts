@@ -4,10 +4,6 @@ import { z } from "zod";
 
 import { movieSchemaWithLikes } from "@moviepals/dbmovieswipe/src/movies";
 
-function getKey(reviewStateId: string) {
-  return `latest-feed-response:${reviewStateId}`;
-}
-
 const contentSchema = z.array(movieSchemaWithLikes);
 
 /**
@@ -16,8 +12,12 @@ const contentSchema = z.array(movieSchemaWithLikes);
 export class LatestFeedResponseCache {
   constructor(private client: Redis) {}
 
+  private getKey(reviewStateId: string) {
+    return `latest-feed-response:${reviewStateId}`;
+  }
+
   async getLatestFeedResponse(reviewStateId: string) {
-    const data = await this.client.get(getKey(reviewStateId));
+    const data = await this.client.get(this.getKey(reviewStateId));
 
     return data ? contentSchema.parse(JSON.parse(data)) : null;
   }
@@ -34,8 +34,8 @@ export class LatestFeedResponseCache {
   ) {
     const pipeline = this.client.pipeline();
 
-    pipeline.set(getKey(reviewStateId), JSON.stringify(response));
-    pipeline.expireat(getKey(reviewStateId), this.getExpireAt());
+    pipeline.set(this.getKey(reviewStateId), JSON.stringify(response));
+    pipeline.expireat(this.getKey(reviewStateId), this.getExpireAt());
 
     await pipeline.exec();
   }
