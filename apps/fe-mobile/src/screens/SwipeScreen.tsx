@@ -9,6 +9,7 @@ import {
 import Animated, {
   FadeIn,
   FadeOut,
+  Layout,
   useAnimatedStyle,
   useDerivedValue,
   withTiming,
@@ -224,7 +225,12 @@ export function SwipeScreen() {
     <>
       <MainLayout goBackCloseIcon title="swipe" canGoBack>
         {currentMovie && !showAdPermissionPrompt && (
-          <Animated.View entering={FadeIn} exiting={FadeOut} className="flex-1">
+          <Animated.View
+            layout={Layout}
+            entering={FadeIn}
+            exiting={FadeOut}
+            className="flex-1"
+          >
             <View className="aspect-[2/3] translate-y-8">
               {loadingIndicator && (
                 <View className="items-center justify-center">
@@ -233,6 +239,7 @@ export function SwipeScreen() {
               )}
 
               {!loadingIndicator &&
+                !result.isRefetching &&
                 result.isSuccess &&
                 deck &&
                 deck.map((movie, idx) => (
@@ -268,15 +275,15 @@ export function SwipeScreen() {
                 ))}
             </View>
 
-            {result.data?.pages && (
-              <Controls
-                onUndo={onUndo}
-                visible={!!currentMovie}
-                onDislike={onDislike}
-                onLike={onLike}
-                onOpenMovieDetails={onOpenMovieDetails}
-              />
-            )}
+              {result.data?.pages && (
+                <Controls
+                  onUndo={onUndo}
+                  visible={!!currentMovie}
+                  onDislike={onDislike}
+                  onLike={onLike}
+                  onOpenMovieDetails={onOpenMovieDetails}
+                />
+              )}
           </Animated.View>
         )}
 
@@ -368,6 +375,7 @@ function Controls({
       {...rest}
       pointerEvents={visible ? "auto" : "none"}
       style={[style, rest.style]}
+      layout={Layout}
       className="mt-8 flex-1 flex-row items-center justify-between space-x-3"
     >
       <IconButton variant="gray" onPress={onUndo}>
