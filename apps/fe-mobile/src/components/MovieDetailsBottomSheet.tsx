@@ -60,7 +60,7 @@ export const MovieDetailsBottomSheet = React.forwardRef<
       enableContentPanningGesture={false}
       handleComponent={() => {
         return (
-          <View className="h-12 rounded-t-lg p-4 flex-row items-center bg-white dark:neutral-1 justify-end">
+          <View className="h-12 rounded-t-lg p-4 flex-row items-center bg-white dark:bg-neutral-1 justify-end">
             <TouchableOpacity onPress={() => {
                 bottomSheetRef.current?.close();
               }}>
@@ -74,7 +74,7 @@ export const MovieDetailsBottomSheet = React.forwardRef<
       enablePanDownToClose
       backdropComponent={renderBackdrop}
     >
-      {url && <WebView className="flex-1" source={{ uri: url }} />}
+      {url && <WebView className="flex-1 bg-white dark:bg-neutral-1" source={{ uri: url }} />}
     </BottomSheet>
   );
 });
