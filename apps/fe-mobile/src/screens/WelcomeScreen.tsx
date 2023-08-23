@@ -64,8 +64,6 @@ export function WelcomeScreen() {
           idToken: r.idToken,
         },
       });
-
-      navigation.navigate(SCREEN_WHATS_YOUR_NAME);
     } catch {
     } finally {
       setGoogleSignInInProgress(false);

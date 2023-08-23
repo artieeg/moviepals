@@ -76,6 +76,10 @@ export async function main() {
     userDeliveryCacheClient,
   );
 
+  server.get("/health", async () => {
+    return { status: "ok" };
+  });
+
   //TRPC
   server.register(fastifyTRPCPlugin, {
     prefix: "/trpc",

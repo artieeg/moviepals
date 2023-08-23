@@ -79,26 +79,7 @@ export function SwipeScreen() {
       return [];
     }
 
-    const pages = result.data.pages.flatMap((page) => page.feed) ?? [];
-
-    const ids = new Set();
-    const duplicateIds = [];
-
-    for (let pageIdx = 0; pageIdx < result.data.pages.length; pageIdx++) {
-      for (const movie of result.data.pages[pageIdx].feed) {
-        if (ids.has(movie.id)) {
-          duplicateIds.push(movie.id);
-          console.log("duplicate on page", pageIdx);
-          console.log(result.data.pages.map((p) => p.feed.map((m) => m.id)));
-        }
-
-        ids.add(movie.id);
-      }
-    }
-
-    console.log({ duplicateIds });
-
-    return pages;
+    return result.data.pages.flatMap((page) => page.feed) ?? [];
   }, [result.data?.pages]);
 
   useEffect(() => {

@@ -185,5 +185,5 @@ export const publicProcedure = t.procedure.use(loggerMiddleware);
  * @see https://trpc.io/docs/procedures
  */
 export const protectedProcedure = t.procedure
-  //.use(loggerMiddleware)
+  .use(loggerMiddleware)
   .use(enforceUserIsAuthed);
