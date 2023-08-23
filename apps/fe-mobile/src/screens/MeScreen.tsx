@@ -91,7 +91,21 @@ export function MeScreen() {
   }
 
   function onDeleteAccount() {
-    deleteMyAccount.mutate();
+    Alert.alert(
+      "Delete account",
+      "Are you sure you want to delete your account? This will delete all your data and you will not be able to recover it.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => deleteMyAccount.mutate(),
+        },
+      ],
+    );
   }
 
   async function onToggleDarkMode() {
@@ -201,16 +215,18 @@ export function MeScreen() {
               )}
 
               <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
-                Need help? Send a message to{" "}
+                Need help?{" "}
                 <Pressable
-                  onPress={() => Linking.openURL("mailto:help@moviepals.io")}
+                  onPress={() =>
+                    Linking.openURL("mailto:getmoviepals@gmail.com")
+                  }
                   className={Platform.select({
                     ios: "translate-y-0.5",
                     default: "translate-y-[7px]",
                   })}
                 >
                   <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base underline">
-                    help@moviepals.io
+                    Email us!
                   </Text>
                 </Pressable>
               </Text>

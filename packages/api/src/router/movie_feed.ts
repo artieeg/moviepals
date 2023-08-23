@@ -4,7 +4,6 @@ import { z } from "zod";
 
 import { DbMovieSwipe, Movie, ReviewState } from "@moviepals/dbmovieswipe";
 
-import { logger } from "../logger";
 import { getMovies } from "../services";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
@@ -157,12 +156,6 @@ export const movie_feed = createTRPCRouter({
               return true;
             });
 
-        logger.info({
-          quick_match_mode,
-          totalFriendSwipes: friendSwipes.length,
-          relevantFriendSwipes: relevantFriendSwipes.length,
-        });
-
         const randomFriendSwipes = pickRandomItems(
           relevantFriendSwipes,
           MIX_IN_MOVIES_COUNT,
@@ -269,15 +262,6 @@ export const movie_feed = createTRPCRouter({
         if (movies.length > 0) {
           await ctx.dbMovieSwipe.movies.insertMany(movies, { ordered: false });
         }
-
-        logger.info({
-          nextPageToStartFrom,
-          remoteApiPage: reviewState.remoteApiPage,
-          expectedRemoteApiRequestCount,
-          result:
-            nextPageToStartFrom - reviewState.remoteApiPage >=
-            expectedRemoteApiRequestCount * 2,
-        });
 
         /**
          * Only update review state if we had to fetch more movies than we expected
