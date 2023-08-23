@@ -12,13 +12,13 @@ import {
   dbMovieSwipe,
   handleFullAccessPurchase,
   LatestFeedResponseCache,
-  prisma,
   ServedMovieIdsCache,
   UserFeedDeliveryCache,
   verifyRewardedAdCallback,
 } from "@moviepals/api";
 
 import { env } from "./env";
+import {connectAppDb} from "@moviepals/db/src/db";
 
 const server = fastify({
   maxParamLength: 10000,
@@ -57,7 +57,8 @@ export async function main() {
   );
 
   await Promise.all([
-    prisma.$connect(),
+    //prisma.$connect(),
+    connectAppDb(),
     dbMovieSwipe.connect(),
     userDeliveryCacheClient.connect(),
     lastestFeedResponseCacheClient.connect(),
@@ -110,7 +111,6 @@ export async function main() {
       await handleFullAccessPurchase({
         header: msg.headers.authorization?.split(" ")[1] ?? "",
         user: app_user_id,
-        prisma,
       });
 
       reply.status(200).send();

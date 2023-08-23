@@ -144,6 +144,7 @@ export function SwipeScreen() {
 
   useEffect(() => {
     if (currentMovieIdx > 0 && !currentMovie) {
+      //TODO
       result.fetchNextPage();
     }
   }, [currentMovieIdx, currentMovie]);

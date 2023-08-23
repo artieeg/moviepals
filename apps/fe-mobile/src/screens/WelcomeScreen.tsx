@@ -3,9 +3,7 @@ import { Linking, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import appleAuth from "@invertase/react-native-apple-authentication";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-  GoogleSignin,
-} from "@react-native-google-signin/google-signin";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { AppleMac, GoogleCircle } from "iconoir-react-native";
 import Rive from "rive-react-native";
 
@@ -64,7 +62,7 @@ export function WelcomeScreen() {
           idToken: r.idToken,
         },
       });
-    } catch {
+    } catch (e) {
     } finally {
       setGoogleSignInInProgress(false);
     }
@@ -100,8 +98,6 @@ export function WelcomeScreen() {
           nonce: appleAuthResponse.nonce,
         },
       });
-
-      navigation.navigate(SCREEN_WHATS_YOUR_NAME);
     } catch {
     } finally {
       setAppleSignInInProgress(false);

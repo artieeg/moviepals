@@ -1,3 +1,4 @@
+import { createId } from "@paralleldrive/cuid2";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
@@ -13,41 +14,43 @@ export const invite = createTRPCRouter({
     .mutation(async ({ ctx, input: { inviteUrl } }) => {
       const slug = inviteUrl.split("/").pop();
 
-      const inviteLink = await ctx.prisma.userInviteLink.findUnique({
-        where: { slug },
-      });
+      if (!slug) {
+        throw new TRPCError({ code: "BAD_REQUEST" });
+      }
 
-      const inviter = await ctx.prisma.user.findUnique({
-        where: { userInviteLinkId: inviteLink?.id },
-      });
+      const inviteLink = await ctx.appDb
+        .selectFrom("UserInviteLink")
+        .leftJoin("User as U", "UserInviteLink.slug", "U.id")
+        .where((eb) =>
+          eb.and([eb("slug", "=", slug), eb("U.id", "is not", null)]),
+        )
+        .select(["U.id as inviterId", "U.name as inviterName", "slug"])
+        .executeTakeFirstOrThrow(() => new TRPCError({ code: "NOT_FOUND" }));
 
-      if (!inviter) {
+      if (!inviteLink.inviterId || !inviteLink.inviterName) {
         throw new TRPCError({ code: "NOT_FOUND" });
       }
 
-      await ctx.prisma.connection.create({
-        data: {
-          firstUserId: inviter.id,
+      await ctx.appDb
+        .insertInto("Friend")
+        .values({
+          id: createId(),
+          firstUserId: inviteLink.inviterId,
           secondUserId: ctx.user,
-        },
-      });
+        })
+        .execute();
 
-      return {inviter};
+      return { inviter: { nema: inviteLink.inviterName } };
     }),
 
   fetchInviteUrl: protectedProcedure.query(async ({ ctx }) => {
-    const user = await ctx.prisma.user.findUnique({
-      where: { id: ctx.user },
-      include: {
-        userInviteLink: true,
-      },
-    });
+    const { slug } = await ctx.appDb
+      .selectFrom("User")
+      .where("id", "=", ctx.user)
+      .select("userInviteSlugId as slug")
+      .executeTakeFirstOrThrow(() => new TRPCError({ code: "NOT_FOUND" }));
 
-    if (!user) {
-      throw new TRPCError({ code: "NOT_FOUND" });
-    }
-
-    const link = "https://moviepals.io/" + user.userInviteLink.slug;
+    const link = "https://moviepals.io/" + slug;
 
     return { link };
   }),

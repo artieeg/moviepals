@@ -7,6 +7,7 @@ import {
 } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { Cancel, IconoirProvider } from "iconoir-react-native";
+import { useColorScheme } from "nativewind";
 
 export function Input({
   style,
@@ -14,6 +15,8 @@ export function Input({
   showClearButton,
   ...rest
 }: TextInputProps & { icon?: React.ReactNode; showClearButton?: boolean }) {
+  const { colorScheme } = useColorScheme();
+
   return (
     <View
       style={style}
@@ -44,7 +47,12 @@ export function Input({
             onPress={() => rest.onChangeText?.("")}
             className="h-full items-center justify-center"
           >
-            <Cancel width="24" height="24" color="#0E0C10" strokeWidth={2} />
+            <Cancel
+              width="24"
+              height="24"
+              color={colorScheme === "light" ? "#71707B" : "#FFFFFF"}
+              strokeWidth={2}
+            />
           </TouchableOpacity>
         </Animated.View>
       )}

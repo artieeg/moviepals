@@ -12,9 +12,14 @@
     "with-env": "dotenv -e ../../.env --"
   },
   "dependencies": {
-    "@prisma/client": "^5.0.0"
+    "@prisma/client": "^5.0.0",
+    "kysely": "^0.26.1",
+    "pg": "^8.11.3",
+    "prisma-kysely": "^1.6.0",
+    "zod": "^3.22.2"
   },
   "devDependencies": {
+    "@types/pg": "^8.10.2",
     "dotenv-cli": "^7.2.1",
     "prisma": "^5.0.0",
     "typescript": "^5.1.6"
