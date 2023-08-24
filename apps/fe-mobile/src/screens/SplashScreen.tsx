@@ -53,7 +53,7 @@ export function SplashScreen() {
     }
 
     if (userData.isError) {
-      if (userData.error.data?.code === "NOT_FOUND") {
+      if (userData.error.data?.code === "NOT_FOUND" || userData.error.data?.code === "UNAUTHORIZED") {
         return navigation.replace(NAVIGATOR_ONBOARDING);
       } else {
         return Toast.show({

@@ -5,8 +5,6 @@ import React, {
   useState,
 } from "react";
 import {
-  Linking,
-  Pressable,
   Text,
   useWindowDimensions,
   View,
@@ -165,12 +163,15 @@ export const EmojiPickerBottomSheet = React.forwardRef<
   }
 >(({ onEmojiSelected }, ref) => {
   const bottomSheetRef = useRef<BottomSheet>(null);
+  const [renderEmoji, setRenderEmoji] = useState(false);
 
   useImperativeHandle(ref, () => ({
     open() {
+      setRenderEmoji(true);
       bottomSheetRef.current?.expand();
     },
     close() {
+      setRenderEmoji(false);
       bottomSheetRef.current?.close();
     },
   }));
@@ -191,14 +192,18 @@ export const EmojiPickerBottomSheet = React.forwardRef<
   return (
     <BottomSheet
       ref={bottomSheetRef}
-      onClose={() => {}}
+      onClose={() => {
+        setRenderEmoji(false);
+      }}
       index={-1}
       enableContentPanningGesture={false}
       snapPoints={[height * 0.8]}
       enablePanDownToClose
       backdropComponent={renderBackdrop}
     >
+      {renderEmoji && (
       <EmojiSelector theme="#6867AA" onEmojiSelected={onEmojiSelected} />
+      )}
     </BottomSheet>
   );
 });

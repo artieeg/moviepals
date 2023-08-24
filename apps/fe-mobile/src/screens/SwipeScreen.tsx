@@ -143,11 +143,11 @@ export function SwipeScreen() {
   }
 
   useEffect(() => {
-    if (currentMovieIdx > 0 && !currentMovie) {
+    if (currentMovieIdx > 0 && !currentMovie && !premiumStatus.data?.isPaid) {
       //TODO
       result.fetchNextPage();
     }
-  }, [currentMovieIdx, currentMovie]);
+  }, [currentMovieIdx, currentMovie, premiumStatus.data?.isPaid]);
 
   function onProceedAfterPurchaseOrAd() {
     setTimeout(async () => {
@@ -168,7 +168,7 @@ export function SwipeScreen() {
       liked: true,
       directors: filters.director ? [filters.director.id] : [],
       watch_providers: filters.streamingServices.map((s) => s.provider_id),
-      genres: filters.genres,
+      genres: currentMovie.genre_ids,
       watch_region: filters.country,
       movie_language: currentMovie.original_language,
     });
@@ -187,9 +187,9 @@ export function SwipeScreen() {
       movieId: currentMovie.id,
       directors: filters.director ? [filters.director.id] : [],
       cast: filters.cast.map((c) => c.id),
-      liked: true,
+      liked: false,
       watch_providers: filters.streamingServices.map((s) => s.provider_id),
-      genres: filters.genres,
+      genres: currentMovie.genre_ids,
       watch_region: filters.country,
       movie_language: currentMovie.original_language,
     });
@@ -245,9 +245,9 @@ export function SwipeScreen() {
                         watch_providers: filters.streamingServices.map(
                           (s) => s.provider_id,
                         ),
-                        genres: filters.genres,
+                        genres: movie.genre_ids,
                         watch_region: filters.country,
-                        movie_language: currentMovie.original_language,
+                        movie_language: movie.original_language,
                       });
 
                       setCurrentMovieIdx((prev) => prev + 1);
@@ -257,15 +257,15 @@ export function SwipeScreen() {
                 ))}
             </View>
 
-              {result.data?.pages && (
-                <Controls
-                  onUndo={onUndo}
-                  visible={!!currentMovie}
-                  onDislike={onDislike}
-                  onLike={onLike}
-                  onOpenMovieDetails={onOpenMovieDetails}
-                />
-              )}
+            {result.data?.pages && (
+              <Controls
+                onUndo={onUndo}
+                visible={!!currentMovie}
+                onDislike={onDislike}
+                onLike={onLike}
+                onOpenMovieDetails={onOpenMovieDetails}
+              />
+            )}
           </Animated.View>
         )}
 

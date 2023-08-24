@@ -62,7 +62,7 @@ export function NotificationPermissionRequestScreen() {
             </Text>
             <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
               We'll use it to let you know when you have new movie matches with
-              friends
+              friends as well as occasional reminders to check out new movies
             </Text>
           </View>
 
