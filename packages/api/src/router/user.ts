@@ -126,7 +126,7 @@ export const user = createTRPCRouter({
 
       const existingUser = await ctx.appDb
         .selectFrom("User")
-        .where("email", "=", sub)
+        .where("sub", "=", sub)
         .selectAll()
         .executeTakeFirst();
 
