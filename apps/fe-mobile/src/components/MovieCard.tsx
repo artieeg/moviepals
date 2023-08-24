@@ -85,7 +85,7 @@ export const MovieCard = React.forwardRef<
       ctx.vy = event.velocityY;
     },
     onEnd(_, ctx) {
-      if (tx.value > width / 4 || tx.value < -width / 4) {
+      if (tx.value > width / 8 || tx.value < -width / 8) {
         tx.value = withSpring(tx.value + 3 * ctx.vx);
         ty.value = withSpring(ty.value + 3 * ctx.vy);
 

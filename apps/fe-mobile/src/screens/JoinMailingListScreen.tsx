@@ -42,7 +42,7 @@ export function JoinMailingListScreen() {
               trivia, and do other cool stuff
             </Text>
             <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
-              If you agree, we'll send an invite to your email
+              If you agree, we'll send an invite to your email soon
             </Text>
           </View>
 
