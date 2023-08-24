@@ -1,12 +1,12 @@
 import { createHash, randomBytes } from "crypto";
+import { createId } from "@paralleldrive/cuid2";
 import { TRPCError } from "@trpc/server";
 import appleSignInAuth from "apple-signin-auth";
 import { OAuth2Client } from "google-auth-library";
 import { DateTime } from "luxon";
 import { z } from "zod";
 
-import { UserInviteLink } from "@moviepals/db";
-
+import { logger } from "../logger";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { env } from "../utils/env";
 import { createToken } from "../utils/jwt";
@@ -30,27 +30,39 @@ export const user = createTRPCRouter({
       }),
     )
     .mutation(async ({ input: { name, username, emoji }, ctx }) => {
-      const existingUser = await ctx.prisma.user.findUnique({
-        where: { username },
-      });
+      const existingUser = await ctx.appDb
+        .selectFrom("User")
+        .where((eb) =>
+          eb.and([eb("username", "=", username), eb("id", "!=", ctx.user)]),
+        )
+        .executeTakeFirst();
 
-      if (existingUser && existingUser.id !== ctx.user) {
+      if (existingUser) {
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "Username already taken",
         });
       }
 
-      await ctx.prisma.user.update({
-        where: { id: ctx.user },
-        data: { name, username, emoji },
-      });
+      const user = await ctx.appDb
+        .updateTable("User")
+        .set({
+          name,
+          username,
+          emoji,
+        })
+        .where("id", "=", ctx.user)
+        .returningAll()
+        .executeTakeFirstOrThrow(() => new TRPCError({ code: "NOT_FOUND" }));
+
+      return user;
     }),
 
   deleteMyAccount: protectedProcedure.mutation(async ({ ctx }) => {
-    const delUserPromise = ctx.prisma.user.delete({
-      where: { id: ctx.user },
-    });
+    const delUserPromise = ctx.appDb
+      .deleteFrom("User")
+      .where("id", "=", ctx.user)
+      .execute();
 
     const delSwipesPromise = ctx.dbMovieSwipe.swipes.deleteMany({
       userId: ctx.user,
@@ -71,13 +83,11 @@ export const user = createTRPCRouter({
    * Returns the data of the currently logged in user
    * */
   getMyData: protectedProcedure.query(async ({ ctx }) => {
-    const user = await ctx.prisma.user.findUnique({
-      where: { id: ctx.user },
-    });
-
-    if (!user) {
-      throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
-    }
+    const user = await ctx.appDb
+      .selectFrom("User")
+      .where("id", "=", ctx.user)
+      .selectAll()
+      .executeTakeFirstOrThrow(() => new TRPCError({ code: "NOT_FOUND" }));
 
     return user;
   }),
@@ -89,13 +99,11 @@ export const user = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input: { userId } }) => {
-      const user = await ctx.prisma.user.findUnique({
-        where: { id: userId },
-      });
-
-      if (!user) {
-        throw new TRPCError({ code: "NOT_FOUND" });
-      }
+      const user = await ctx.appDb
+        .selectFrom("User")
+        .where("id", "=", userId)
+        .selectAll()
+        .executeTakeFirstOrThrow(() => new TRPCError({ code: "NOT_FOUND" }));
 
       const matchesCount = await ctx.dbMovieSwipe.swipes.countDocuments({
         userId: { $in: [user.id, ctx.user] },
@@ -116,9 +124,11 @@ export const user = createTRPCRouter({
               nonce: method.nonce,
             });
 
-      const existingUser = await ctx.prisma.user.findUnique({
-        where: { sub },
-      });
+      const existingUser = await ctx.appDb
+        .selectFrom("User")
+        .where("email", "=", sub)
+        .selectAll()
+        .executeTakeFirst();
 
       if (existingUser) {
         const token = createToken({ user: existingUser.id });
@@ -130,22 +140,22 @@ export const user = createTRPCRouter({
     }),
 
   isPaid: protectedProcedure.query(async ({ ctx }) => {
-    const user = await ctx.prisma.user.findUnique({
-      where: { id: ctx.user },
-    });
-
-    if (!user) {
-      throw new TRPCError({ code: "NOT_FOUND" });
-    }
+    const user = await ctx.appDb
+      .selectFrom("User")
+      .where("id", "=", ctx.user)
+      .selectAll()
+      .executeTakeFirstOrThrow(() => new TRPCError({ code: "NOT_FOUND" }));
 
     let isPaid = false;
 
     if (user.fullAccessPurchaseId) {
       isPaid = true;
     } else {
-      const sharedPremium = await ctx.prisma.sharedPremium.findUnique({
-        where: { userId: ctx.user },
-      });
+      const sharedPremium = await ctx.appDb
+        .selectFrom("SharedPremium")
+        .where("userId", "=", ctx.user)
+        .select("id")
+        .executeTakeFirst();
 
       isPaid = !!sharedPremium;
     }
@@ -154,17 +164,19 @@ export const user = createTRPCRouter({
   }),
 
   allowPushNotifications: protectedProcedure.mutation(async ({ ctx }) => {
-    await ctx.prisma.user.update({
-      where: { id: ctx.user },
-      data: { allowPushNotifications: true },
-    });
+    await ctx.appDb
+      .updateTable("User")
+      .set({ allowPushNotifications: true })
+      .where("id", "=", ctx.user)
+      .execute();
   }),
 
   joinMailingList: protectedProcedure.mutation(async ({ ctx }) => {
-    await ctx.prisma.user.update({
-      where: { id: ctx.user },
-      data: { joinedMailingList: true },
-    });
+    await ctx.appDb
+      .updateTable("User")
+      .set({ joinedMailingList: true })
+      .where("id", "=", ctx.user)
+      .execute();
   }),
 
   setTimezoneOffset: protectedProcedure
@@ -172,10 +184,11 @@ export const user = createTRPCRouter({
     .mutation(async ({ input: { timezone }, ctx }) => {
       const timezoneOffset = DateTime.now().setZone(timezone).offset / 60;
 
-      await ctx.prisma.user.update({
-        where: { id: ctx.user },
-        data: { timezoneOffset },
-      });
+      await ctx.appDb
+        .updateTable("User")
+        .set({ timezoneOffset })
+        .where("id", "=", ctx.user)
+        .execute();
     }),
 
   createNewAccount: publicProcedure
@@ -188,11 +201,13 @@ export const user = createTRPCRouter({
       }),
     )
     .mutation(async ({ input: { name, username, emoji, method }, ctx }) => {
-      //Check if username is available
-      const existingUser = await ctx.prisma.user.findUnique({
-        where: { username },
-      });
+      const existingUser = await ctx.appDb
+        .selectFrom("User")
+        .where("username", "=", username)
+        .selectAll()
+        .executeTakeFirst();
 
+      //Throw is username is taken
       if (existingUser) {
         throw new TRPCError({
           code: "BAD_REQUEST",
@@ -215,43 +230,60 @@ export const user = createTRPCRouter({
         });
       }
 
-      let inviteLink: UserInviteLink | undefined = undefined;
+      let inviteLinkSlug: string | null = null;
 
-      while (!inviteLink) {
+      while (!inviteLinkSlug) {
         try {
-          inviteLink = await ctx.prisma.userInviteLink.create({
-            data: {
-              slug: randomBytes(4).toString("hex"),
-            },
-          });
-        } catch {}
+          const id = randomBytes(4).toString("hex");
+
+          await ctx.appDb
+            .insertInto("UserInviteLink")
+            .values({
+              slug: id,
+            })
+            .execute();
+
+          inviteLinkSlug = id;
+        } catch (e) {
+          logger.error(e);
+        }
       }
 
-      const user = await ctx.prisma.user.create({
-        data: {
-          sub,
-          name,
-          username,
-          emoji,
-          email,
-          userInviteLinkId: inviteLink.id,
-        },
+      const newUser = await ctx.appDb.transaction().execute(async (trx) => {
+        const fullAccessPurchase = await trx
+          .insertInto("FullAccessPurchase")
+          .values({
+            id: createId(),
+            source: "gift",
+          })
+          .returning("id")
+          .executeTakeFirstOrThrow(
+            () => new TRPCError({ code: "INTERNAL_SERVER_ERROR" }),
+          );
+
+        return await trx
+          .insertInto("User")
+          .values({
+            id: createId(),
+            name,
+            email,
+            emoji,
+            sub,
+            username,
+            timezoneOffset: 0,
+            fcmToken: null,
+            userInviteSlugId: inviteLinkSlug as string,
+            fullAccessPurchaseId: fullAccessPurchase.id,
+          })
+          .returningAll()
+          .executeTakeFirstOrThrow(
+            () => new TRPCError({ code: "INTERNAL_SERVER_ERROR" }),
+          );
       });
 
-      await ctx.prisma.fullAccessPurchase.create({
-        data: {
-          User: {
-            connect: {
-              id: user.id,
-            },
-          },
-          source: "gift",
-        },
-      });
+      const token = createToken({ user: newUser.id });
 
-      const token = createToken({ user: user.id });
-
-      return { token, user };
+      return { token, user: newUser };
     }),
 
   /**
@@ -262,77 +294,39 @@ export const user = createTRPCRouter({
   search: protectedProcedure
     .input(z.object({ query: z.string() }))
     .query(async ({ input: { query }, ctx }) => {
-      const [alreadyConnected, connectionRequests] =
-        await ctx.prisma.$transaction([
-          ctx.prisma.connection.findMany({
-            where: {
-              OR: [
-                {
-                  firstUserId: ctx.user,
-                },
-                {
-                  secondUserId: ctx.user,
-                },
-              ],
-            },
-          }),
-          ctx.prisma.connectionRequest.findMany({
-            where: {
-              OR: [
-                {
-                  firstUserId: ctx.user,
-                },
-                {
-                  secondUserId: ctx.user,
-                },
-              ],
-            },
-          }),
-        ]);
+      const users = await ctx.appDb
+        .selectFrom("User")
+        .leftJoin(
+          "ConnectionRequest",
+          "User.id",
+          "ConnectionRequest.secondUserId",
+        )
+        .leftJoin("Friend as F1", "User.id", "F1.secondUserId")
+        .leftJoin("Friend as F2", "User.id", "F2.firstUserId")
+        .where((e) =>
+          e.and([
+            e.or([
+              e("F1.firstUserId", "is", null),
+              e("F2.secondUserId", "is", null),
+            ]),
 
-      const alreadyConnectedUserIds = alreadyConnected.map((connection) =>
-        connection.firstUserId === ctx.user
-          ? connection.secondUserId
-          : connection.firstUserId,
-      );
-
-      const users = await ctx.prisma.user.findMany({
-        where: {
-          id: {
-            notIn: alreadyConnectedUserIds,
-          },
-          OR: [
-            {
-              name: {
-                contains: query,
-                mode: "insensitive",
-              },
-            },
-            {
-              username: {
-                contains: query,
-                mode: "insensitive",
-              },
-            },
-          ],
-        },
-        select: {
-          id: true,
-          username: true,
-          name: true,
-          emoji: true,
-        },
-        take: 50,
-      });
+            e("username", "ilike", `${query}%`),
+            e("User.id", "!=", ctx.user),
+          ]),
+        )
+        .select([
+          "User.id",
+          "username",
+          "emoji",
+          "name",
+          "ConnectionRequest.id as connectionRequestId",
+        ])
+        .execute();
 
       return users.map((user) => ({
         ...user,
 
-        requested: connectionRequests.some(
-          (connectionRequest) =>
-            connectionRequest.firstUserId === user.id ||
-            connectionRequest.secondUserId === user.id,
-        ),
+        requested: user.connectionRequestId !== null,
       }));
     }),
 });

@@ -1,6 +1,6 @@
 import { DateTime } from "luxon";
 
-import { PrismaClient } from "@moviepals/db";
+import { appDb } from "@moviepals/db";
 import { DbMovieSwipe } from "@moviepals/dbmovieswipe";
 
 import { sendNotification } from "../services";
@@ -9,11 +9,10 @@ const USERS_PER_PAGE = 100;
 
 export async function runNotificationWorker({
   db,
-  prisma,
 }: {
   db: DbMovieSwipe;
-  prisma: PrismaClient;
 }) {
+  /*
   const today = DateTime.utc();
   const target = DateTime.utc().set({ hour: 17 });
 
@@ -57,4 +56,5 @@ export async function runNotificationWorker({
       }
     }
   }
+   * */
 }

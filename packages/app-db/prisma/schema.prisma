@@ -1,5 +1,10 @@
-generator client {
-  provider = "prisma-client-js"
+generator kysely {
+  provider = "prisma-kysely"
+
+  // Optionally provide a destination directory for the generated file
+  // and a filename of your choice
+  output   = "../src/db"
+  fileName = "types.ts"
 }
 
 datasource db {
@@ -21,7 +26,7 @@ model User {
   emoji                  String  @default("🐵")
 
   userInviteLinkId String         @unique() @map("userInviteSlugId")
-  userInviteLink   UserInviteLink @relation(fields: [userInviteLinkId], references: [id])
+  userInviteLink   UserInviteLink @relation(fields: [userInviteLinkId], references: [slug])
 
   fullAccessPurchaseId String?             @unique()
   fullAccessPurchase   FullAccessPurchase? @relation(fields: [fullAccessPurchaseId], references: [id])
@@ -35,9 +40,7 @@ model User {
 }
 
 model UserInviteLink {
-  id String @id @default(cuid())
-
-  slug String @unique()
+  slug String @id() @unique()
 
   createdAt DateTime @default(now())
   User      User?
@@ -63,6 +66,8 @@ model SharedPremium {
 
   purchaseId String?
   purchase   FullAccessPurchase? @relation(fields: [purchaseId], references: [id])
+
+  @@index([userId, purchaseId])
 }
 
 model ConnectionRequest {

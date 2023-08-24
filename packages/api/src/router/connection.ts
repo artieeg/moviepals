@@ -4,36 +4,27 @@ import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const connection = createTRPCRouter({
   listConnections: protectedProcedure.query(async ({ ctx }) => {
-    const connections = await ctx.prisma.connection.findMany({
-      where: {
-        OR: [
-          {
-            firstUserId: ctx.user,
-          },
-          {
-            secondUserId: ctx.user,
-          },
-        ],
-      },
-      include: {
-        firstUser: {
-          select: {
-            id: true,
-            name: true,
-            username: true,
-            emoji: true,
-          }
-        },
-        secondUser: {
-          select: {
-            id: true,
-            name: true,
-            username: true,
-            emoji: true,
-          }
-        },
-      },
-    });
+    const [first, second] = await ctx.appDb
+      .transaction()
+      .execute(async (trx) => {
+        const first = await trx
+          .selectFrom("Friend")
+          .innerJoin("User", "secondUserId", "User.id")
+          .where("firstUserId", "=", ctx.user)
+          .select(["User.id", "User.name", "User.username", "User.emoji"])
+          .execute();
+
+        const second = await trx
+          .selectFrom("Friend")
+          .innerJoin("User", "firstUserId", "User.id")
+          .select(["User.id", "User.name", "User.username", "User.emoji"])
+          .where("secondUserId", "=", ctx.user)
+          .execute();
+
+        return [first, second];
+      });
+
+    const connections = [...first, ...second];
 
     return { connections };
   }),
@@ -45,10 +36,9 @@ export const connection = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input: { connectionId } }) => {
-      await ctx.prisma.connection.delete({
-        where: {
-          id: connectionId,
-        },
-      });
+      await ctx.appDb
+        .deleteFrom("Friend")
+        .where("id", "=", connectionId)
+        .execute();
     }),
 });

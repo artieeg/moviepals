@@ -50,24 +50,30 @@ export const movie_feed = createTRPCRouter({
           userId: ctx.user,
         });
 
-        const userPromise = ctx.prisma.user.findUnique({
-          where: {
-            id: ctx.user,
-          },
-        });
+        const userAndConnectionsFetch = ctx.appDb
+          .transaction()
+          .execute(async (trx) => {
+            const user = await trx
+              .selectFrom("User")
+              .where("id", "=", ctx.user)
+              .select(["id", "fullAccessPurchaseId"])
+              .executeTakeFirstOrThrow(
+                () => new TRPCError({ code: "NOT_FOUND" }),
+              );
 
-        const connectionsPromise = ctx.prisma.connection.findMany({
-          where: {
-            OR: [
-              {
-                firstUserId: ctx.user,
-              },
-              {
-                secondUserId: ctx.user,
-              },
-            ],
-          },
-        });
+            const connections = await trx
+              .selectFrom("Friend")
+              .where((eb) =>
+                eb.or([
+                  eb("firstUserId", "=", ctx.user),
+                  eb("secondUserId", "=", ctx.user),
+                ]),
+              )
+              .selectAll()
+              .execute();
+
+            return { user, connections };
+          });
 
         const userSwipesPromise = ctx.dbMovieSwipe.swipes
           .find({
@@ -75,19 +81,12 @@ export const movie_feed = createTRPCRouter({
           })
           .toArray();
 
-        const [user, connections, reviewState, userSwipes] = await Promise.all([
-          userPromise,
-          connectionsPromise,
-          reviewStatePromise,
-          userSwipesPromise,
-        ]);
-
-        if (!user) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "User not found",
-          });
-        }
+        const [{ user, connections }, reviewState, userSwipes] =
+          await Promise.all([
+            userAndConnectionsFetch,
+            reviewStatePromise,
+            userSwipesPromise,
+          ]);
 
         const connectedUserIds = connections.map((connection) =>
           connection.firstUserId === ctx.user
@@ -188,6 +187,7 @@ export const movie_feed = createTRPCRouter({
         if (cursor !== 0) {
           excludeMovieIds.push(...servedMovieIds);
         }
+
 
         //Try to serve the latest feed response ...
         const latestFeedResponse =
