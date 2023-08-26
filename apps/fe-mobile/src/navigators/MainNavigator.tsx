@@ -19,7 +19,8 @@ export const NAVIGATOR_ME = "MeNavigator";
 
 export default function MainNavigator() {
   return (
-    <Tabs.Navigator tabBar={(props) => <BottomTabBar {...props} />}>
+    <Tabs.Navigator 
+      tabBar={(props) => <BottomTabBar {...props} />}>
       <Tabs.Screen
         options={options}
         name={NAVIGATOR_SWIPE}

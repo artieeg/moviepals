@@ -14,7 +14,11 @@ import { appDb } from "@moviepals/db";
 import { dbMovieSwipe } from "@moviepals/dbmovieswipe";
 
 import { logger } from "./logger";
-import { LatestFeedResponseCache, ServedMovieIdsCache, UserFeedDeliveryCache } from "./services";
+import {
+  LatestFeedResponseCache,
+  ServedMovieIdsCache,
+  UserFeedDeliveryCache,
+} from "./services";
 import { verifyToken } from "./utils/jwt";
 
 /**
@@ -135,16 +139,16 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
  * Logger middleware
  */
 export const loggerMiddleware = t.middleware(
-  async ({ ctx, path, input, next }) => {
-    try {
-      const p = performance.now();
+  async ({ ctx, path, input, rawInput, next }) => {
+    const p = performance.now();
 
-      const response = await next({
-        ctx,
-      });
+    const response = await next({
+      ctx,
+    });
 
-      const time = performance.now() - p;
+    const time = performance.now() - p;
 
+    if (response.ok) {
       logger.info({
         elapsed: `${time.toFixed(2)}ms`,
         request: {
@@ -153,16 +157,26 @@ export const loggerMiddleware = t.middleware(
             ip: ctx.ip,
             user: ctx.user,
           },
-          input,
+          input: rawInput,
         },
+        response: response.data,
       });
-
-      return response;
-    } catch (e) {
-      logger.error(e);
-
-      throw e;
+    } else {
+      logger.error({
+        elapsed: `${time.toFixed(2)}ms`,
+        request: {
+          path,
+          ctx: {
+            ip: ctx.ip,
+            user: ctx.user,
+          },
+          input: rawInput,
+        },
+        error: response.error,
+      });
     }
+
+    return response;
   },
 );
 
