@@ -67,6 +67,7 @@ model SharedPremium {
   purchaseId String?
   purchase   FullAccessPurchase? @relation(fields: [purchaseId], references: [id])
 
+  @@index([userId])
   @@index([userId, purchaseId])
 }
 
@@ -83,6 +84,8 @@ model ConnectionRequest {
   createdAt DateTime @default(now())
 
   @@unique([firstUserId, secondUserId])
+  @@index([firstUserId])
+  @@index([secondUserId])
 }
 
 model Connection {
@@ -94,5 +97,7 @@ model Connection {
   secondUser   User   @relation("connection_second_user", fields: [secondUserId], references: [id])
 
   @@unique([firstUserId, secondUserId])
+  @@index([firstUserId])
+  @@index([secondUserId])
   @@map("Friend")
 }

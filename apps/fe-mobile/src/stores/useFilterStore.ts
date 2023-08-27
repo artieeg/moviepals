@@ -8,6 +8,10 @@ import { Person, StreamingService } from "@moviepals/api";
 export interface FilterStore {
   country: string;
 
+  timeframeId?: string;
+  startYear?: number;
+  endYear?: number;
+
   quickMatchMode: boolean;
 
   /** Contains a list of selected streaming services */

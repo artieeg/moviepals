@@ -12,6 +12,7 @@ export function MySwipeListScreen() {
     {},
     {
       getNextPageParam: (r) => r.nextCursor,
+      initialCursor: 0,
     },
   );
 

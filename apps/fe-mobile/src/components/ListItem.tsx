@@ -16,27 +16,27 @@ export const ListItem = React.memo(_ListItem, (prev, next) => {
   }
 });
 
-function _ListItem(
-  props: TouchableOpacityProps & {
-    itemId: any;
-    title: string;
-    subtitle?: string;
-    icon?: string | React.ReactNode;
-  } & (
-      | { right: undefined }
-      | { right: "component"; rightComponent: React.ReactNode }
-      | {
-          right: "radio";
-          checked: boolean;
-          onToggle: (id: any, enabled: boolean) => void;
-        }
-      | {
-          right: "checkbox";
-          checked: boolean;
-          onToggle: (id: any, enabled: boolean) => void;
-        }
-    ),
-) {
+export type ListItemProps = TouchableOpacityProps & {
+  itemId: any;
+  title: string;
+  subtitle?: string;
+  icon?: string | React.ReactNode;
+} & (
+    | { right: undefined }
+    | { right: "component"; rightComponent: React.ReactNode }
+    | {
+        right: "radio";
+        checked: boolean;
+        onToggle: (id: any, enabled: boolean) => void;
+      }
+    | {
+        right: "checkbox";
+        checked: boolean;
+        onToggle: (id: any, enabled: boolean) => void;
+      }
+  );
+
+function _ListItem(props: ListItemProps) {
   return (
     <TouchableOpacity
       activeOpacity={0.8}

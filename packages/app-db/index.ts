@@ -1,1 +1,1 @@
-export { appDb } from "./src/db";
+export { appDb, type AppDb } from "./src/db";

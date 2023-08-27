@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -15,15 +15,17 @@ import { api } from "~/utils/api";
 import { getTMDBStaticUrl } from "~/utils/uri";
 import { Button, Section, Switch } from "~/components";
 import { useNavigation, useTimezone } from "~/hooks";
-import {
-  SCREEN_GENRE_FILTER,
-  SCREEN_STREAMING_SERVICE_LIST,
-  SCREEN_SWIPE,
-} from "~/navigators/SwipeNavigator";
+import { SCREEN_SWIPE } from "~/navigators/SwipeNavigator";
 import { useFilterStore } from "~/stores";
 import { SCREEN_CAST_LIST } from "./CastListScreen";
 import { SCREEN_DIRECTOR_LIST } from "./DirectorListScreen";
+import { SCREEN_GENRE_FILTER } from "./GenreFilterScreen";
 import { MainLayout } from "./layouts/MainLayout";
+import { SCREEN_STREAMING_SERVICE_LIST } from "./StreamingServiceListScreen";
+import {
+  SCREEN_TIMEFRAME_INPUT,
+  supportedTimeframes,
+} from "./TimeframeInputScreen";
 
 export function PrepareSwipeScreen() {
   useTimezone();
@@ -35,7 +37,7 @@ export function PrepareSwipeScreen() {
   }
 
   return (
-    <MainLayout title="movies">
+    <MainLayout edges={["top", "left", "right"]} title="Movies">
       <ScrollView
         className="-mx-8"
         contentContainerStyle={{
@@ -48,6 +50,7 @@ export function PrepareSwipeScreen() {
           <GenreFilter />
           <CastFilter />
           <DirectorFilter />
+          <TimeframeInputFilter />
           <QuickMatchMode />
         </View>
 
@@ -161,6 +164,32 @@ function QuickMatchMode({ ...rest }: {}) {
           <Switch enabled={enabled} onToggle={onToggle} />
         </View>
       }
+    />
+  );
+}
+
+function TimeframeInputFilter(props: TouchableOpacityProps) {
+  const navigation = useNavigation();
+
+  const timeframeId = useFilterStore((state) => state.timeframeId);
+
+  const timeframe = useMemo(
+    () =>
+      supportedTimeframes.find((timeframe) => timeframe.itemId === timeframeId),
+    [timeframeId],
+  );
+
+  function onPress() {
+    navigation.navigate(SCREEN_TIMEFRAME_INPUT);
+  }
+
+  return (
+    <Section
+      title="Release date filter"
+      subtitle={timeframe ? `movies from ${timeframe.subtitle}` : "any date"}
+      showArrowRight
+      onPress={onPress}
+      {...props}
     />
   );
 }

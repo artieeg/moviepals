@@ -18,6 +18,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";
 import { Cancel, Heart, Undo } from "iconoir-react-native";
+import { useColorScheme } from "nativewind";
 
 import { api } from "~/utils/api";
 import {
@@ -44,10 +45,14 @@ function useAdConsentPromptStatus() {
 export function SwipeScreen() {
   const filters = useFilterStore((state) => state);
 
+  const { colorScheme } = useColorScheme();
+
   const swipe = api.swipe.swipe.useMutation();
 
   const result = api.movie_feed.getMovieFeed.useInfiniteQuery(
     {
+      start_year: filters.startYear,
+      end_year: filters.endYear,
       genres: filters.genres,
       watchProviderIds: filters.streamingServices.map((s) => s.provider_id),
       cast: filters.cast.map((c) => c.id),
@@ -205,7 +210,11 @@ export function SwipeScreen() {
 
   return (
     <>
-      <MainLayout goBackCloseIcon title="swipe" canGoBack>
+      <MainLayout
+        goBackCloseIcon
+        title="Swipe"
+        canGoBack
+      >
         {currentMovie && !showAdPermissionPrompt && (
           <Animated.View
             layout={Layout}
@@ -257,7 +266,7 @@ export function SwipeScreen() {
                 ))}
             </View>
 
-            {result.data?.pages && (
+            {currentMovie && (
               <Controls
                 onUndo={onUndo}
                 visible={!!currentMovie}
@@ -269,60 +278,84 @@ export function SwipeScreen() {
           </Animated.View>
         )}
 
-        {noMoreMovies && (
+        {!currentMovie && (result.isFetchingNextPage || result.isLoading) && (
           <Animated.View
-            className="flex-1 pb-8"
+            className="flex-1 items-center justify-center pb-8"
             entering={FadeIn}
             exiting={FadeOut}
           >
-            <NoMoreMoviesPrompt onGoBack={onGoBack} />
-          </Animated.View>
-        )}
-
-        {unableToFindMovies && (
-          <Animated.View
-            className="flex-1 pb-8"
-            entering={FadeIn}
-            exiting={FadeOut}
-          >
-            <UnableToFindMoviesPrompt onGoBack={onGoBack} />
-          </Animated.View>
-        )}
-
-        {hasToWatchAd && !currentMovie && (
-          <Animated.View
-            className="flex-1 pb-8"
-            entering={FadeIn}
-            exiting={FadeOut}
-          >
-            <AdsOrPremiumPrompt
-              mode="ad"
-              onProceed={() => {
-                onProceedAfterPurchaseOrAd();
-                setShowAdPermissionPrompt(false);
-              }}
+            <ActivityIndicator
+              size="large"
+              color={colorScheme === "dark" ? "white" : "black"}
             />
+
+            <Animated.Text
+              entering={FadeIn.delay(300)}
+              className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-center text-base"
+            >
+              give us a short second 😄🐢
+            </Animated.Text>
           </Animated.View>
         )}
 
-        {showAdPermissionPrompt && (
-          <Animated.View
-            className="flex-1 pb-8"
-            entering={FadeIn}
-            exiting={FadeOut}
-          >
-            <AdsOrPremiumPrompt
-              mode="ad-permission"
-              onSkip={() => {
-                setShowAdPermissionPrompt(false);
-              }}
-              onProceed={() => {
-                onProceedAfterPurchaseOrAd();
+        {!currentMovie && (
+          <>
+            {noMoreMovies && (
+              <Animated.View
+                className="flex-1 pb-8"
+                entering={FadeIn}
+                exiting={FadeOut}
+              >
+                <NoMoreMoviesPrompt onGoBack={onGoBack} />
+              </Animated.View>
+            )}
 
-                setShowAdPermissionPrompt(false);
-              }}
-            />
-          </Animated.View>
+            {unableToFindMovies && (
+              <Animated.View
+                className="flex-1 pb-8"
+                entering={FadeIn}
+                exiting={FadeOut}
+              >
+                <UnableToFindMoviesPrompt onGoBack={onGoBack} />
+              </Animated.View>
+            )}
+
+            {hasToWatchAd && (
+              <Animated.View
+                className="flex-1 pb-8"
+                entering={FadeIn}
+                exiting={FadeOut}
+              >
+                <AdsOrPremiumPrompt
+                  mode="ad"
+                  onProceed={() => {
+                    onProceedAfterPurchaseOrAd();
+                    setShowAdPermissionPrompt(false);
+                  }}
+                />
+              </Animated.View>
+            )}
+
+            {showAdPermissionPrompt && (
+              <Animated.View
+                className="flex-1 pb-8"
+                entering={FadeIn}
+                exiting={FadeOut}
+              >
+                <AdsOrPremiumPrompt
+                  mode="ad-permission"
+                  onSkip={() => {
+                    setShowAdPermissionPrompt(false);
+                  }}
+                  onProceed={() => {
+                    onProceedAfterPurchaseOrAd();
+
+                    setShowAdPermissionPrompt(false);
+                  }}
+                />
+              </Animated.View>
+            )}
+          </>
         )}
       </MainLayout>
       <MovieDetailsBottomSheet ref={movieDetailsRef} />

@@ -122,7 +122,7 @@ export function MeScreen() {
   }
 
   return (
-    <MainLayout canGoBack title="Me">
+    <MainLayout edges={["top", "left", "right"]} canGoBack title="Me">
       <ScrollView
         className="-mx-8"
         contentContainerStyle={{ paddingHorizontal: 32, paddingBottom: 128 }}

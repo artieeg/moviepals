@@ -44,6 +44,17 @@ const streamingServicesResponseSchema = z.object({
   results: z.array(streamingServiceSchema),
 });
 
+export type GetMoviesParams = {
+  "primary_release_date.gte": string | undefined;
+  "primary_release_date.lte": string | undefined;
+  with_watch_providers: number[];
+  watch_region: string;
+  with_genres: string;
+  with_cast: string;
+  with_people: string;
+  page: number;
+};
+
 export async function getMovies(params: Record<string, unknown>) {
   try {
     const r = await tmdb.get("discover/movie", {
@@ -79,7 +90,7 @@ const personSchema = z.object({
   gender: z.number(),
   id: z.number(),
   known_for: z.array(z.unknown()),
-  known_for_department: z.string(),
+  known_for_department: z.string().optional(),
   name: z.string(),
   popularity: z.number(),
   profile_path: z.string().nullable(),

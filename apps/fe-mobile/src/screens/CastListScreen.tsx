@@ -60,7 +60,7 @@ export function CastListScreen() {
   }, [castSearch.data, debouncedSearch, enabledCast, popular.data?.pages]);
 
   return (
-    <MainLayout onGoBack={onDone} canGoBack title="cast">
+    <MainLayout onGoBack={onDone} canGoBack title="Cast">
       <FlatList
         className="-mx-8 flex-1"
         data={cast}

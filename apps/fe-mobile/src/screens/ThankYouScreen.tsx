@@ -5,6 +5,8 @@ import { Button } from "~/components";
 import { useNavigation } from "~/hooks";
 import { MainLayout } from "./layouts/MainLayout";
 
+export const SCREEN_THANK_YOU = "ThankYouScreen";
+
 export function ThankYouScreen() {
   const navigation = useNavigation();
 

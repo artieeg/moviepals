@@ -25,6 +25,8 @@ export const appDb = new Kysely<DB>({
   },
 });
 
+export type AppDb = typeof appDb;
+
 export async function connectAppDb() {
   await pool.connect();
 }
