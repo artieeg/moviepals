@@ -11,13 +11,25 @@ export const connection = createTRPCRouter({
           .selectFrom("Friend")
           .innerJoin("User", "secondUserId", "User.id")
           .where("firstUserId", "=", ctx.user)
-          .select(["User.id", "User.name", "User.username", "User.emoji"])
+          .select([
+            "Friend.id as userConnectionId",
+            "User.id",
+            "User.name",
+            "User.username",
+            "User.emoji",
+          ])
           .execute();
 
         const second = await trx
           .selectFrom("Friend")
           .innerJoin("User", "firstUserId", "User.id")
-          .select(["User.id", "User.name", "User.username", "User.emoji"])
+          .select([
+            "Friend.id as userConnectionId",
+            "User.id",
+            "User.name",
+            "User.username",
+            "User.emoji",
+          ])
           .where("secondUserId", "=", ctx.user)
           .execute();
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { Linking, Pressable, Text, View } from "react-native";
+import { Alert, Linking, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import appleAuth from "@invertase/react-native-apple-authentication";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -63,6 +63,7 @@ export function WelcomeScreen() {
         },
       });
     } catch (e) {
+      Alert.alert("Error", (e as any).message);
     } finally {
       setGoogleSignInInProgress(false);
     }
