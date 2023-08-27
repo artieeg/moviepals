@@ -15,9 +15,9 @@ import {
   UserFeedDeliveryCache,
   verifyRewardedAdCallback,
 } from "@moviepals/api";
+import { appDb, connectAppDb } from "@moviepals/db";
 
 import { env } from "./env";
-import {appDb, connectAppDb} from "@moviepals/db/src/db";
 
 const server = fastify({
   maxParamLength: 10000,
@@ -47,15 +47,11 @@ export async function main() {
     },
   );
 
-  
-
   await Promise.all([
-    //prisma.$connect(),
     connectAppDb(),
     dbMovieSwipe.connect(),
     userDeliveryCacheClient.connect(),
     lastestFeedResponseCacheClient.connect(),
-    
   ]);
 
   const latestFeedResponseCache = new LatestFeedResponseCache(
