@@ -47,13 +47,7 @@ export async function main() {
     },
   );
 
-  const servedMovieIdsCacheClient = new Redis(
-    env.SERVED_MOVIE_IDS_CACHE_REDIS_URL,
-    {
-      lazyConnect: true,
-      family: 6,
-    },
-  );
+  
 
   await Promise.all([
     //prisma.$connect(),
@@ -61,7 +55,7 @@ export async function main() {
     dbMovieSwipe.connect(),
     userDeliveryCacheClient.connect(),
     lastestFeedResponseCacheClient.connect(),
-    servedMovieIdsCacheClient.connect(),
+    
   ]);
 
   const latestFeedResponseCache = new LatestFeedResponseCache(
