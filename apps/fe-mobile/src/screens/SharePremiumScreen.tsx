@@ -26,9 +26,7 @@ export function SharePremiumScreen() {
   const list = useMemo(() => {
     if (!connections.isSuccess || !sharedList.isSuccess) return [];
 
-    const friends = connections.data?.connections.map((item) =>
-      item.firstUser.id === user.data?.id ? item.secondUser : item.firstUser,
-    );
+    const friends = connections.data?.connections;
 
     return [
       ...(sharedList.data ?? []),
@@ -69,7 +67,7 @@ export function SharePremiumScreen() {
   }
 
   return (
-    <MainLayout title="friends">
+    <MainLayout canGoBack title="friends">
       <View className="flex-1">
         <FlatList
           data={list}

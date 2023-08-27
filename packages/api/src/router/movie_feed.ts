@@ -2,13 +2,17 @@ import { createId } from "@paralleldrive/cuid2";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
-import { DbMovieSwipe, Movie, ReviewState } from "@moviepals/dbmovieswipe";
+import {
+  dbMovieSwipe,
+  Movie,
+  ReviewState,
+  Swipe,
+} from "@moviepals/dbmovieswipe";
+import { SwipeFilterParams } from "@moviepals/dbmovieswipe/src/swipes";
 
-import { getMovies } from "../services";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
-
-/** Number of movies that TMDB returns */
-const MOVIES_PER_TMDB_PAGE = 20;
+import { logger } from "../logger";
+import { getMovies, GetMoviesParams } from "../services";
+import { Context, createTRPCRouter, protectedProcedure } from "../trpc";
 
 /** Number of movies that we return to the client */
 const MOVIES_PER_PAGE = 10;
@@ -16,472 +20,483 @@ const MOVIES_PER_PAGE = 10;
 /** Max number of movies that we mix in from friend swipes */
 const MIX_IN_MOVIES_COUNT = 5;
 
-export const movie_feed = createTRPCRouter({
-  getMovieFeed: protectedProcedure
-    .input(
-      z.object({
-        region: z.string(),
-        watchProviderIds: z.array(z.number()),
-        genres: z.array(z.number()),
-        directors: z.array(z.number()),
-        cast: z.array(z.number()),
-        cursor: z.number().default(0),
-        quick_match_mode: z.boolean(),
-      }),
-    )
-    .query(
-      async ({
-        ctx,
-        input: {
-          genres,
-          quick_match_mode,
-          directors,
-          cursor,
-          region,
-          cast,
-          watchProviderIds,
-        },
-      }) => {
-        const reviewStatePromise = getReviewState(ctx.dbMovieSwipe, {
-          cast,
-          genre_ids: genres,
-          watch_providers: watchProviderIds,
-          directors,
-          userId: ctx.user,
-        });
-
-        const userAndConnectionsFetch = ctx.appDb
-          .transaction()
-          .execute(async (trx) => {
-            const user = await trx
-              .selectFrom("User")
-              .where("id", "=", ctx.user)
-              .select(["id", "fullAccessPurchaseId"])
-              .executeTakeFirstOrThrow(
-                () => new TRPCError({ code: "NOT_FOUND" }),
-              );
-
-            const connections = await trx
-              .selectFrom("Friend")
-              .where((eb) =>
-                eb.or([
-                  eb("firstUserId", "=", ctx.user),
-                  eb("secondUserId", "=", ctx.user),
-                ]),
-              )
-              .selectAll()
-              .execute();
-
-            return { user, connections };
-          });
-
-        const userSwipesPromise = ctx.dbMovieSwipe.swipes
-          .find({
-            userId: ctx.user,
-          })
-          .toArray();
-
-        const [{ user, connections }, reviewState, userSwipes] =
-          await Promise.all([
-            userAndConnectionsFetch,
-            reviewStatePromise,
-            userSwipesPromise,
-          ]);
-
-        const connectedUserIds = connections.map((connection) =>
-          connection.firstUserId === ctx.user
-            ? connection.secondUserId
-            : connection.firstUserId,
-        );
-
-        const excludeMovieIds = userSwipes.map((swipe) => swipe.movieId);
-
-        const servedMovieIds = await ctx.servedMovieIdsCache.getMovieIds(
-          ctx.user,
-        );
-
-        /**
-         * Fetch movies that friends have swiped on
-         *
-         * Make sure the genres and movie providers overlap
-         * */
-        const friendSwipes = await ctx.dbMovieSwipe.swipes
-          .find({
-            userId: { $in: connectedUserIds },
-            movieId: { $nin: excludeMovieIds },
-            liked: true,
-          })
-          .toArray();
-
-        const relevantFriendSwipes = quick_match_mode
-          ? friendSwipes
-          : friendSwipes.filter((swipe) => {
-              if (genres.length > 0) {
-                if (
-                  !swipe.movie_genre_ids.some((genreId) =>
-                    genres.includes(genreId),
-                  )
-                ) {
-                  return false;
-                }
-              }
-
-              if (directors.length > 0) {
-                if (
-                  !swipe.directors.some((director) =>
-                    directors.includes(director),
-                  )
-                ) {
-                  return false;
-                }
-              }
-
-              if (watchProviderIds.length > 0) {
-                if (
-                  !swipe.watch_providers.some((providerId) =>
-                    watchProviderIds.includes(providerId),
-                  )
-                ) {
-                  return false;
-                }
-              }
-
-              if (cast.length > 0) {
-                if (!swipe.cast.some((castId) => cast.includes(castId))) {
-                  return false;
-                }
-              }
-
-              return true;
-            });
-
-        const randomFriendSwipes = pickRandomItems(
-          relevantFriendSwipes,
-          MIX_IN_MOVIES_COUNT,
-        );
-
-        const selectedFriendSwipeMovieIds = randomFriendSwipes.map(
-          (swipe) => swipe.movieId,
-        );
-
-        excludeMovieIds.push(...selectedFriendSwipeMovieIds);
-
-        //If user has quick match mode enabled, and we couldn't find enough relevant friend-liked movies,
-        //we want to mix in friend-liked movies regardless of genre and provider
-        if (
-          selectedFriendSwipeMovieIds.length < MIX_IN_MOVIES_COUNT &&
-          quick_match_mode
-        ) {
-          const randomAllFriendSwipes = pickRandomItems(
-            friendSwipes,
-            MIX_IN_MOVIES_COUNT - selectedFriendSwipeMovieIds.length,
-          );
-
-          const selectedAllFriendSwipeMovieIds = randomAllFriendSwipes.map(
-            (swipe) => swipe.movieId,
-          );
-
-          excludeMovieIds.push(...selectedAllFriendSwipeMovieIds);
-        }
-
-        if (cursor !== 0) {
-          excludeMovieIds.push(...servedMovieIds);
-        }
-
-
-        //Try to serve the latest feed response ...
-        const latestFeedResponse =
-          await ctx.latestFeedResponseCache.getLatestFeedResponse(
-            reviewState.id,
-          );
-
-        const validMoviesFromLatestResponse =
-          latestFeedResponse?.filter((m) => !excludeMovieIds.includes(m.id)) ??
-          [];
-
-        if (validMoviesFromLatestResponse.length > 0) {
-          return {
-            feed: validMoviesFromLatestResponse,
-            cursor: null,
-          };
-        }
-
-        if (!user.fullAccessPurchaseId) {
-          const state = await ctx.userFeedDeliveryCache.getDeliveryState(
-            ctx.user,
-          );
-
-          // If user has been delivered feed earlier this day
-          if (state) {
-            if (state.page > state.ads_watched) {
-              return {
-                cursor: null,
-                hasToWatchAd: true,
-                feed: [],
-              };
-            }
-          }
-        }
-
-        if (cursor === 0) {
-          excludeMovieIds.push(...servedMovieIds);
-        }
-
-        const missingMoviesPromise = fetchMissingMovies({
-          count: MOVIES_PER_PAGE,
-          excludeMovieIds,
-          moviesPerTmdbPage: MOVIES_PER_TMDB_PAGE,
-          nextTmdbPage: reviewState.remoteApiPage,
-          nextTmdbStartFromMovieIdx: reviewState.remoteApiResponseMovieIdx,
-          mixInMovieCount: selectedFriendSwipeMovieIds.length,
-          fetch: getMovies,
-          fetchParams: {
-            region,
-            with_cast: cast,
-            with_people: directors,
-            watchProviderIds,
-            genres,
-          },
-        });
-
-        const mixInMoviesPromise = ctx.dbMovieSwipe.movies
-          .find({
-            id: { $in: selectedFriendSwipeMovieIds },
-          })
-          .toArray();
-
-        const [
-          { movies, nextPageToStartFrom, nextMovieToStartFrom },
-          mixInMovies,
-        ] = await Promise.all([missingMoviesPromise, mixInMoviesPromise]);
-
-        const expectedRemoteApiRequestCount = Math.floor(
-          MOVIES_PER_PAGE / MOVIES_PER_TMDB_PAGE,
-        );
-
-        if (movies.length > 0) {
-          await ctx.dbMovieSwipe.movies.insertMany(movies, { ordered: false });
-        }
-
-        /**
-         * Only update review state if we had to fetch more movies than we expected
-         *
-         * This allows us to let user continue their review from the movie they left off
-         * in a simple way (though we end up making a redundant API call sometimes)
-         * */
-        if (
-          nextPageToStartFrom - reviewState.remoteApiPage >=
-          expectedRemoteApiRequestCount * 2
-        ) {
-          await ctx.dbMovieSwipe.reviewState.updateOne(
-            {
-              id: reviewState.id,
-            },
-            {
-              $set: {
-                remoteApiPage: nextPageToStartFrom,
-                remoteApiResponseMovieIdx: nextMovieToStartFrom,
-              },
-            },
-          );
-        }
-
-        const moviesWithLikes = [...movies, ...mixInMovies].map((movie) => {
-          return {
-            ...movie,
-            likedByFriends: selectedFriendSwipeMovieIds.includes(movie.id),
-          };
-        });
-
-        const feed = moviesWithLikes.sort(() => Math.random() - 0.5);
-
-        let responseShouldBeCounted = true;
-
-        if (feed.length === 0) {
-          if (cursor === 0) {
-            responseShouldBeCounted = false;
-            return { feed, cursor, unableToFindMovies: true };
-          } else {
-            return { feed, cursor, noMoreMovies: true };
-          }
-        }
-
-        if (responseShouldBeCounted) {
-          await Promise.all([
-            ctx.userFeedDeliveryCache.incPage(ctx.user),
-            ctx.latestFeedResponseCache.setLatestFeedResponse(
-              reviewState.id,
-              feed,
-            ),
-          ]);
-        }
-
-        ctx.servedMovieIdsCache.addMovieIds(
-          ctx.user,
-          feed.map((m) => m.id),
-        );
-
-        return { feed, cursor: cursor + 1 };
-      },
-    ),
+const getMovieFeedInput = z.object({
+  start_year: z.number().min(1960).max(2019).optional(),
+  end_year: z.number().min(1960).max(2019).optional(),
+  region: z.string(),
+  watchProviderIds: z.array(z.number()),
+  genres: z.array(z.number()),
+  directors: z.array(z.number()),
+  cast: z.array(z.number()),
+  cursor: z.number().default(0),
+  quick_match_mode: z.boolean(),
 });
 
-function pickRandomItems<T>(ids: T[], count: number) {
-  const result = new Set<T>();
+type GetMovieFeedInput = z.infer<typeof getMovieFeedInput>;
 
-  do {
-    for (let i = 0; i < count && i < ids.length; i++) {
-      const randomIdx = Math.floor(Math.random() * ids.length);
-      result.add(ids[randomIdx]!);
-    }
-  } while (result.size < count && count < ids.length);
+export const movie_feed = createTRPCRouter({
+  getMovieFeed: protectedProcedure
+    .input(getMovieFeedInput)
+    .query(async ({ ctx, input }) => {
+      const userAndConnectionsPromise = ctx.appDb
+        .transaction()
+        .execute(async (trx) => {
+          const user = await trx
+            .selectFrom("User")
+            .where("id", "=", ctx.user)
+            .select(["fullAccessPurchaseId"])
+            .executeTakeFirstOrThrow(
+              () => new TRPCError({ code: "NOT_FOUND" }),
+            );
 
-  return Array.from(result);
-}
+          const connections = await trx
+            .selectFrom("Friend")
+            .where((eb) =>
+              eb.or([
+                eb("firstUserId", "=", ctx.user),
+                eb("secondUserId", "=", ctx.user),
+              ]),
+            )
+            .selectAll()
+            .execute();
 
-/**
- * Fetches movies from TMDB, excluding movies that have already been swiped
- * */
-export async function fetchMissingMovies({
-  count,
-  excludeMovieIds,
-  nextTmdbPage,
-  mixInMovieCount,
-  moviesPerTmdbPage,
-  fetch,
-  fetchParams,
-}: {
-  /** How many movies to include in the response */
-  count: number;
+          return { user, connections };
+        });
 
-  excludeMovieIds: number[];
-  moviesPerTmdbPage: number;
-  nextTmdbPage: number;
-  nextTmdbStartFromMovieIdx: number;
-  mixInMovieCount: number;
-  fetch: typeof getMovies;
-  fetchParams: {
-    region: string;
-    with_cast: number[];
-    with_people: number[];
-    watchProviderIds: number[];
-    genres: number[];
-  };
-}) {
-  const moviesLeftToFetch = count - mixInMovieCount;
-  const tmdbPagesToFetch = Math.ceil(moviesLeftToFetch / moviesPerTmdbPage);
+      const [
+        { user, connections },
+        userFeedDeliveryState,
+        userReviewState,
+        previouslySwipedMovieIds,
+      ] = await Promise.all([
+        userAndConnectionsPromise,
+        ctx.userFeedDeliveryCache.getDeliveryState(ctx.user),
+        getOrCreateReviewState(ctx.user, input, ctx),
+        getPreviouslySwipedMovieIds(ctx.user),
+      ]);
 
-  const promises: Promise<Movie[]>[] = [];
+      const friendUserIds = connections.map((c) =>
+        c.firstUserId === ctx.user ? c.secondUserId : c.firstUserId,
+      );
 
-  //Refetching the same page is intended
-  for (let page = 0; page <= tmdbPagesToFetch; page++) {
-    promises.push(
-      fetch({
-        with_watch_providers: fetchParams.watchProviderIds.join(","),
-        watch_region: fetchParams.region,
-        with_genres: fetchParams.genres.join(","),
-        with_cast: fetchParams.with_cast.join(","),
-        with_people: fetchParams.with_people.join(","),
-        page: nextTmdbPage + page,
-      }),
-    );
-  }
+      const recentlyServedMovies = await getRecentlyServedMovies(
+        userReviewState.id,
+        ctx,
+      );
 
-  const results = await Promise.all(promises);
+      const { movies: feed, nextRemoteApiPage } = await getMoviePage({
+        ctx,
+        userReviewState,
+        input,
+        friendUserIds,
+        fetchRandomSwipes,
+        fetchMoviesDataFromLocalDb,
+        fetchMoviesFromRemoteApi,
+        responseTotalMovieCount: MOVIES_PER_PAGE,
+        previouslySwipedMovieIds,
+        recentlyServedMovies,
+        responseMovieFromFriendCount: MIX_IN_MOVIES_COUNT,
+      });
 
-  const movies: Movie[] = [];
-  let nextPageToStartFrom = nextTmdbPage;
+      let response: {
+        feed: Movie[];
+        hasToWatchAd?: boolean;
+        unableToFindMovies?: boolean;
+        noMoreMovies?: boolean;
+        cursor: number;
+      } = {
+        feed,
+        cursor: input.cursor + 1,
+      };
 
-  for (const result of results) {
-    for (const movie of result) {
-      if (!excludeMovieIds.includes(movie.id)) {
-        movies.push(movie);
+      if (feed.length < MOVIES_PER_PAGE) {
+        if (input.cursor === 0) {
+          response.unableToFindMovies = true;
+        } else {
+          response.noMoreMovies = true;
+        }
+      } else {
+        if (
+          !user.fullAccessPurchaseId &&
+          userFeedDeliveryState &&
+          userFeedDeliveryState.page > userFeedDeliveryState.ads_watched
+        ) {
+          response.hasToWatchAd = true;
+        }
       }
-    }
 
-    if (movies.length >= moviesLeftToFetch) {
-      break;
-    } else {
-      nextPageToStartFrom++;
-    }
-  }
+      //Count the response if it's fully successful
+      if (!response.noMoreMovies && !response.unableToFindMovies) {
+        await Promise.all([
+          setRemoteApiPage(userReviewState.id, nextRemoteApiPage, ctx),
+          ctx.userFeedDeliveryCache.incPage(ctx.user),
+          ctx.latestFeedResponseCache.setLatestFeedResponse(
+            userReviewState.id,
+            feed,
+          ),
+        ]);
+      }
 
-  return {
-    movies,
-    nextMovieToStartFrom: 0,
-    nextPageToStartFrom,
-  };
+      return response;
+    }),
+});
+
+async function setRemoteApiPage(
+  reviewStateId: string,
+  page: number,
+  ctx: Context,
+) {
+  await ctx.dbMovieSwipe.reviewState.updateOne(
+    { id: reviewStateId },
+    { $set: { remoteApiPage: page } },
+  );
 }
 
-async function getReviewState(
-  db: DbMovieSwipe,
-  params: Pick<
-    ReviewState,
-    "genre_ids" | "watch_providers" | "userId" | "cast" | "directors"
-  >,
-): Promise<ReviewState> {
-  const reviewStates = await db.reviewState
+async function getRecentlyServedMovies(reviewStateId: string, ctx: Context) {
+  const r = await ctx.latestFeedResponseCache.getLatestFeedResponse(
+    reviewStateId,
+  );
+
+  return r ?? [];
+}
+
+async function fetchMoviesFromRemoteApi(params: GetMoviesParams, ctx: Context) {
+  //TODO: cache
+  const movies = await getMovies(params);
+  await ctx.dbMovieSwipe.movies.insertMany(movies);
+
+  return movies;
+}
+
+async function getPreviouslySwipedMovieIds(userId: string) {
+  const swipes = await dbMovieSwipe.swipes.find({ userId }).toArray();
+
+  return swipes.map((s) => s.movieId);
+}
+
+async function fetchMoviesDataFromLocalDb(movieIds: number[]) {
+  const movies = await dbMovieSwipe.movies
+    .find({ id: { $in: movieIds } })
+    .toArray();
+
+  return movies;
+}
+
+async function fetchRandomSwipes(
+  userIds: string[],
+  excludeMovieIds: number[],
+  count: number,
+  filters: SwipeFilterParams,
+  ctx: Context,
+) {
+  const swipes = await ctx.dbMovieSwipe.swipes
     .find({
-      userId: params.userId,
+      userId: { $in: userIds },
+      movieId: { $nin: excludeMovieIds },
+      ...filters,
     })
     .toArray();
 
-  const reviewState = reviewStates.find((reviewState) => {
-    if (params.genre_ids.length > 0) {
-      if (
-        !reviewState.genre_ids.every((genreId) =>
-          params.genre_ids.includes(genreId),
-        )
-      ) {
-        return false;
-      }
-    }
+  return randomElements(swipes, count);
+}
 
-    if (params.directors.length > 0) {
-      if (
-        !reviewState.directors.every((director) =>
-          params.directors.includes(director),
-        )
-      ) {
-        return false;
-      }
-    }
+async function getOrCreateReviewState(
+  user: string,
+  input: GetMovieFeedInput,
+  ctx: Context,
+) {
+  const { watchProviderIds, genres, directors, cast, start_year, end_year } =
+    input;
 
-    if (params.watch_providers.length > 0) {
-      if (
-        !reviewState.watch_providers.every((providerId) =>
-          params.watch_providers.includes(providerId),
-        )
-      ) {
-        return false;
-      }
-    }
-
-    if (params.cast.length > 0) {
-      if (!reviewState.cast.every((castId) => params.cast.includes(castId))) {
-        return false;
-      }
-    }
-
-    return true;
+  const reviewState = await ctx.dbMovieSwipe.reviewState.findOne({
+    userId: user,
+    start_year,
+    end_year,
+    watch_providers:
+      watchProviderIds.length > 0
+        ? { $all: watchProviderIds }
+        : { $exists: true },
+    cast: cast.length > 0 ? { $all: cast } : { $exists: true },
+    directors: directors.length > 0 ? { $all: directors } : { $exists: true },
+    genre_ids: genres.length > 0 ? { $all: genres } : { $exists: true },
   });
 
   if (reviewState) {
     return reviewState;
   } else {
-    const reviewState: ReviewState = {
+    const newReviewState: ReviewState = {
       id: createId(),
-      userId: params.userId,
-      genre_ids: params.genre_ids,
-      directors: [],
-      cast: [],
-      watch_providers: params.watch_providers,
+      userId: user,
+      watch_providers: watchProviderIds,
+      cast,
+      start_year,
+      end_year,
+      directors,
+      genre_ids: genres,
       remoteApiPage: 1,
       remoteApiResponseMovieIdx: 0,
     };
 
-    await db.reviewState.insertOne(reviewState);
+    await dbMovieSwipe.reviewState.insertOne(newReviewState);
 
-    return reviewState;
+    return newReviewState;
   }
+}
+
+async function getMoviePage({
+  friendUserIds,
+  userReviewState,
+  input: {
+    genres,
+    quick_match_mode,
+    directors,
+    cursor,
+    region,
+    cast,
+    watchProviderIds,
+    start_year,
+    end_year,
+  },
+  ctx,
+  fetchRandomSwipes,
+  fetchMoviesDataFromLocalDb,
+  fetchMoviesFromRemoteApi,
+  responseTotalMovieCount,
+  previouslySwipedMovieIds,
+  recentlyServedMovies,
+  responseMovieFromFriendCount,
+}: {
+  ctx: Context;
+  input: GetMovieFeedInput;
+
+  userReviewState: ReviewState;
+  friendUserIds: string[];
+  previouslySwipedMovieIds: number[];
+
+  recentlyServedMovies: Movie[];
+
+  responseTotalMovieCount: number;
+  responseMovieFromFriendCount: number;
+
+  fetchRandomSwipes: (
+    userIds: string[],
+    excludeMovieIds: number[],
+    count: number,
+    filters: SwipeFilterParams,
+    ctx: Context,
+  ) => Promise<Swipe[]>;
+
+  fetchMoviesDataFromLocalDb: (
+    movieIds: number[],
+    ctx: Context,
+  ) => Promise<Movie[]>;
+
+  fetchMoviesFromRemoteApi: (
+    params: GetMoviesParams,
+    ctx: Context,
+  ) => Promise<Movie[]>;
+}) {
+  let shouldShuffleResponse = true;
+  const moviesToServe: Movie[] = [];
+
+  const recentlyServedMovieIds = recentlyServedMovies.map((m) => m.id);
+
+  /**
+   * If user has requested the first page, we should
+   * serve the latest response again if possible
+   * */
+  if (cursor === 0) {
+    /**
+     * Exclude movies that the user has swiped on.
+     * This allows us to let the user start exactly where they left off
+     */
+    const filtered = recentlyServedMovies.filter(
+      (m) => !previouslySwipedMovieIds.includes(m.id),
+    );
+
+    if (filtered.length > 0) {
+      shouldShuffleResponse = false;
+
+      for (const movie of filtered) {
+        moviesToServe.push(movie);
+      }
+    }
+  }
+
+  /**
+   * Filter out movies that the user has already swiped on.
+   *
+   * Since the feed page can be prefetched, we also need to exclude
+   * movies that we have just served.
+   * */
+  const excludedMovieIds = [
+    moviesToServe.map((m) => m.id),
+    recentlyServedMovieIds,
+    previouslySwipedMovieIds,
+  ].flat();
+
+  const randomFriendSwipes = await fetchRandomSwipes(
+    friendUserIds,
+    excludedMovieIds,
+    responseMovieFromFriendCount,
+    quick_match_mode
+      ? { liked: true }
+      : {
+          liked: true,
+
+          movie_genre_ids:
+            genres.length > 0 ? { $in: genres } : { $exists: true },
+
+          cast: cast.length > 0 ? { $in: cast } : { $exists: true },
+
+          watch_providers:
+            watchProviderIds.length > 0
+              ? { $in: watchProviderIds }
+              : { $exists: true },
+
+          directors:
+            directors.length > 0 ? { $in: directors } : { $exists: true },
+        },
+    ctx,
+  );
+
+  const randomFriendSwipesMovieIds = randomFriendSwipes.map((s) => s.movieId);
+
+  const friendMoviesToMixInPromise = fetchMoviesDataFromLocalDb(
+    randomFriendSwipesMovieIds,
+    ctx,
+  );
+
+  const latestRemoteApiPage = userReviewState.remoteApiPage;
+
+  /**
+   * Represents how many movies we have left to fulfill the request.
+   * This is the number of movies that we need to fetch from the remote API.
+   * */
+  const leftToFetch =
+    responseTotalMovieCount - randomFriendSwipes.length - moviesToServe.length;
+
+  const params: Omit<GetMoviesParams, "page"> = {
+    "primary_release_date.gte": start_year ? `${start_year}-01-01` : undefined,
+    "primary_release_date.lte": end_year ? `${end_year}-12-31` : undefined,
+    with_watch_providers: watchProviderIds,
+    watch_region: region,
+    with_genres: genres.join(","),
+    with_cast: cast.join(","),
+    with_people: directors.join(","),
+  };
+
+  const moviesFetchedFromRemoteApi: Movie[] = [];
+  let page = latestRemoteApiPage;
+
+  for (; moviesFetchedFromRemoteApi.length < leftToFetch; page++) {
+    logger.info(
+      {
+        ...params,
+        page,
+      },
+      "Fetching movies from remote api",
+    );
+
+    const fetchedMovies = await fetchMoviesFromRemoteApi(
+      {
+        ...params,
+        page,
+      },
+      ctx,
+    );
+
+    if (fetchedMovies.length === 0) {
+      break;
+    }
+
+    /**
+     * Exclude previously served and/or swiped movies
+     * as well as movies that user has received from the API
+     */
+    const filteredMovies = fetchedMovies.filter(
+      (m) =>
+        !excludedMovieIds.includes(m.id) &&
+        !randomFriendSwipesMovieIds.includes(m.id),
+    );
+
+    for (const movie of filteredMovies) {
+      moviesFetchedFromRemoteApi.push(movie);
+
+      if (moviesFetchedFromRemoteApi.length >= leftToFetch) {
+        break;
+      }
+    }
+  }
+
+  logger.info(
+    `Had to make ${page - latestRemoteApiPage} requests to remote api`,
+  );
+
+  for (const movie of moviesFetchedFromRemoteApi) {
+    moviesToServe.push(movie);
+  }
+
+  //Finish loading friend movies and append them to response
+  const friendMoviesToMixIn = await friendMoviesToMixInPromise;
+
+  for (const movie of friendMoviesToMixIn) {
+    moviesToServe.push(movie);
+  }
+
+  //Shuffle result
+  const shuffledMovies = shouldShuffleResponse
+    ? arrayShuffle(moviesToServe)
+    : moviesToServe;
+
+  /**
+   * It's better to make a redundant call just in case
+   * the latest feed response cache is empty
+   * */
+  const nextRemoteApiPage = Math.max(1, page - 1);
+
+  return {
+    movies: shuffledMovies.slice(0, responseTotalMovieCount),
+    nextRemoteApiPage,
+  };
+}
+
+function randomElements<T>(array: T[], count: number) {
+  if (array.length === 0) {
+    return array;
+  }
+
+  const elements: T[] = [];
+
+  for (let i = 0; elements.length <= Math.min(array.length, count); i++) {
+    const randomIndex = Math.floor(Math.random() * array.length);
+
+    if (elements.includes(array[randomIndex]!)) {
+      continue;
+    }
+
+    elements.push(array[randomIndex]!);
+  }
+
+  return elements;
+}
+
+function arrayShuffle<T>(array: T[]) {
+  let currentIndex = array.length,
+    randomIndex;
+
+  // While there remain elements to shuffle...
+  while (currentIndex != 0) {
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    // And swap it with the current element.
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex]!,
+      array[currentIndex]!,
+    ];
+  }
+
+  return array;
 }

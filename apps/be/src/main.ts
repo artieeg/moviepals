@@ -12,13 +12,12 @@ import {
   dbMovieSwipe,
   handleFullAccessPurchase,
   LatestFeedResponseCache,
-  ServedMovieIdsCache,
   UserFeedDeliveryCache,
   verifyRewardedAdCallback,
 } from "@moviepals/api";
 
 import { env } from "./env";
-import {connectAppDb} from "@moviepals/db/src/db";
+import {appDb, connectAppDb} from "@moviepals/db/src/db";
 
 const server = fastify({
   maxParamLength: 10000,
@@ -65,10 +64,6 @@ export async function main() {
     servedMovieIdsCacheClient.connect(),
   ]);
 
-  const servedMovieIdsCache = new ServedMovieIdsCache(
-    lastestFeedResponseCacheClient,
-  );
-
   const latestFeedResponseCache = new LatestFeedResponseCache(
     lastestFeedResponseCacheClient,
   );
@@ -93,9 +88,10 @@ export async function main() {
         return createTRPCContext({
           authorization,
           ip: ip as string,
+          appDb,
+          dbMovieSwipe,
           userFeedDeliveryCache,
           latestFeedResponseCache,
-          servedMovieIdsCache,
         });
       },
     },

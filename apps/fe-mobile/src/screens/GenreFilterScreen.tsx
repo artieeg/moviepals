@@ -7,6 +7,8 @@ import { useNavigation } from "~/hooks";
 import { useFilterStore } from "~/stores";
 import { MainLayout } from "./layouts/MainLayout";
 
+export const SCREEN_GENRE_FILTER = "GenreFilter";
+
 export function GenreFilterScreen() {
   const navigation = useNavigation();
   const allGenres = api.genres.fetchAllGenres.useQuery();
@@ -30,7 +32,7 @@ export function GenreFilterScreen() {
   }
 
   return (
-    <MainLayout canGoBack onGoBack={onSaveData} title="genre filter">
+    <MainLayout canGoBack onGoBack={onSaveData} title="Genres">
       <FlatList
         className="-mx-8 flex-1"
         contentContainerStyle={{ paddingHorizontal: 32, paddingBottom: 64 }}

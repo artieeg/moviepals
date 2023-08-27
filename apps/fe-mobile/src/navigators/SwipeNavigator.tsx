@@ -7,8 +7,8 @@ import {
   PrepareSwipeScreen,
   SCREEN_CAST_LIST,
   SCREEN_DIRECTOR_LIST,
+  SCREEN_THANK_YOU,
   StreamingServiceList,
-  SwipeScreen,
   ThankYouScreen,
 } from "~/screens";
 import { options } from "./options";
@@ -17,9 +17,6 @@ const Stack = createStackNavigator();
 
 export const SCREEN_SWIPE = "SwipeScreen";
 export const SCREEN_PREPARE_SWIPE = "PrepareSwipe";
-export const SCREEN_STREAMING_SERVICE_LIST = "StreamingServiceList";
-export const SCREEN_GENRE_FILTER = "GenreFilter";
-export const SCREEN_THANK_YOU = "ThankYouScreen";
 
 export default function SwipeNavigator() {
   return (
@@ -28,30 +25,6 @@ export default function SwipeNavigator() {
         options={options}
         name={SCREEN_PREPARE_SWIPE}
         component={PrepareSwipeScreen}
-      />
-
-      <Stack.Screen
-        options={options}
-        name={SCREEN_DIRECTOR_LIST}
-        component={DirectorListScreen}
-      />
-
-      <Stack.Screen
-        options={options}
-        name={SCREEN_CAST_LIST}
-        component={CastListScreen}
-      />
-
-      <Stack.Screen
-        options={options}
-        name={SCREEN_GENRE_FILTER}
-        component={GenreFilterScreen}
-      />
-
-      <Stack.Screen
-        options={options}
-        name={SCREEN_STREAMING_SERVICE_LIST}
-        component={StreamingServiceList}
       />
 
       <Stack.Screen

@@ -8,6 +8,8 @@ const reviewStateSchema = z
     id: z.string(),
     userId: z.string(),
     directors: z.array(z.number()),
+    start_year: z.number().optional(),
+    end_year: z.number().optional(),
     remoteApiPage: z.number(),
     remoteApiResponseMovieIdx: z.number(),
     genre_ids: z.array(z.number()),

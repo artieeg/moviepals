@@ -2,9 +2,9 @@ import Redis from "ioredis";
 import { DateTime } from "luxon";
 import { z } from "zod";
 
-import { movieSchemaWithLikes } from "@moviepals/dbmovieswipe/src/movies";
+import { movieSchema } from "@moviepals/dbmovieswipe/src/movies";
 
-const contentSchema = z.array(movieSchemaWithLikes);
+const contentSchema = z.array(movieSchema);
 
 /**
  * Store the latest feed response for the user
@@ -23,9 +23,9 @@ export class LatestFeedResponseCache {
   }
 
   private getExpireAt() {
-    const tomorrow = DateTime.utc().startOf("day").plus({ days: 1 }).toJSDate();
+    const date = DateTime.utc().startOf("day").plus({ days: 7 }).toJSDate();
 
-    return Math.floor(tomorrow.getTime() / 1000);
+    return Math.floor(date.getTime() / 1000);
   }
 
   async setLatestFeedResponse(

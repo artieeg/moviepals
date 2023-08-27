@@ -13,7 +13,6 @@ import {
   SharePremiumScreen,
 } from "~/screens";
 import {SCREEN_USER_SETTINGS, UserSettingsScreen} from "~/screens/UserSettingsScreen";
-import {SCREEN_USER_INFO} from "./FriendsNavigator";
 import { options } from "./options";
 
 const Stack = createStackNavigator();
@@ -22,35 +21,6 @@ export default function MeNavigator() {
   return (
     <Stack.Navigator>
       <Stack.Screen options={options} name={SCREEN_ME} component={MeScreen} />
-      <Stack.Screen
-        options={options}
-        name={SCREEN_INVITE}
-        component={InviteScreen}
-      />
-
-      <Stack.Screen
-        options={options}
-        name={SCREEN_INVITE_SUCCESS}
-        component={InviteSuccessScreen}
-      />
-
-      <Stack.Screen
-        options={options}
-        name={SCREEN_MY_SWIPE_LIST}
-        component={MySwipeListScreen}
-      />
-
-      <Stack.Screen
-        options={options}
-        name={SCREEN_SHARE_PREMIUM}
-        component={SharePremiumScreen}
-      />
-
-      <Stack.Screen
-        options={options}
-        name={SCREEN_USER_SETTINGS}
-        component={UserSettingsScreen}
-      />
     </Stack.Navigator>
   );
 }

@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
 import {
-  FlatList,
   Linking,
   Platform,
   Pressable,
@@ -15,7 +14,6 @@ import CountryPicker, {
 } from "react-native-country-picker-modal";
 import FastImage from "react-native-fast-image";
 import { Search } from "iconoir-react-native";
-import { produce } from "immer";
 import { useDebounce } from "use-debounce";
 import countries from "world-countries";
 
@@ -28,6 +26,8 @@ import { useNavigation } from "~/hooks";
 import { useFilterStore } from "~/stores";
 import { MainLayout } from "./layouts/MainLayout";
 import {KeyboardAwareFlatList} from "react-native-keyboard-aware-scroll-view";
+
+export const SCREEN_STREAMING_SERVICE_LIST = "StreamingServiceList";
 
 export function StreamingServiceList() {
   const [search, setSearch] = useState("");
@@ -95,7 +95,7 @@ export function StreamingServiceList() {
   }
 
   return (
-    <MainLayout onGoBack={onSaveData} canGoBack title="services">
+    <MainLayout onGoBack={onSaveData} canGoBack title="Services">
       <KeyboardAwareFlatList
         className="-mx-8 flex-1"
         data={streamingServices.data?.services}

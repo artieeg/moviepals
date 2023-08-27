@@ -10,11 +10,11 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
-import { appDb } from "@moviepals/db";
-import { dbMovieSwipe } from "@moviepals/dbmovieswipe";
+import { AppDb } from "@moviepals/db";
+import { DbMovieSwipe } from "@moviepals/dbmovieswipe";
 
 import { logger } from "./logger";
-import { LatestFeedResponseCache, ServedMovieIdsCache, UserFeedDeliveryCache } from "./services";
+import { LatestFeedResponseCache, UserFeedDeliveryCache } from "./services";
 import { verifyToken } from "./utils/jwt";
 
 /**
@@ -29,10 +29,13 @@ import { verifyToken } from "./utils/jwt";
 interface CreateContextOptions {
   user: string | null;
   ip: string;
+  appDb: AppDb;
+  dbMovieSwipe: DbMovieSwipe;
   userFeedDeliveryCache: UserFeedDeliveryCache;
   latestFeedResponseCache: LatestFeedResponseCache;
-  servedMovieIdsCache: ServedMovieIdsCache;
 }
+
+export interface Context extends CreateContextOptions {}
 
 /**
  * This helper generates the "internals" for a tRPC context. If you need to use
@@ -46,8 +49,6 @@ interface CreateContextOptions {
 const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
     ...opts,
-    appDb,
-    dbMovieSwipe,
   };
 };
 
@@ -59,15 +60,18 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
 export const createTRPCContext = async ({
   authorization,
   ip,
+  appDb,
+  dbMovieSwipe,
   userFeedDeliveryCache,
   latestFeedResponseCache,
-  servedMovieIdsCache,
 }: {
   authorization?: string;
+
   ip: string;
+  appDb: AppDb;
+  dbMovieSwipe: DbMovieSwipe;
   userFeedDeliveryCache: UserFeedDeliveryCache;
   latestFeedResponseCache: LatestFeedResponseCache;
-  servedMovieIdsCache: ServedMovieIdsCache;
 }) => {
   const token = authorization?.split(" ")[1];
 
@@ -76,8 +80,9 @@ export const createTRPCContext = async ({
   return createInnerTRPCContext({
     user: claims?.user ?? null,
     userFeedDeliveryCache,
+    appDb,
+    dbMovieSwipe,
     latestFeedResponseCache,
-    servedMovieIdsCache,
     ip,
   });
 };
@@ -135,16 +140,16 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
  * Logger middleware
  */
 export const loggerMiddleware = t.middleware(
-  async ({ ctx, path, input, next }) => {
-    try {
-      const p = performance.now();
+  async ({ ctx, path, rawInput, next }) => {
+    const p = performance.now();
 
-      const response = await next({
-        ctx,
-      });
+    const response = await next({
+      ctx,
+    });
 
-      const time = performance.now() - p;
+    const time = performance.now() - p;
 
+    if (response.ok) {
       logger.info({
         elapsed: `${time.toFixed(2)}ms`,
         request: {
@@ -153,16 +158,28 @@ export const loggerMiddleware = t.middleware(
             ip: ctx.ip,
             user: ctx.user,
           },
-          input,
+          input: rawInput,
         },
+        //response: response.data,
       });
-
-      return response;
-    } catch (e) {
-      logger.error(e);
-
-      throw e;
+    } else {
+      logger.error({
+        elapsed: `${time.toFixed(2)}ms`,
+        request: {
+          path,
+          ctx: {
+            ip: ctx.ip,
+            user: ctx.user,
+          },
+          input: rawInput,
+        },
+        error: response.error,
+        cause: response.error?.cause,
+        message: response.error?.message,
+      });
     }
+
+    return response;
   },
 );
 

@@ -1,3 +1,4 @@
+import { Filter } from "mongodb";
 import { z } from "zod";
 
 import { db } from "./db";
@@ -32,3 +33,5 @@ export const swipeSchema = z.object({
 export type Swipe = z.infer<typeof swipeSchema>;
 
 export const swipes = db.collection<Swipe>("swipes");
+
+export type SwipeFilterParams = Filter<Swipe>;

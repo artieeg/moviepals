@@ -51,7 +51,7 @@ export function DirectorListScreen() {
   }, [directorSearch.data, debouncedSearch, director]);
 
   return (
-    <MainLayout onGoBack={onDone} canGoBack title="directors">
+    <MainLayout onGoBack={onDone} canGoBack title="Directors">
       <FlatList
         className="-mx-8 flex-1"
         data={cast}

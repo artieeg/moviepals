@@ -32,7 +32,7 @@ export function MainLayout({
 
   return (
     <SafeAreaView
-      edges={edges ?? ["top", "left", "right"]}
+      edges={edges ?? ["top", "left", "right", "bottom"]}
       className="flex-1 bg-white dark:bg-neutral-1"
     >
       <View className="flex-1">
