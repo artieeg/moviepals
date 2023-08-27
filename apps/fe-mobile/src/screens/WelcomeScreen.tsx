@@ -63,7 +63,6 @@ export function WelcomeScreen() {
         },
       });
     } catch (e) {
-      Alert.alert("Error", (e as any).message);
     } finally {
       setGoogleSignInInProgress(false);
     }

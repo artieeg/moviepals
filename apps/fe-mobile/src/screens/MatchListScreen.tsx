@@ -28,7 +28,14 @@ export function MatchListScreen() {
     { userId, query },
     { enabled: !!query },
   );
-  const movies = api.matches.getMatches.useInfiniteQuery({ userId });
+
+  const movies = api.matches.getMatches.useInfiniteQuery(
+    { userId },
+    {
+      initialCursor: 0,
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    },
+  );
 
   const moviesList = useMemo(() => {
     return movies.data?.pages.flatMap(({ movies }) => movies);
@@ -44,7 +51,7 @@ export function MatchListScreen() {
 
   return (
     <>
-      <MainLayout title="matches" canGoBack>
+      <MainLayout title="Movie Matches" canGoBack>
         {moviesList && (
           <View className="-mx-8 flex-1">
             <MovieList
