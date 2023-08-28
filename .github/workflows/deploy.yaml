@@ -2,6 +2,12 @@ name: Deploy
 run-name: Deploy
 on:
   push:
+    paths:
+    - 'apps/be/**'
+    - 'packages/api/**'
+    - 'packages/app-db/**'
+    - 'packages/movie-swipe-db/**'
+    - 'packages/config/**'
     branches:
       - prod
 
