@@ -125,6 +125,8 @@ export function WhatsYourNameScreen() {
                 autoCapitalize="none"
                 maxLength={32}
                 placeholder="username"
+                autoCorrect={false}
+                autoComplete="username"
                 onChangeText={setUsername}
                 autoFocus
                 value={username}

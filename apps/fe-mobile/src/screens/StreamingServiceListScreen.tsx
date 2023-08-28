@@ -141,7 +141,7 @@ export function StreamingServiceList() {
                   Services available
                 </Text>
                 <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
-                  Select the services you use. Powered by{" "}
+                  Powered by{" "}
                   <Pressable
                     onPress={() => Linking.openURL("https://www.justwatch.com")}
                     className={Platform.select({
@@ -229,10 +229,10 @@ function YourCountry({
       >
         <View className="space-y-1">
           <Text className="font-primary-bold text-neutral-1 dark:text-white text-xl">
-            your country
+            Your country
           </Text>
           <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
-            we will fetch a list of streaming services for this country
+            We will fetch a list of streaming services for this country
           </Text>
         </View>
 

@@ -16,3 +16,4 @@ export const dbMovieSwipe = {
 };
 
 export type DbMovieSwipe = typeof dbMovieSwipe;
+export * from "mongodb";

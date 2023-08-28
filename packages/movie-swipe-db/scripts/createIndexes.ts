@@ -16,7 +16,7 @@ export async function createIndexes() {
       {
         id: 1,
       },
-      { name: moviesIndex },
+      { name: moviesIndex, unique: true },
     );
   }
 

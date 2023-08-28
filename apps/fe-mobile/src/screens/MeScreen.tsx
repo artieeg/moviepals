@@ -215,18 +215,16 @@ export function MeScreen() {
               )}
 
               <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
-                Need help?{" "}
+                Need help? Email us at{" "}
                 <Pressable
-                  onPress={() =>
-                    Linking.openURL("mailto:getmoviepals@gmail.com")
-                  }
+                  onPress={() => Linking.openURL("mailto:hey@moviepals.io")}
                   className={Platform.select({
                     ios: "translate-y-0.5",
                     default: "translate-y-[7px]",
                   })}
                 >
                   <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base underline">
-                    Email us!
+                    hey@moviepals.io
                   </Text>
                 </Pressable>
               </Text>

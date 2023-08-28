@@ -19,8 +19,15 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: superfly/flyctl-actions/setup-flyctl@master
+      - uses: c-hive/gha-yarn-cache@v2
+        
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'yarn'
+          cache-dependency-path: '**/yarn.lock'
 
       - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
-      - run: yarn install
+      - run: yarn install --frozen-lockfile
       - run: yarn be:fly
       - run: echo "🍏 This job's status is ${{ job.status }}."

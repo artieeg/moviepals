@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import {
   dbMovieSwipe,
+  MongoBulkWriteError,
   Movie,
   ReviewState,
   Swipe,
@@ -163,7 +164,35 @@ async function getRecentlyServedMovies(reviewStateId: string, ctx: Context) {
 async function fetchMoviesFromRemoteApi(params: GetMoviesParams, ctx: Context) {
   //TODO: cache
   const movies = await getMovies(params);
-  await ctx.dbMovieSwipe.movies.insertMany(movies);
+
+  try {
+    //The index should exist
+    const result = await ctx.dbMovieSwipe.movies.insertMany(movies, {
+      ordered: false,
+    });
+
+    logger.info(
+      {
+        message: "Inserted movies",
+        count: result.insertedCount,
+      },
+      "Inserted new movies",
+    );
+  } catch (e) {
+    if (e instanceof MongoBulkWriteError) {
+      logger.info(
+        {
+          message: "Inserted movies",
+          count: (e as MongoBulkWriteError).result.insertedCount,
+        },
+        "Inserted new movies",
+      );
+    } else {
+      logger.error(e, typeof e);
+
+      throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    }
+  }
 
   return movies;
 }

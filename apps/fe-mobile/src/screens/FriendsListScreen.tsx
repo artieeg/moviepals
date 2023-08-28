@@ -120,7 +120,7 @@ export function FriendsListScreen() {
   }
 
   return (
-    <MainLayout title="people">
+    <MainLayout title="People">
       <View className="flex-1 space-y-8">
         <View className="space-y-2">
           <Input
@@ -148,7 +148,7 @@ export function FriendsListScreen() {
         </View>
 
         <View className="flex-1">
-          {(friends.isLoading) && (
+          {friends.isLoading && (
             <View className="flex-1 justify-center items-center">
               <ActivityIndicator
                 size="large"
@@ -228,7 +228,7 @@ function UnknownUser({
         }
         itemId={userId}
         title={name}
-        subtitle={username}
+        subtitle={"@" + username}
         icon={emoji}
       />
     </Animated.View>
@@ -283,7 +283,7 @@ function UserConnection({
       }
       itemId={userId}
       title={name}
-      subtitle={username}
+      subtitle={"@" + username}
       icon={emoji}
     />
   );

@@ -99,16 +99,43 @@ export const user = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input: { userId } }) => {
-      const user = await ctx.appDb
-        .selectFrom("User")
-        .where("id", "=", userId)
-        .selectAll()
-        .executeTakeFirstOrThrow(() => new TRPCError({ code: "NOT_FOUND" }));
+      const [user, myLikes, userLikes] = await Promise.all([
+        ctx.appDb
+          .selectFrom("User")
+          .where("id", "=", userId)
+          .selectAll()
+          .executeTakeFirstOrThrow(() => new TRPCError({ code: "NOT_FOUND" })),
 
-      const matchesCount = await ctx.dbMovieSwipe.swipes.countDocuments({
-        userId: { $in: [user.id, ctx.user] },
-        liked: true,
-      });
+        ctx.dbMovieSwipe.swipes
+          .find(
+            {
+              userId: ctx.user,
+              liked: true,
+            },
+            { projection: { movieId: 1 } },
+          )
+          .toArray(),
+
+        ctx.dbMovieSwipe.swipes
+          .find(
+            {
+              userId: userId,
+              liked: true,
+            },
+            { projection: { movieId: 1 } },
+          )
+          .toArray(),
+      ]);
+
+      let matchesCount = 0;
+
+      for (const myLike of myLikes) {
+        for (const userLike of userLikes) {
+          if (myLike.movieId === userLike.movieId) {
+            matchesCount++;
+          }
+        }
+      }
 
       return { user, matchesCount };
     }),

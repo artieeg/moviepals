@@ -119,6 +119,8 @@ export function UserSettingsScreen() {
               <Input
                 icon={<AtSign />}
                 autoCapitalize="none"
+                autoCorrect={false}
+                autoComplete="username"
                 maxLength={32}
                 placeholder="username"
                 onChangeText={setUsername}
