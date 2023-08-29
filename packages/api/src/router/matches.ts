@@ -15,10 +15,13 @@ export const matches = createTRPCRouter({
     )
     .query(async ({ ctx, input: { query, userIds } }) => {
       const swipes = await ctx.dbMovieSwipe.swipes
-        .find({
-          userId: { $in: [ctx.user, ...userIds] },
-          liked: true,
-        })
+        .find(
+          {
+            userId: { $in: [ctx.user, ...userIds] },
+            liked: true,
+          },
+          { projection: { movieId: 1 } },
+        )
         .sort({ createdAt: -1 })
         .toArray();
 
@@ -50,18 +53,21 @@ export const matches = createTRPCRouter({
     .input(
       z.object({
         /**
-        * User ids to get common matches for. Max 6
-        * */
+         * User ids to get common matches for. Max 6
+         * */
         userIds: z.array(z.string()).max(6),
         cursor: z.number().default(0),
       }),
     )
     .query(async ({ ctx, input: { userIds, cursor } }) => {
       const swipes = await ctx.dbMovieSwipe.swipes
-        .find({
-          userId: { $in: [ctx.user, ...userIds] },
-          liked: true,
-        })
+        .find(
+          {
+            userId: { $in: [ctx.user, ...userIds] },
+            liked: true,
+          },
+          { projection: { movieId: 1 } },
+        )
         .sort({ createdAt: -1 })
         .toArray();
 
