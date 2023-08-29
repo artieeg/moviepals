@@ -109,11 +109,11 @@ export async function main() {
 
   server.get("/admob/callback", async (msg, reply) => {
     logger.info(msg.query, "admob callback");
+    logger.info(msg.url, "admob url");
 
-    console.log(msg.query);
     try {
       await verifyRewardedAdCallback({
-        data: msg.query,
+        url: msg.url,
         userFeedDeliveryCache,
       });
 
@@ -127,4 +127,5 @@ export async function main() {
   });
 
   await server.listen({ port: env.PORT, host: env.HOST });
+  logger.info({ region: process.env.FLY_REGION }, "Server started");
 }

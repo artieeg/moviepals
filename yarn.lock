@@ -1437,6 +1437,13 @@
   resolved "https://registry.yarnpkg.com/@eslint/js/-/js-8.46.0.tgz#3f7802972e8b6fe3f88ed1aabc74ec596c456db6"
   integrity sha512-a8TLtmPi8xzPkCbp/OGFUo5yhRkHM2Ko9kOWP4znJr0WAhWyThaw3PnwX4vOTWOAMsV2uRt32PPDcEz63esSaA==
 
+"@exoshtw/admob-ssv@^0.1.0-rc1":
+  version "0.1.0-rc1"
+  resolved "https://registry.yarnpkg.com/@exoshtw/admob-ssv/-/admob-ssv-0.1.0-rc1.tgz#97d7ce79b604dc3becd8164e52c0e1c0b1cde265"
+  integrity sha512-S/EqfVtgoPPL5EylUjIAuF1g1RBV7meEZXo5AR+CUsA2G/bwTdDpvTC/1i8n3BxKxxNUEI0MsujUtqjWWuptow==
+  dependencies:
+    debug "^4.1.1"
+
 "@fastify/ajv-compiler@^3.5.0":
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/@fastify/ajv-compiler/-/ajv-compiler-3.5.0.tgz#459bff00fefbf86c96ec30e62e933d2379e46670"

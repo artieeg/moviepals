@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@axiomhq/pino": "^0.1.3",
+    "@exoshtw/admob-ssv": "^0.1.0-rc1",
     "@moviepals/db": "^0.1.0",
     "@moviepals/dbmovieswipe": "^0.1.0",
     "@paralleldrive/cuid2": "^2.2.2",
