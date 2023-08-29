@@ -109,14 +109,11 @@ export async function main() {
 
   server.get("/admob/callback", async (msg, reply) => {
     logger.info(msg.query, "admob callback");
-    logger.info(msg.url, "admob url");
 
-    const {user_id} = z.object({ user_id: z.string() }).passthrough().parse(msg.query);
-
+    console.log(msg.query);
     try {
       await verifyRewardedAdCallback({
-        url: msg.url,
-        user: user_id,
+        data: msg.query,
         userFeedDeliveryCache,
       });
 
@@ -129,6 +126,26 @@ export async function main() {
     }
   });
 
+  /*
+  await verifyRewardedAdCallback({
+    data: {
+      ad_network: "5450213213286189855",
+      ad_unit: "2620773067",
+      custom_data: "ca-app-pub-1972828603941935/2620773067",
+      hostname: "7811370f506708",
+      key_id: "3335741209",
+      pid: 281,
+      reward_amount: "40",
+      reward_item: "swipes",
+      signature:
+        "MEQCIDKDIvVLDf7TBhIGaCXHel0oJB3D5ij5wUaYI-FQSK8dAiAgZbghNtdOGwLL6_699XejESz7d57Ww3NAliGzdQRAdQ",
+      timestamp: "1693290466180",
+      transaction_id: "00060409e7b3d17208bbe2752b0550b9",
+      user_id: "zeghqztdmjfsz6bja1l3ug0f",
+    },
+    userFeedDeliveryCache,
+  });
+  */
+
   await server.listen({ port: env.PORT, host: env.HOST });
-  logger.info({ region: process.env.FLY_REGION }, "Server started");
 }

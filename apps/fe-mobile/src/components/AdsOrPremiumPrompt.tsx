@@ -123,7 +123,6 @@ export function AdsOrPremiumPrompt({
     const rewarded = RewardedAd.createForAdRequest(ad, {
       serverSideVerificationOptions: {
         userId: user.data?.id,
-        customData: ad,
       },
     });
 
