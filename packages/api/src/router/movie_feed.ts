@@ -99,7 +99,10 @@ export const movie_feed = createTRPCRouter({
         };
       }
 
-      logger.info({ user, input }, "Fetching movie feed for user");
+      logger.info(
+        { user, input, userFeedDeliveryState },
+        "Fetching movie feed for user",
+      );
 
       const { movies: feed, nextRemoteApiPage } = await getMoviePage({
         ctx,
@@ -546,7 +549,13 @@ function randomElements<T>(array: T[], count: number) {
 
   const elements: T[] = [];
 
-  for (let i = 0; elements.length < Math.min(array.length, count); i++) {
+  let attemps = count * 3;
+
+  for (
+    let i = 0;
+    elements.length < Math.min(array.length, count) && attemps >= 0;
+    i++, attemps--
+  ) {
     logger.info(
       { count, ellen: elements.length, len: array.length, i },
       "Random elements",
@@ -558,6 +567,13 @@ function randomElements<T>(array: T[], count: number) {
     }
 
     elements.push(array[randomIndex]!);
+  }
+
+  if (attemps <= 0) {
+    logger.warn(
+      { count, found: elements.length, input_len: array.length, array },
+      "Failed to pick random elements",
+    );
   }
 
   return elements;
