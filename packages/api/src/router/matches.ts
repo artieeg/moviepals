@@ -20,6 +20,7 @@ export const matches = createTRPCRouter({
             userId: { $in: [ctx.user, ...userIds] },
             liked: true,
           },
+
           { projection: { movieId: 1 } },
         )
         .sort({ createdAt: -1 })
@@ -74,11 +75,12 @@ export const matches = createTRPCRouter({
       const movieEntryCount = new Map<number, number>();
 
       for (const swipe of swipes) {
-        const prev = movieEntryCount.get(swipe.movieId) ?? 0;
+        const prev = movieEntryCount.get(swipe.movieId) || 0;
+        console.log({ movieEntryCount });
         movieEntryCount.set(swipe.movieId, prev + 1);
       }
 
-      const expectedEntryCount = userIds.length + 1;
+      const expectedEntryCount = userIds.length;
 
       const matchedMovieIds = Array.from(movieEntryCount.entries())
         .filter(([, count]) => count === expectedEntryCount)

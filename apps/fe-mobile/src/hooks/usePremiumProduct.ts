@@ -18,6 +18,8 @@ export function usePremiumProduct() {
       env.REVCAT_GO_PRO_PRODUCT_ID,
     ]);
 
+    console.log(products)
+
     return {
       product: products[0]!,
       formattedPrice: `${getCurrencySymbol(
