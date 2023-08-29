@@ -570,7 +570,7 @@ function randomElements<T>(array: T[], count: number) {
   }
 
   if (attemps <= 0) {
-    logger.warn(
+    logger.error(
       { count, found: elements.length, input_len: array.length, array },
       "Failed to pick random elements",
     );
