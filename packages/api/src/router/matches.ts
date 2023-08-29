@@ -10,26 +10,34 @@ export const matches = createTRPCRouter({
     .input(
       z.object({
         query: z.string().min(3),
-        userId: z.string(),
+        userIds: z.array(z.string()).max(6),
       }),
     )
-    .query(async ({ ctx, input: { query, userId } }) => {
-      const matches = await ctx.dbMovieSwipe.swipes
+    .query(async ({ ctx, input: { query, userIds } }) => {
+      const swipes = await ctx.dbMovieSwipe.swipes
         .find({
-          userId: { $in: [userId, ctx.user] },
+          userId: { $in: [ctx.user, ...userIds] },
           liked: true,
         })
+        .sort({ createdAt: -1 })
         .toArray();
 
-      const uniqueMovieIds = new Set<number>();
+      const movieEntryCount = new Map<number, number>();
 
-      for (const match of matches) {
-        uniqueMovieIds.add(match.movieId);
+      for (const swipe of swipes) {
+        const prev = movieEntryCount.get(swipe.movieId) ?? 0;
+        movieEntryCount.set(swipe.movieId, prev + 1);
       }
+
+      const expectedEntryCount = userIds.length + 1;
+
+      const matchedMovieIds = Array.from(movieEntryCount.entries())
+        .filter(([, count]) => count === expectedEntryCount)
+        .map(([key]) => key);
 
       const movies = await ctx.dbMovieSwipe.movies
         .find({
-          id: { $in: Array.from(uniqueMovieIds) },
+          id: { $in: Array.from(matchedMovieIds) },
           $text: { $search: query },
         })
         .limit(10)
@@ -42,9 +50,9 @@ export const matches = createTRPCRouter({
     .input(
       z.object({
         /**
-        * User ids to get common matches for. Max 3
+        * User ids to get common matches for. Max 6
         * */
-        userIds: z.array(z.string()).max(3),
+        userIds: z.array(z.string()).max(6),
         cursor: z.number().default(0),
       }),
     )
