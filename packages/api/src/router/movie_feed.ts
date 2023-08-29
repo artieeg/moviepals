@@ -384,6 +384,8 @@ async function getMoviePage({
     previouslySwipedMovieIds,
   ].flat();
 
+  logger.info(excludedMovieIds.length, "excluded movie ids");
+
   const randomFriendSwipes = await fetchRandomSwipes(
     friendUserIds,
     excludedMovieIds,
@@ -410,6 +412,8 @@ async function getMoviePage({
   );
 
   const randomFriendSwipesMovieIds = randomFriendSwipes.map((s) => s.movieId);
+
+  logger.info(randomFriendSwipesMovieIds.length, "random friend swipe length");
 
   const friendMoviesToMixInPromise = fetchMoviesDataFromLocalDb(
     randomFriendSwipesMovieIds,
@@ -498,6 +502,8 @@ async function getMoviePage({
 
   //Finish loading friend movies and append them to response
   const friendMoviesToMixIn = await friendMoviesToMixInPromise;
+
+  logger.info({friendMoviesCount: friendMoviesToMixIn.length}, "mixing in friend movies")
 
   for (const movie of friendMoviesToMixIn) {
     moviesToServe.push(movie);
