@@ -2,13 +2,13 @@ import React from "react";
 import { Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
-import { Bell, CinemaOld, Group, PeopleTag } from "iconoir-react-native";
+import { CinemaOld, Group, MediaVideoList, PeopleTag } from "iconoir-react-native";
 import { useColorScheme } from "nativewind";
 import { twJoin } from "tailwind-merge";
 
 import { useNavigation } from "~/hooks";
 import {
-  NAVIGATOR_EVENTS,
+  NAVIGATOR_MATCHES,
   NAVIGATOR_FRIENDS,
   NAVIGATOR_ME,
   NAVIGATOR_SWIPE,
@@ -32,7 +32,7 @@ export function BottomTabBar(props: BottomTabBarProps) {
 
   const isSwipeNavigator = currentRoute === NAVIGATOR_SWIPE;
   const isFriendsNavigator = currentRoute === NAVIGATOR_FRIENDS;
-  const isEventsNavigator = currentRoute === NAVIGATOR_EVENTS;
+  const isMatchesNavigator = currentRoute === NAVIGATOR_MATCHES;
   const isMeNavigator = currentRoute === NAVIGATOR_ME;
 
   const { bottom } = useSafeAreaInsets();
@@ -86,28 +86,26 @@ export function BottomTabBar(props: BottomTabBarProps) {
         </Text>
       </Pressable>
 
-      {/*
       <Pressable
-        onPress={() => navigation.navigate(NAVIGATOR_EVENTS)}
+        onPress={() => navigation.navigate(NAVIGATOR_MATCHES)}
         className="flex-1 items-center justify-center space-y-1 pt-4"
       >
-        <Bell
-          color={isEventsNavigator ? selected : unselected}
+        <MediaVideoList
+          color={isMatchesNavigator ? selected : unselected}
           width="24"
           height="24"
         />
         <Text
           className={twJoin(
             "font-primary-bold",
-            isEventsNavigator
+            isMatchesNavigator
               ? "text-neutral-1 dark:text-white"
               : "text-neutral-2 dark:text-neutral-5",
           )}
         >
-          events
+          matches
         </Text>
       </Pressable>
-      */}
 
       <Pressable
         onPress={() => navigation.navigate(NAVIGATOR_ME)}

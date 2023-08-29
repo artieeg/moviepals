@@ -6,12 +6,14 @@ import {
   GenreFilterScreen,
   InviteScreen,
   InviteSuccessScreen,
+  MatchListScreen,
   MySwipeListScreen,
   SCREEN_CAST_LIST,
   SCREEN_DIRECTOR_LIST,
   SCREEN_GENRE_FILTER,
   SCREEN_INVITE,
   SCREEN_INVITE_SUCCESS,
+  SCREEN_MATCHES_LIST,
   SCREEN_MY_SWIPE_LIST,
   SCREEN_SHARE_PREMIUM,
   SCREEN_STREAMING_SERVICE_LIST,
@@ -22,7 +24,10 @@ import {
   SwipeScreen,
   TimeframeInputScreen,
 } from "~/screens";
-import {SCREEN_USER_SETTINGS, UserSettingsScreen} from "~/screens/UserSettingsScreen";
+import {
+  SCREEN_USER_SETTINGS,
+  UserSettingsScreen,
+} from "~/screens/UserSettingsScreen";
 import MainNavigator from "./MainNavigator";
 import OnboardingNavigator from "./OnboardingNavigator";
 import { options } from "./options";
@@ -120,6 +125,12 @@ export default function RootNavigator() {
         options={options}
         name={SCREEN_USER_SETTINGS}
         component={UserSettingsScreen}
+      />
+
+      <Stack.Screen
+        options={options}
+        name={SCREEN_MATCHES_LIST}
+        component={MatchListScreen}
       />
     </Stack.Navigator>
   );

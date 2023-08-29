@@ -41,47 +41,38 @@ export const matches = createTRPCRouter({
   getMatches: protectedProcedure
     .input(
       z.object({
-        userId: z.string(),
+        /**
+        * User ids to get common matches for. Max 3
+        * */
+        userIds: z.array(z.string()).max(3),
         cursor: z.number().default(0),
       }),
     )
-    .query(async ({ ctx, input: { userId, cursor } }) => {
-      const [userSwipes, friendSwipes] = await Promise.all([
-        ctx.dbMovieSwipe.swipes
-          .find({
-            userId: ctx.user,
-            liked: true,
-          })
-          .sort({ createdAt: -1 })
-          .toArray(),
-        ctx.dbMovieSwipe.swipes
-          .find({
-            userId,
-            liked: true,
-          })
-          .sort({ createdAt: -1 })
-          .toArray(),
-      ]);
+    .query(async ({ ctx, input: { userIds, cursor } }) => {
+      const swipes = await ctx.dbMovieSwipe.swipes
+        .find({
+          userId: { $in: [ctx.user, ...userIds] },
+          liked: true,
+        })
+        .sort({ createdAt: -1 })
+        .toArray();
 
-      const uniqueMovieIds = new Set<number>();
+      const movieEntryCount = new Map<number, number>();
 
-      for (const swipe of userSwipes) {
-        if (
-          friendSwipes.some(
-            (friendSwipe) => friendSwipe.movieId === swipe.movieId,
-          )
-        ) {
-          uniqueMovieIds.add(swipe.movieId);
-        }
+      for (const swipe of swipes) {
+        const prev = movieEntryCount.get(swipe.movieId) ?? 0;
+        movieEntryCount.set(swipe.movieId, prev + 1);
       }
 
-      logger.info({
-        uniqueMovieIds,
-      });
+      const expectedEntryCount = userIds.length + 1;
+
+      const matchedMovieIds = Array.from(movieEntryCount.entries())
+        .filter(([, count]) => count === expectedEntryCount)
+        .map(([key]) => key);
 
       const movies = await ctx.dbMovieSwipe.movies
         .find({
-          id: { $in: Array.from(uniqueMovieIds) },
+          id: { $in: matchedMovieIds },
         })
         .skip(cursor * MATCHES_PER_PAGE)
         .limit(MATCHES_PER_PAGE)
