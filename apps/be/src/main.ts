@@ -15,6 +15,7 @@ import {
   UserFeedDeliveryCache,
   verifyRewardedAdCallback,
 } from "@moviepals/api";
+import { logger } from "@moviepals/api/src/logger";
 import { appDb, connectAppDb } from "@moviepals/db";
 
 import { env } from "./env";
@@ -88,7 +89,7 @@ export async function main() {
   });
 
   server.post("/revcat/callback", async (msg, reply) => {
-    console.log(msg.body);
+    logger.info(msg.body, "revenue cat");
     try {
       const {
         event: { app_user_id },
@@ -101,11 +102,14 @@ export async function main() {
 
       reply.status(200).send();
     } catch (e) {
+      logger.error(e);
       reply.status(500).send();
     }
   });
 
   server.get("/admob/callback", async (msg, reply) => {
+    logger.info(msg.query, "admob callback");
+
     console.log(msg.query);
     try {
       await verifyRewardedAdCallback({
@@ -115,7 +119,9 @@ export async function main() {
 
       reply.status(200).send();
     } catch (e) {
-      console.log(e);
+      logger.error(e, "admob error");
+
+      console.error(e);
       reply.status(400).send();
     }
   });

@@ -1,15 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import { Platform, ViewProps } from "react-native";
 import {
   AdEventType,
   AdsConsent,
   AdsConsentStatus,
+  RewardedAd,
+  RewardedAdEventType,
 } from "react-native-google-mobile-ads";
 import { PERMISSIONS, request } from "react-native-permissions";
-import { PurchasesError } from "react-native-purchases";
+import Purchases, { PurchasesError } from "react-native-purchases";
 import Toast from "react-native-toast-message";
 import { BrightStar } from "iconoir-react-native";
 
+import { api } from "~/utils/api";
+import { env } from "~/utils/env";
 import {
   useAdsConsentQuery,
   useCanServeAds,
@@ -17,8 +21,8 @@ import {
   usePremiumProduct,
   useRewardedAd,
 } from "~/hooks";
-import { SCREEN_THANK_YOU } from "~/navigators/SwipeNavigator";
 import { Prompt } from "./Prompt";
+import {SCREEN_THANK_YOU} from "~/screens";
 
 export function AdsOrPremiumPrompt({
   onProceed,
@@ -43,10 +47,13 @@ export function AdsOrPremiumPrompt({
     }
 
     try {
+      await Purchases.purchaseStoreProduct(premium.data.product);
+
       onProceed();
 
       navigation.navigate(SCREEN_THANK_YOU);
     } catch (e) {
+      console.error(e);
       console.error((e as PurchasesError).underlyingErrorMessage);
     } finally {
     }
@@ -70,9 +77,10 @@ export function AdsOrPremiumPrompt({
       }
     }
 
-    canServeAds.refetch();
-
     adsConsent.refetch();
+
+    canServeAds.refetch();
+    ad.refetch();
   }
 
   async function onAllowAds() {
@@ -99,12 +107,55 @@ export function AdsOrPremiumPrompt({
     onSkip?.();
   }
 
+  const user = api.user.getMyData.useQuery();
+  const adCallback = api.ad_impression.adImpression.useMutation();
+
+  const [loading, setLoading] = useState(false);
+
   async function onWatchRewardedAd() {
+    setLoading(true);
+
+    const ad = Platform.select({
+      ios: env.REWARDED_AD_IOS,
+      default: env.REWARDED_AD_ANDROID,
+    });
+
+    const rewarded = RewardedAd.createForAdRequest(ad, {
+      serverSideVerificationOptions: {
+        userId: user.data?.id,
+        customData: ad,
+      },
+    });
+
+    const watchedUnsub = rewarded.addAdEventListener(
+      RewardedAdEventType.EARNED_REWARD,
+      () => {
+        watchedUnsub();
+
+        adCallback.mutate();
+      },
+    );
+
+    const loadedUnsub = rewarded.addAdEventListener(
+      RewardedAdEventType.LOADED,
+      () => {
+        rewarded.show();
+
+        setLoading(false);
+
+        loadedUnsub();
+      },
+    );
+
+    rewarded.load();
+
+    /*
     let data = ad.data;
+
+    console.log({ data });
 
     if (!data) {
       const refetchResult = await ad.refetch();
-      console.log(refetchResult);
 
       if (refetchResult.data) {
         data = refetchResult.data;
@@ -128,6 +179,7 @@ export function AdsOrPremiumPrompt({
     } finally {
       ad.refetch();
     }
+     * */
   }
 
   return (
@@ -146,14 +198,15 @@ export function AdsOrPremiumPrompt({
       }
       buttons={[
         {
-          title: `get premium for ${premium.data?.formattedPrice}`,
+          title: `Get Premium for ${premium.data?.formattedPrice}`,
           onPress: onPurchasePremium,
         },
         mode === "ad"
           ? canServeAds.data
             ? {
                 kind: "outline",
-                title: `watch a rewarded ad`,
+                isLoading: loading,
+                title: `Watch a rewarded ad`,
                 onPress: onWatchRewardedAd,
               }
             : {

@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { api } from "~/utils/api";
 import { env } from "~/utils/env";
+import { useAdsConsentQuery } from "./useAdmob";
 
 const ad = Platform.select({
   ios: env.REWARDED_AD_IOS,
@@ -14,10 +15,15 @@ const ad = Platform.select({
 });
 
 export function useRewardedAd() {
+  const consent = useAdsConsentQuery();
+
   const user = api.user.getMyData.useQuery();
   const adCallback = api.ad_impression.adImpression.useMutation();
 
-  return useQuery(["rewarded-ad", user.data?.id], async () => {
+  return useQuery(["rewarded-ad", user.data?.id, consent.data], async () => {
+    console.log("consent", consent.data)
+
+
     return new Promise<RewardedAd>((resolve) => {
       const rewarded = RewardedAd.createForAdRequest(ad, {
         serverSideVerificationOptions: {
@@ -31,13 +37,14 @@ export function useRewardedAd() {
         () => {
           watchedUnsub();
 
-          adCallback.mutate()
+          adCallback.mutate();
         },
       );
 
       const loadedUnsub = rewarded.addAdEventListener(
         RewardedAdEventType.LOADED,
         () => {
+          console.log("loaded");
           loadedUnsub();
 
           resolve(rewarded);

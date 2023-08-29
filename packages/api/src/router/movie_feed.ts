@@ -85,6 +85,22 @@ export const movie_feed = createTRPCRouter({
         ctx,
       );
 
+      if (
+        !user.fullAccessPurchaseId &&
+        userFeedDeliveryState &&
+        userFeedDeliveryState.page > userFeedDeliveryState.ads_watched
+      ) {
+        logger.info({ user }, "User has to watch an ad");
+
+        return {
+          hasToWatchAd: true,
+          feed: [],
+          cursor: input.cursor + 1,
+        };
+      }
+
+      logger.info({ user, input }, "Fetching movie feed for user");
+
       const { movies: feed, nextRemoteApiPage } = await getMoviePage({
         ctx,
         userReviewState,
@@ -166,18 +182,20 @@ async function fetchMoviesFromRemoteApi(params: GetMoviesParams, ctx: Context) {
   const movies = await getMovies(params);
 
   try {
-    //The index should exist
-    const result = await ctx.dbMovieSwipe.movies.insertMany(movies, {
-      ordered: false,
-    });
+    if (movies.length > 0) {
+      //The index should exist
+      const result = await ctx.dbMovieSwipe.movies.insertMany(movies, {
+        ordered: false,
+      });
 
-    logger.info(
-      {
-        message: "Inserted movies",
-        count: result.insertedCount,
-      },
-      "Inserted new movies",
-    );
+      logger.info(
+        {
+          message: "Inserted movies",
+          count: result.insertedCount,
+        },
+        "Inserted new movies",
+      );
+    }
   } catch (e) {
     if (e instanceof MongoBulkWriteError) {
       logger.info(
