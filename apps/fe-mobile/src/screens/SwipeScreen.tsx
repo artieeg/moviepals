@@ -107,7 +107,7 @@ export function SwipeScreen() {
   useEffect(() => {
     if (
       currentMovieIdx === 3 &&
-      //!adConsentPromptStatus.data?.shown &&
+      !adConsentPromptStatus.data?.shown &&
       !premiumStatus.data?.isPaid
     ) {
       setShowAdPermissionPrompt(true);

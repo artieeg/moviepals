@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Platform, ViewProps } from "react-native";
+import { Alert, Platform, ViewProps } from "react-native";
 import {
   AdEventType,
   AdsConsent,
@@ -21,8 +21,8 @@ import {
   usePremiumProduct,
   useRewardedAd,
 } from "~/hooks";
+import { SCREEN_THANK_YOU } from "~/screens";
 import { Prompt } from "./Prompt";
-import {SCREEN_THANK_YOU} from "~/screens";
 
 export function AdsOrPremiumPrompt({
   onProceed,
@@ -148,6 +148,13 @@ export function AdsOrPremiumPrompt({
     );
 
     rewarded.load();
+    rewarded.addAdEventListener(AdEventType.ERROR, (e) => {
+      if (e.message.includes("no-fill")) {
+        Alert.alert("No ads available right now", "We're so sorry, please try again later");
+      }
+
+      setLoading(false);
+    });
 
     /*
     let data = ad.data;
