@@ -277,6 +277,7 @@ export const user = createTRPCRouter({
       }
 
       const newUser = await ctx.appDb.transaction().execute(async (trx) => {
+        /*
         const fullAccessPurchase = await trx
           .insertInto("FullAccessPurchase")
           .values({
@@ -287,6 +288,7 @@ export const user = createTRPCRouter({
           .executeTakeFirstOrThrow(
             () => new TRPCError({ code: "INTERNAL_SERVER_ERROR" }),
           );
+         * */
 
         return await trx
           .insertInto("User")
@@ -300,7 +302,7 @@ export const user = createTRPCRouter({
             timezoneOffset: 0,
             fcmToken: null,
             userInviteSlugId: inviteLinkSlug as string,
-            fullAccessPurchaseId: fullAccessPurchase.id,
+            //fullAccessPurchaseId: fullAccessPurchase.id,
           })
           .returningAll()
           .executeTakeFirstOrThrow(
