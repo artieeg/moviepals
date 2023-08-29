@@ -362,6 +362,8 @@ async function getMoviePage({
     );
 
     if (filtered.length > 0) {
+      logger.info("Serve a portion of the previous response", filtered.length);
+
       shouldShuffleResponse = false;
 
       for (const movie of filtered) {
@@ -435,6 +437,16 @@ async function getMoviePage({
 
   const moviesFetchedFromRemoteApi: Movie[] = [];
   let page = latestRemoteApiPage;
+
+  logger.info(
+    {
+      leftToFetch,
+      responseTotalMovieCount,
+      randomFriendSwipes: randomFriendSwipes.length,
+      moviesToServe: moviesToServe.length,
+    },
+    "Left to fetch",
+  );
 
   for (; moviesFetchedFromRemoteApi.length < leftToFetch; page++) {
     logger.info(

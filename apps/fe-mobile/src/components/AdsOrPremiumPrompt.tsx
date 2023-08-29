@@ -141,6 +141,7 @@ export function AdsOrPremiumPrompt({
         rewarded.show();
 
         setLoading(false);
+        onProceed();
 
         loadedUnsub();
       },
