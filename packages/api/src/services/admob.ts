@@ -18,9 +18,11 @@ export const admobSchema = z
 
 export async function verifyRewardedAdCallback({
   url,
+  user,
   userFeedDeliveryCache,
 }: {
   url: string,
+  user: string,
   userFeedDeliveryCache: UserFeedDeliveryCache;
 }) {
   const verifier = new Verifier();
@@ -34,7 +36,9 @@ export async function verifyRewardedAdCallback({
 
   //await verifySignature(payload);
 
-  await userFeedDeliveryCache.incAdWatched(payload.user_id);
+  if (isValid) {
+    await userFeedDeliveryCache.incAdWatched(user);
+  }
 }
 
 async function verifySignature(payload: z.infer<typeof admobSchema>) {

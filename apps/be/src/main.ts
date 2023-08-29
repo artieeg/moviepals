@@ -111,9 +111,12 @@ export async function main() {
     logger.info(msg.query, "admob callback");
     logger.info(msg.url, "admob url");
 
+    const {user_id} = z.object({ user_id: z.string() }).passthrough().parse(msg.query);
+
     try {
       await verifyRewardedAdCallback({
         url: msg.url,
+        user: user_id,
         userFeedDeliveryCache,
       });
 
