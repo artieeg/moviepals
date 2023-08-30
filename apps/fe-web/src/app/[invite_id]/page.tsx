@@ -3,8 +3,8 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import {useRouter} from "next/router";
 
 function iOS() {
   if (typeof navigator === "undefined") {
@@ -26,8 +26,8 @@ function iOS() {
 }
 
 export default function Invite() {
-  const router = useRouter();
-  const invite_id = router.query.invite_id
+  const params = useParams();
+  const invite_id = params.invite_id;
   const [android, setAndroid] = React.useState(false);
 
   function onGetApp() {
@@ -55,7 +55,7 @@ export default function Invite() {
           MoviePals
         </h1>
         <p className="font-secondary text-center text-neutral-2 dark:text-neutral-5 text-base mt-1">
-          you've been invited to swipe and find a movie
+          swipe and find a movie
           <br />
           to watch together
         </p>
@@ -65,7 +65,7 @@ export default function Invite() {
           whileTap={{ scale: 0.95 }}
           className="rounded-full bg-brand-1 px-10 py-2 mt-8 text-center select-none text-base font-primary text-white cursor-pointer"
         >
-          Get the app
+          Accept the invite
         </motion.div>
 
         {android && (
