@@ -4,6 +4,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import {useRouter} from "next/router";
 
 function iOS() {
   if (typeof navigator === "undefined") {
@@ -24,7 +25,9 @@ function iOS() {
   );
 }
 
-export default function Invite({ invite_id }: { invite_id: string }) {
+export default function Invite() {
+  const router = useRouter();
+  const invite_id = router.query.invite_id
   const [android, setAndroid] = React.useState(false);
 
   function onGetApp() {
