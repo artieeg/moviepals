@@ -9,7 +9,7 @@ import "react-responsive-carousel/lib/styles/carousel.min.css";
 export default function Home() {
   function onGetApp() {}
 
-  const width = typeof window !== undefined ? window.innerWidth * 0.4 : 300;
+  const width = typeof window !== "undefined" ? window.innerWidth * 0.4 : 300;
   const height = width * 2.16;
 
   return (
