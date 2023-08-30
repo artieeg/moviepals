@@ -1,13 +1,39 @@
 "use client";
 
+import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
-import { Carousel } from "react-responsive-carousel";
 
-import "react-responsive-carousel/lib/styles/carousel.min.css";
+function iOS() {
+  if (typeof navigator === "undefined") {
+    return false;
+  }
+
+  return (
+    [
+      "iPad Simulator",
+      "iPhone Simulator",
+      "iPod Simulator",
+      "iPad",
+      "iPhone",
+      "iPod",
+    ].includes(navigator.platform) ||
+    // iPad on iOS 13 detection
+    (navigator.userAgent.includes("Mac") && "ontouchend" in document)
+  );
+}
 
 export default function Home() {
-  function onGetApp() {}
+  const [android, setAndroid] = React.useState(false);
+
+  function onGetApp() {
+    if (iOS()) {
+      window.location.href = "https://testflight.apple.com/join/riAOMve5";
+    } else {
+      setAndroid(true);
+    }
+  }
 
   const width = typeof window !== "undefined" ? window.innerWidth * 0.4 : 300;
   const height = width * 2.16;
@@ -36,9 +62,56 @@ export default function Home() {
         >
           Get the app
         </motion.div>
+
+        {android && (
+          <div className="space-y-3 px-8 mt-12">
+            <p className="font-secondary text-center text-neutral-2 dark:text-neutral-5 text-base mt-1">
+              Are you an Android user?
+            </p>
+
+            <p className="font-secondary text-center text-neutral-2 dark:text-neutral-5 text-base mt-1">
+              We're still waiting for Google to approve open beta build for our
+              app.
+            </p>
+            <p className="font-secondary text-center text-neutral-2 dark:text-neutral-5 text-base mt-1">
+              Currently, you can either download an APK file or ask us to invite
+              you to the closed beta.
+            </p>
+
+            <div className="flex flex-col mt-8 space-y-3">
+
+              <Link
+                className="font-secondary text-center text-brand-1 underline dark:text-neutral-5 text-base mt-1"
+                href="mailto:hey@moviepals.io"
+              >
+                Email us to join closed beta
+              </Link>
+
+              <Link
+                className="font-secondary text-center text-brand-1 underline dark:text-neutral-5 text-base mt-1"
+                href="/moviepals.apk"
+              >
+                Download APK and install manually
+              </Link>
+
+              <Link
+                className="font-secondary text-center text-brand-1 underline dark:text-neutral-5 text-base mt-1"
+                href="https://testflight.apple.com/join/riAOMve5"
+              >
+                I'm on IOS, give me TestFlight link
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
 
-      <div className="mt-16 pl-8 w-full flex space-x-3 overflow-x-scroll">
+      <motion.div
+        className="mt-16 pl-8 w-full flex space-x-3 overflow-x-scroll no-scrollbar"
+        animate={{ opacity: 1 }}
+        initial={{ opacity: 0 }}
+        transition={{ delay: 0.5, duration: 0.4 }}
+        style={{ height }}
+      >
         {[1, 2, 3, 4, 5].map((i) => (
           <Image
             key={i}
@@ -50,9 +123,9 @@ export default function Home() {
             className="rounded-2xl"
           />
         ))}
-      </div>
+      </motion.div>
 
-      <div className="flex flex-col space-y-3 mt-16 items-center">
+      <div className="flex flex-col space-y-3 my-16 items-center">
         <a
           href="mailto:hey@moviepals.io"
           className="text-neutral-2 underline dark:text-neutral-5"
