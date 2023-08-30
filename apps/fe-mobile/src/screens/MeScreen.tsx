@@ -10,17 +10,19 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Purchases, { PurchasesError } from "react-native-purchases";
 import Toast from "react-native-toast-message";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useColorScheme } from "nativewind";
 
 import { api, signOut } from "~/utils/api";
 import { Section, Switch, UserAvatar } from "~/components";
-import { useNavigation } from "~/hooks";
+import { useNavigation, usePremiumProduct } from "~/hooks";
 import { SCREEN_INVITE } from "./InviteScreen";
 import { MainLayout } from "./layouts/MainLayout";
 import { SCREEN_MY_SWIPE_LIST } from "./MySwipeListScreen";
 import { SCREEN_SHARE_PREMIUM } from "./SharePremiumScreen";
+import { SCREEN_THANK_YOU } from "./ThankYouScreen";
 import { SCREEN_USER_SETTINGS } from "./UserSettingsScreen";
 
 export const SCREEN_ME = "MeScreen";
@@ -78,7 +80,28 @@ export function MeScreen() {
     );
   }
 
-  function onPurchasePremium() {}
+  const premium = usePremiumProduct();
+
+  async function onPurchasePremium() {
+    if (!premium.data?.product.identifier) {
+      return;
+    }
+
+    try {
+      await Purchases.purchaseStoreProduct(premium.data.product);
+
+      setTimeout(() => {
+        user.refetch();
+        paidStatus.refetch();
+      }, 400);
+
+      navigation.navigate(SCREEN_THANK_YOU);
+    } catch (e) {
+      console.error(e);
+      console.error((e as PurchasesError).underlyingErrorMessage);
+    } finally {
+    }
+  }
 
   const deleteMyAccount = api.user.deleteMyAccount.useMutation({
     onSuccess() {
@@ -210,7 +233,7 @@ export function MeScreen() {
                   title="Get Premium"
                   onPress={onPurchasePremium}
                   showArrowRight
-                  subtitle="Ad-free, unlimited matches, share with your friends"
+                  subtitle="Ad-free experience, unlimited swipes, and more!"
                 />
               )}
 
