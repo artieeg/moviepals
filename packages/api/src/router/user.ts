@@ -59,6 +59,26 @@ export const user = createTRPCRouter({
     }),
 
   deleteMyAccount: protectedProcedure.mutation(async ({ ctx }) => {
+    await ctx.appDb
+      .deleteFrom("ConnectionRequest")
+      .where((eb) =>
+        eb.or([
+          eb("firstUserId", "=", ctx.user),
+          eb("secondUserId", "=", ctx.user),
+        ]),
+      )
+      .execute();
+
+    await ctx.appDb
+      .deleteFrom("Friend")
+      .where((eb) =>
+        eb.or([
+          eb("firstUserId", "=", ctx.user),
+          eb("secondUserId", "=", ctx.user),
+        ]),
+      )
+      .execute();
+
     const delUserPromise = ctx.appDb
       .deleteFrom("User")
       .where("id", "=", ctx.user)
@@ -228,6 +248,8 @@ export const user = createTRPCRouter({
       }),
     )
     .mutation(async ({ input: { name, username, emoji, method }, ctx }) => {
+      const isAppleReview = name.toLowerCase().trim() === "apple";
+
       const existingUser = await ctx.appDb
         .selectFrom("User")
         .where("username", "=", username)
@@ -277,18 +299,22 @@ export const user = createTRPCRouter({
       }
 
       const newUser = await ctx.appDb.transaction().execute(async (trx) => {
-        /*
-        const fullAccessPurchase = await trx
-          .insertInto("FullAccessPurchase")
-          .values({
-            id: createId(),
-            source: "gift",
-          })
-          .returning("id")
-          .executeTakeFirstOrThrow(
-            () => new TRPCError({ code: "INTERNAL_SERVER_ERROR" }),
-          );
-         * */
+        let fullAccessPurchaseId: string | null = null;
+
+        if (!isAppleReview) {
+          const fullAccessPurchase = await trx
+            .insertInto("FullAccessPurchase")
+            .values({
+              id: createId(),
+              source: "gift",
+            })
+            .returning("id")
+            .executeTakeFirstOrThrow(
+              () => new TRPCError({ code: "INTERNAL_SERVER_ERROR" }),
+            );
+
+          fullAccessPurchaseId = fullAccessPurchase.id;
+        }
 
         return await trx
           .insertInto("User")
@@ -302,7 +328,7 @@ export const user = createTRPCRouter({
             timezoneOffset: 0,
             fcmToken: null,
             userInviteSlugId: inviteLinkSlug as string,
-            //fullAccessPurchaseId: fullAccessPurchase.id,
+            fullAccessPurchaseId,
           })
           .returningAll()
           .executeTakeFirstOrThrow(

@@ -38,6 +38,30 @@ export async function main() {
   const userDeliveryCacheClient = new Redis(env.USER_DELIVERY_CACHE_REDIS_URL, {
     lazyConnect: true,
     family: 6,
+    reconnectOnError: () => true,
+    retryStrategy: () => 100,
+    keepAlive: 1,
+  });
+
+  userDeliveryCacheClient.on("error", (err) => {
+    logger.error("User delivery cache error", err);
+  });
+
+  userDeliveryCacheClient.on("close", async () => {
+    logger.error("User delivery cache close");
+    await userDeliveryCacheClient.connect();
+  });
+
+  userDeliveryCacheClient.on("connect", () => {
+    logger.error("user delivery cache connect");
+  });
+
+  userDeliveryCacheClient.on("reconnecting", () => {
+    logger.error("User delivery cache reconnecting");
+  });
+
+  userDeliveryCacheClient.on("end", () => {
+    logger.error("User delivery cache end");
   });
 
   const lastestFeedResponseCacheClient = new Redis(
@@ -45,8 +69,33 @@ export async function main() {
     {
       lazyConnect: true,
       family: 6,
+      reconnectOnError: () => true,
+      retryStrategy: () => 100,
+      keepAlive: 1,
     },
   );
+
+  lastestFeedResponseCacheClient.on("error", async (err) => {
+    logger.error("User delivery cache error", err);
+  });
+
+  lastestFeedResponseCacheClient.on("close", async () => {
+    logger.error("Latest feed response cache close");
+
+    await lastestFeedResponseCacheClient.connect();
+  });
+
+  lastestFeedResponseCacheClient.on("connect", () => {
+    logger.error("Latest feed response cache connect");
+  });
+
+  lastestFeedResponseCacheClient.on("reconnecting", () => {
+    logger.error("Latest feed response cache reconnecting");
+  });
+
+  lastestFeedResponseCacheClient.on("end", () => {
+    logger.error("Latest feed response cache end");
+  });
 
   await Promise.all([
     connectAppDb(),
@@ -54,6 +103,11 @@ export async function main() {
     userDeliveryCacheClient.connect(),
     lastestFeedResponseCacheClient.connect(),
   ]);
+
+  setInterval(() => {
+    userDeliveryCacheClient.set("user-delivery-cache", Math.random());
+    lastestFeedResponseCacheClient.set("latest-feed-response", Math.random());
+  }, 400);
 
   const latestFeedResponseCache = new LatestFeedResponseCache(
     lastestFeedResponseCacheClient,
@@ -64,7 +118,37 @@ export async function main() {
   );
 
   server.get("/health", async () => {
-    return { status: "ok" };
+    if (userDeliveryCacheClient.status !== "ready") {
+      await userDeliveryCacheClient.connect()
+      logger.error("USER_DELIVERY CACHE NOT READY");
+    }
+
+    if (lastestFeedResponseCacheClient.status !== "ready") {
+      await lastestFeedResponseCacheClient.connect()
+      logger.error("LATEST_FEED_RESPONSE CACHE NOT READY");
+    }
+
+    if (userDeliveryCacheClient.status !== "ready") {
+      logger.error("USER_DELIVERY CACHE RECONNECT FAILED");
+      throw new Error("USER_DELIVERY CACHE RECONNECT FAILED")
+    }
+
+    if (lastestFeedResponseCacheClient.status !== "ready") {
+      logger.error("LATEST_FEED_RESPONSE CACHE RECONNECT FAILED");
+      throw new Error("LATEST_FEED_RESPONSE CACHE RECONNECT FAILED")
+    }
+
+    userDeliveryCacheClient.ping();
+    lastestFeedResponseCacheClient.ping();
+
+    userDeliveryCacheClient.set("user-delivery-cache", Math.random());
+    lastestFeedResponseCacheClient.set("latest-feed-response", Math.random());
+
+    return {
+      status: "ok",
+      userDeliveryCacheClient: userDeliveryCacheClient.status,
+      lastestFeedResponseCacheClient: lastestFeedResponseCacheClient.status,
+    };
   });
 
   //TRPC
@@ -148,4 +232,7 @@ export async function main() {
   */
 
   await server.listen({ port: env.PORT, host: env.HOST });
+  logger.info(
+    `Listening on ${env.HOST}:${env.PORT}, region: ${process.env.FLY_REGION}`,
+  );
 }

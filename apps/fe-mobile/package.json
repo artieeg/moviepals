@@ -35,6 +35,7 @@
     "nativewind": "^2.0.11",
     "react": "18.2.0",
     "react-native": "0.72.3",
+    "react-native-code-push": "^8.1.0",
     "react-native-contacts": "^7.0.6",
     "react-native-country-picker-modal": "^2.0.0",
     "react-native-dotenv": "^3.4.9",

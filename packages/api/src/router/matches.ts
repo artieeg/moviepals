@@ -76,11 +76,10 @@ export const matches = createTRPCRouter({
 
       for (const swipe of swipes) {
         const prev = movieEntryCount.get(swipe.movieId) || 0;
-        console.log({ movieEntryCount });
         movieEntryCount.set(swipe.movieId, prev + 1);
       }
 
-      const expectedEntryCount = userIds.length;
+      const expectedEntryCount = userIds.length + 1;
 
       const matchedMovieIds = Array.from(movieEntryCount.entries())
         .filter(([, count]) => count === expectedEntryCount)

@@ -46,23 +46,25 @@ export function NotificationPermissionRequestScreen() {
   }
 
   function onSkip() {
-    //navigation.navigate()
+    navigation.navigate(NAVIGATOR_MAIN);
   }
 
   return (
-    <KeyboardAvoidingView behavior="padding" className="flex-1 bg-white dark:bg-neutral-1">
+    <KeyboardAvoidingView
+      behavior="padding"
+      className="flex-1 bg-white dark:bg-neutral-1"
+    >
       <SafeAreaView className="flex-1 px-8">
         <View className="flex-1 space-y-6">
           <View className="space-y-3">
             <Text className="font-primary-bold text-neutral-1 dark:text-white pt-8 text-2xl">
-              One last thing... 🙏
+              Would you like to receive notifications?
             </Text>
             <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
-              Is it cool if we send you notifications?
+              We'll use it to let you know when you have new movie matches
             </Text>
             <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
-              We'll use it to let you know when you have new movie matches with
-              friends as well as occasional reminders to check out new movies
+              You can skip this step
             </Text>
           </View>
 
