@@ -28,11 +28,7 @@ export default function Support() {
   const [android, setAndroid] = React.useState(false);
 
   function onTextSupport() {
-    if (iOS()) {
-      window.location.href = "https://testflight.apple.com/join/riAOMve5";
-    } else {
-      setAndroid(true);
-    }
+    window.open("mailto:hey@moviepals.io");
   }
 
   const width = typeof window !== "undefined" ? window.innerWidth * 0.4 : 300;
