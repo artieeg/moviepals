@@ -88,6 +88,7 @@ export function WhatsYourNameScreen() {
       name,
       username,
       method: method!,
+      _dev: true,
       emoji,
     });
   }

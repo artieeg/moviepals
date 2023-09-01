@@ -21,15 +21,30 @@ const signInMethodSchema = z.discriminatedUnion("provider", [
 ]);
 
 export const user = createTRPCRouter({
+  setFCMToken: protectedProcedure
+    .input(
+      z.object({
+        fcmToken: z.string(),
+      }),
+    )
+    .mutation(async ({ input: { fcmToken }, ctx }) => {
+      await ctx.appDb
+        .updateTable("User")
+        .set({ fcmToken })
+        .where("id", "=", ctx.user)
+        .execute();
+    }),
+
   updateUser: protectedProcedure
     .input(
       z.object({
         name: z.string(),
         username: z.string().max(32),
         emoji: z.string(),
+        fcmToken: z.string().optional(),
       }),
     )
-    .mutation(async ({ input: { name, username, emoji }, ctx }) => {
+    .mutation(async ({ input: { name, fcmToken, username, emoji }, ctx }) => {
       const existingUser = await ctx.appDb
         .selectFrom("User")
         .where((eb) =>
@@ -50,6 +65,7 @@ export const user = createTRPCRouter({
           name,
           username,
           emoji,
+          fcmToken,
         })
         .where("id", "=", ctx.user)
         .returningAll()
@@ -245,10 +261,14 @@ export const user = createTRPCRouter({
         name: z.string(),
         emoji: z.string(),
         method: signInMethodSchema,
+        _dev: z.boolean().optional().default(false),
       }),
     )
     .mutation(
-      async ({ input: { name, username: _username, emoji, method }, ctx }) => {
+      async ({
+        input: { name, _dev, username: _username, emoji, method },
+        ctx,
+      }) => {
         //Handle the dumb Google review bot
         const username =
           _username === "text" ? `text${Math.random()}` : _username;
@@ -306,22 +326,20 @@ export const user = createTRPCRouter({
         const newUser = await ctx.appDb.transaction().execute(async (trx) => {
           let fullAccessPurchaseId: string | null = null;
 
-          /*
-        if (!isAppleReview) {
-          const fullAccessPurchase = await trx
-            .insertInto("FullAccessPurchase")
-            .values({
-              id: createId(),
-              source: "gift",
-            })
-            .returning("id")
-            .executeTakeFirstOrThrow(
-              () => new TRPCError({ code: "INTERNAL_SERVER_ERROR" }),
-            );
+          if (_dev) {
+            const fullAccessPurchase = await trx
+              .insertInto("FullAccessPurchase")
+              .values({
+                id: createId(),
+                source: "gift",
+              })
+              .returning("id")
+              .executeTakeFirstOrThrow(
+                () => new TRPCError({ code: "INTERNAL_SERVER_ERROR" }),
+              );
 
-          fullAccessPurchaseId = fullAccessPurchase.id;
-        }
-          * */
+            fullAccessPurchaseId = fullAccessPurchase.id;
+          }
 
           return await trx
             .insertInto("User")

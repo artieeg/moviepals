@@ -7,3 +7,4 @@ export * from "./useRouteParams";
 export * from "./useTimezone";
 export * from "./useFCMPermission";
 export * from "./useFCMPermissionRequest";
+export * from "./useFCMToken";
