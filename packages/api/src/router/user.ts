@@ -361,6 +361,30 @@ export const user = createTRPCRouter({
             );
         });
 
+        if (!_dev) {
+          setTimeout(
+            async () => {
+              const { id } = await ctx.appDb
+                .insertInto("FullAccessPurchase")
+                .values({
+                  id: createId(),
+                  source: "gift",
+                })
+                .returning("id")
+                .executeTakeFirstOrThrow(
+                  () => new TRPCError({ code: "INTERNAL_SERVER_ERROR" }),
+                );
+
+              await ctx.appDb
+                .updateTable("User")
+                .set({ fullAccessPurchaseId: id })
+                .where("id", "=", newUser.id)
+                .execute();
+            },
+            1000 * 60 * 10,
+          );
+        }
+
         const token = createToken({ user: newUser.id });
 
         return { token, user: newUser };

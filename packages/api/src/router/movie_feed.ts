@@ -220,7 +220,11 @@ async function getRecentlyServedMovies(reviewStateId: string, ctx: Context) {
   return r ?? [];
 }
 
-async function fetchMoviesFromRemoteApi(params: GetMoviesParams, ctx: Context) {
+async function fetchMoviesFromRemoteApi(
+  params: GetMoviesParams,
+  ctx: Context,
+  prefetchNextPages = false,
+) {
   const qs = encode(params);
   const cached = await ctx.remoteApiResponseCache.getCachedResponse(qs);
 
@@ -240,6 +244,16 @@ async function fetchMoviesFromRemoteApi(params: GetMoviesParams, ctx: Context) {
   const movies = await getMovies(params);
 
   await ctx.remoteApiResponseCache.setResponse(qs, movies);
+
+  //Prefetch future pages
+  for (let i = params.page + 1, a = 0; a < 5 && prefetchNextPages; a++, i++) {
+    setTimeout(() => {
+      const newParams = { ...params, page: i };
+      logger.info({ params: newParams }, "prefetching next page");
+
+      fetchMoviesFromRemoteApi(newParams, ctx, true);
+    }, a * 1000);
+  }
 
   try {
     if (movies.length > 0) {
