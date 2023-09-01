@@ -1,3 +1,4 @@
+import { encode } from "querystring";
 import { createId } from "@paralleldrive/cuid2";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
@@ -220,8 +221,25 @@ async function getRecentlyServedMovies(reviewStateId: string, ctx: Context) {
 }
 
 async function fetchMoviesFromRemoteApi(params: GetMoviesParams, ctx: Context) {
-  //TODO: cache
+  const qs = encode(params);
+  const cached = await ctx.remoteApiResponseCache.getCachedResponse(qs);
+
+  if (cached) {
+    logger.info(
+      {
+        params,
+        qs,
+        cached,
+      },
+      "Returning cached api response",
+    );
+
+    return cached;
+  }
+
   const movies = await getMovies(params);
+
+  await ctx.remoteApiResponseCache.setResponse(qs, movies);
 
   try {
     if (movies.length > 0) {

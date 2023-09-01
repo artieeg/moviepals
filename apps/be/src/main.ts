@@ -12,6 +12,7 @@ import {
   dbMovieSwipe,
   handleFullAccessPurchase,
   LatestFeedResponseCache,
+  RemoteApiResponseCache,
   UserFeedDeliveryCache,
   verifyRewardedAdCallback,
 } from "@moviepals/api";
@@ -31,7 +32,7 @@ const revenueCatSchema = z
   .passthrough();
 
 export async function main() {
-  const userDeliveryCacheClient = new Redis(env.USER_DELIVERY_CACHE_REDIS_URL, {
+  const redis = new Redis(env.USER_DELIVERY_CACHE_REDIS_URL, {
     lazyConnect: true,
     family: 6,
     reconnectOnError: () => true,
@@ -39,111 +40,56 @@ export async function main() {
     keepAlive: 1,
   });
 
-  userDeliveryCacheClient.on("error", (err) => {
-    logger.error("User delivery cache error", err);
+  redis.on("error", (err) => {
+    logger.error("Redis cache error", err);
   });
 
-  userDeliveryCacheClient.on("close", async () => {
-    logger.error("User delivery cache close");
-    await userDeliveryCacheClient.connect();
+  redis.on("close", async () => {
+    logger.error("Redis cache close");
+    await redis.connect();
   });
 
-  userDeliveryCacheClient.on("connect", () => {
-    logger.error("user delivery cache connect");
+  redis.on("connect", () => {
+    logger.error("Redis connect");
   });
 
-  userDeliveryCacheClient.on("reconnecting", () => {
-    logger.error("User delivery cache reconnecting");
+  redis.on("reconnecting", () => {
+    logger.error("Redis reconnecting");
   });
 
-  userDeliveryCacheClient.on("end", () => {
-    logger.error("User delivery cache end");
+  redis.on("end", () => {
+    logger.error("Redis end");
   });
 
-  const lastestFeedResponseCacheClient = new Redis(
-    env.LATEST_FEED_RESPONSE_CACHE_REDIS_URL,
-    {
-      lazyConnect: true,
-      family: 6,
-      reconnectOnError: () => true,
-      retryStrategy: () => 100,
-      keepAlive: 1,
-    },
-  );
-
-  lastestFeedResponseCacheClient.on("error", async (err) => {
-    logger.error("User delivery cache error", err);
-  });
-
-  lastestFeedResponseCacheClient.on("close", async () => {
-    logger.error("Latest feed response cache close");
-
-    await lastestFeedResponseCacheClient.connect();
-  });
-
-  lastestFeedResponseCacheClient.on("connect", () => {
-    logger.error("Latest feed response cache connect");
-  });
-
-  lastestFeedResponseCacheClient.on("reconnecting", () => {
-    logger.error("Latest feed response cache reconnecting");
-  });
-
-  lastestFeedResponseCacheClient.on("end", () => {
-    logger.error("Latest feed response cache end");
-  });
-
-  await Promise.all([
-    connectAppDb(),
-    dbMovieSwipe.connect(),
-    userDeliveryCacheClient.connect(),
-    lastestFeedResponseCacheClient.connect(),
-  ]);
+  await Promise.all([connectAppDb(), dbMovieSwipe.connect(), redis.connect()]);
 
   setInterval(() => {
-    userDeliveryCacheClient.set("user-delivery-cache", Math.random());
-    lastestFeedResponseCacheClient.set("latest-feed-response", Math.random());
+    redis.set("user-delivery-cache", Math.random());
   }, 400);
 
-  const latestFeedResponseCache = new LatestFeedResponseCache(
-    lastestFeedResponseCacheClient,
-  );
+  const remoteApiResponseCache = new RemoteApiResponseCache(redis);
 
-  const userFeedDeliveryCache = new UserFeedDeliveryCache(
-    userDeliveryCacheClient,
-  );
+  const latestFeedResponseCache = new LatestFeedResponseCache(redis);
+
+  const userFeedDeliveryCache = new UserFeedDeliveryCache(redis);
 
   server.get("/health", async () => {
-    if (userDeliveryCacheClient.status !== "ready") {
-      await userDeliveryCacheClient.connect();
+    if (redis.status !== "ready") {
+      await redis.connect();
       logger.error("USER_DELIVERY CACHE NOT READY");
     }
 
-    if (lastestFeedResponseCacheClient.status !== "ready") {
-      await lastestFeedResponseCacheClient.connect();
-      logger.error("LATEST_FEED_RESPONSE CACHE NOT READY");
-    }
-
-    if (userDeliveryCacheClient.status !== "ready") {
+    if (redis.status !== "ready") {
       logger.error("USER_DELIVERY CACHE RECONNECT FAILED");
       throw new Error("USER_DELIVERY CACHE RECONNECT FAILED");
     }
 
-    if (lastestFeedResponseCacheClient.status !== "ready") {
-      logger.error("LATEST_FEED_RESPONSE CACHE RECONNECT FAILED");
-      throw new Error("LATEST_FEED_RESPONSE CACHE RECONNECT FAILED");
-    }
-
-    userDeliveryCacheClient.ping();
-    lastestFeedResponseCacheClient.ping();
-
-    userDeliveryCacheClient.set("user-delivery-cache", Math.random());
-    lastestFeedResponseCacheClient.set("latest-feed-response", Math.random());
+    redis.ping();
+    redis.set("user-delivery-cache", Math.random());
 
     return {
       status: "ok",
-      userDeliveryCacheClient: userDeliveryCacheClient.status,
-      lastestFeedResponseCacheClient: lastestFeedResponseCacheClient.status,
+      userDeliveryCacheClient: redis.status,
     };
   });
 
@@ -163,6 +109,7 @@ export async function main() {
           dbMovieSwipe,
           userFeedDeliveryCache,
           latestFeedResponseCache,
+          remoteApiResponseCache,
         });
       },
     },
@@ -176,7 +123,7 @@ export async function main() {
       const user =
         event.type === "TRANSFER"
           ? (event.transferred_to as string[])[0]!
-          : event.app_user_id as string;
+          : (event.app_user_id as string);
 
       await handleFullAccessPurchase({
         header: msg.headers.authorization?.split(" ")[1] ?? "",
