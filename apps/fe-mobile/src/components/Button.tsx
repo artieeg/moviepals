@@ -43,7 +43,11 @@ export function Button({
               ? colorScheme === "dark"
                 ? "white"
                 : "black"
-              : "white"
+              : kind === "primary"
+              ? "white"
+              : colorScheme === "dark"
+              ? "white"
+              : "black"
           }
         />
       ) : (

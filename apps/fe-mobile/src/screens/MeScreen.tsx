@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -13,6 +13,7 @@ import {
 import Purchases, { PurchasesError } from "react-native-purchases";
 import Toast from "react-native-toast-message";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
 import { useColorScheme } from "nativewind";
 
 import { api, signOut } from "~/utils/api";
@@ -82,13 +83,21 @@ export function MeScreen() {
 
   const premium = usePremiumProduct();
 
-  async function onPurchasePremium() {
-    if (!premium.data?.product.identifier) {
-      return;
-    }
+  const [isPurchasingPremium, setIsPurchasingPremium] = React.useState(false);
+  const [isRestoringPurchases, setIsRestoringPurchases] = React.useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      user.refetch();
+      paidStatus.refetch();
+    }, []),
+  );
+
+  async function onRestorePurchases() {
+    setIsRestoringPurchases(true);
 
     try {
-      await Purchases.purchaseStoreProduct(premium.data.product);
+      await Purchases.restorePurchases();
 
       setTimeout(() => {
         user.refetch();
@@ -97,9 +106,38 @@ export function MeScreen() {
 
       navigation.navigate(SCREEN_THANK_YOU);
     } catch (e) {
+      Alert.alert(
+        "Purchases not found",
+        "Is this a mistake? Contact us: hey@moviepals.io",
+      );
       console.error(e);
       console.error((e as PurchasesError).underlyingErrorMessage);
     } finally {
+      setIsRestoringPurchases(false);
+    }
+  }
+
+  async function onPurchasePremium() {
+    if (!premium.data?.product.identifier) {
+      return;
+    }
+
+    setIsPurchasingPremium(true);
+
+    try {
+      await Purchases.purchaseStoreProduct(premium.data.product);
+
+      navigation.navigate(SCREEN_THANK_YOU);
+    } catch (e) {
+      console.error(e);
+      console.error((e as PurchasesError).underlyingErrorMessage);
+    } finally {
+      setTimeout(() => {
+        user.refetch();
+        paidStatus.refetch();
+
+        setIsPurchasingPremium(false);
+      }, 1000);
     }
   }
 
@@ -180,21 +218,6 @@ export function MeScreen() {
               />
 
               <Section
-                title="Reset Swipes"
-                onPress={onResetSwipes}
-                right={
-                  resetSwipes.isLoading ? (
-                    <View className="h-5 w-5">
-                      <ActivityIndicator />
-                    </View>
-                  ) : (
-                    <View className="w-5" />
-                  )
-                }
-                subtitle="Start swiping from scratch"
-              />
-
-              <Section
                 title="Invite People"
                 onPress={onInvitePeople}
                 showArrowRight
@@ -229,13 +252,54 @@ export function MeScreen() {
               )}
 
               {paidStatus.isSuccess && !paidStatus.data.isPaid && (
-                <Section
-                  title="Get Premium"
-                  onPress={onPurchasePremium}
-                  showArrowRight
-                  subtitle="Ad-free experience, unlimited swipes, and more!"
-                />
+                <View className="space-y-6">
+                  <Section
+                    title="Restore Premium"
+                    onPress={onRestorePurchases}
+                    right={
+                      isRestoringPurchases ? (
+                        <View className="h-5 w-5">
+                          <ActivityIndicator />
+                        </View>
+                      ) : (
+                        <View className="w-5" />
+                      )
+                    }
+                    subtitle="Restore your previous premium purchase"
+                  />
+
+                  <Section
+                    title="Get Premium"
+                    onPress={onPurchasePremium}
+                    right={
+                      isPurchasingPremium ? (
+                        <View className="h-5 w-5">
+                          <ActivityIndicator />
+                        </View>
+                      ) : (
+                        <View className="w-5" />
+                      )
+                    }
+                    subtitle="Ad-free experience, unlimited swipes, and more!"
+                  />
+                </View>
               )}
+
+              <Section
+                title="Reset Swipes"
+                onPress={onResetSwipes}
+                right={
+                  resetSwipes.isLoading ? (
+                    <View className="h-5 w-5">
+                      <ActivityIndicator />
+                    </View>
+                  ) : (
+                    <View className="w-5" />
+                  )
+                }
+                subtitle="Start swiping from scratch"
+              />
+
 
               <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
                 Need help? Email us at{" "}

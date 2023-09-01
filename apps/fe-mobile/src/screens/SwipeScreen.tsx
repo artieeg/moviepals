@@ -210,7 +210,24 @@ export function SwipeScreen() {
 
   return (
     <>
-      <MainLayout goBackCloseIcon title="Swipe" canGoBack>
+      <MainLayout
+        right={
+          showAdPermissionPrompt && (
+            <TouchableOpacity
+              onPress={() => {
+                setShowAdPermissionPrompt(false);
+              }}
+            >
+              <Text className="font-primary-bold text-base text-brand-1">
+                skip
+              </Text>
+            </TouchableOpacity>
+          )
+        }
+        goBackCloseIcon
+        title="Swipe"
+        canGoBack
+      >
         {currentMovie && !showAdPermissionPrompt && (
           <Animated.View
             layout={Layout}

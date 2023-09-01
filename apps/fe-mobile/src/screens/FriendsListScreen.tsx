@@ -139,9 +139,13 @@ export function FriendsListScreen() {
               >
                 <View className="flex-row items-center justify-center space-x-1">
                   <Text className="text-brand-1 font-primary-bold text-base">
-                    {connectionRequestsCount.data?.count} requests
+                    {connectionRequestsCount.data?.count} {
+                      connectionRequestsCount.data?.count === 1
+                        ? "request"
+                        : "requests"
+                    }
                   </Text>
-                  <NavArrowRight width="16" height="16" color="#6356E4" />
+                  <NavArrowRight width="16" height="16" color="#6867AA" className="translate-y-[0.5px]" />
                 </View>
               </TouchableOpacity>
             )}

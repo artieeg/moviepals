@@ -36,7 +36,7 @@ export default function Invite() {
     if (iOS()) {
       window.location.href = "https://testflight.apple.com/join/riAOMve5";
     } else {
-      setAndroid(true);
+      window.location.href = "https://play.google.com/store/apps/details?id=io.moviepals";
     }
   }
 

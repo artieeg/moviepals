@@ -247,60 +247,66 @@ export const user = createTRPCRouter({
         method: signInMethodSchema,
       }),
     )
-    .mutation(async ({ input: { name, username, emoji, method }, ctx }) => {
-      const isAppleReview = name.toLowerCase().trim() === "apple";
+    .mutation(
+      async ({ input: { name, username: _username, emoji, method }, ctx }) => {
+        //Handle the dumb Google review bot
+        const username =
+          _username === "text" ? `text${Math.random()}` : _username;
 
-      const existingUser = await ctx.appDb
-        .selectFrom("User")
-        .where("username", "=", username)
-        .selectAll()
-        .executeTakeFirst();
+        const isAppleReview = name.toLowerCase().trim() === "apple";
 
-      //Throw is username is taken
-      if (existingUser) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Username already taken",
-        });
-      }
+        const existingUser = await ctx.appDb
+          .selectFrom("User")
+          .where("username", "=", username)
+          .selectAll()
+          .executeTakeFirst();
 
-      const { email, sub } =
-        method.provider === "google"
-          ? await getEmailFromGoogleToken(method.idToken)
-          : await getEmailFromAppleToken({
-              idToken: method.idToken,
-              nonce: method.nonce,
-            });
-
-      if (!email) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Email not found",
-        });
-      }
-
-      let inviteLinkSlug: string | null = null;
-
-      while (!inviteLinkSlug) {
-        try {
-          const id = randomBytes(4).toString("hex");
-
-          await ctx.appDb
-            .insertInto("UserInviteLink")
-            .values({
-              slug: id,
-            })
-            .execute();
-
-          inviteLinkSlug = id;
-        } catch (e) {
-          logger.error(e);
+        //Throw is username is taken
+        if (existingUser) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Username already taken",
+          });
         }
-      }
 
-      const newUser = await ctx.appDb.transaction().execute(async (trx) => {
-        let fullAccessPurchaseId: string | null = null;
+        const { email, sub } =
+          method.provider === "google"
+            ? await getEmailFromGoogleToken(method.idToken)
+            : await getEmailFromAppleToken({
+                idToken: method.idToken,
+                nonce: method.nonce,
+              });
 
+        if (!email) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Email not found",
+          });
+        }
+
+        let inviteLinkSlug: string | null = null;
+
+        while (!inviteLinkSlug) {
+          try {
+            const id = randomBytes(4).toString("hex");
+
+            await ctx.appDb
+              .insertInto("UserInviteLink")
+              .values({
+                slug: id,
+              })
+              .execute();
+
+            inviteLinkSlug = id;
+          } catch (e) {
+            logger.error(e);
+          }
+        }
+
+        const newUser = await ctx.appDb.transaction().execute(async (trx) => {
+          let fullAccessPurchaseId: string | null = null;
+
+          /*
         if (!isAppleReview) {
           const fullAccessPurchase = await trx
             .insertInto("FullAccessPurchase")
@@ -315,31 +321,33 @@ export const user = createTRPCRouter({
 
           fullAccessPurchaseId = fullAccessPurchase.id;
         }
+          * */
 
-        return await trx
-          .insertInto("User")
-          .values({
-            id: createId(),
-            name,
-            email,
-            emoji,
-            sub,
-            username,
-            timezoneOffset: 0,
-            fcmToken: null,
-            userInviteSlugId: inviteLinkSlug as string,
-            fullAccessPurchaseId,
-          })
-          .returningAll()
-          .executeTakeFirstOrThrow(
-            () => new TRPCError({ code: "INTERNAL_SERVER_ERROR" }),
-          );
-      });
+          return await trx
+            .insertInto("User")
+            .values({
+              id: createId(),
+              name,
+              email,
+              emoji,
+              sub,
+              username,
+              timezoneOffset: 0,
+              fcmToken: null,
+              userInviteSlugId: inviteLinkSlug as string,
+              fullAccessPurchaseId,
+            })
+            .returningAll()
+            .executeTakeFirstOrThrow(
+              () => new TRPCError({ code: "INTERNAL_SERVER_ERROR" }),
+            );
+        });
 
-      const token = createToken({ user: newUser.id });
+        const token = createToken({ user: newUser.id });
 
-      return { token, user: newUser };
-    }),
+        return { token, user: newUser };
+      },
+    ),
 
   /**
    * Searches a user by name or username

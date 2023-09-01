@@ -41,11 +41,13 @@ export function AdsOrPremiumPrompt({
 
   const navigation = useNavigation();
 
+  const [isPurchasingPremium, setIsPurchasingPremium] = useState(false);
   async function onPurchasePremium() {
     if (!premium.data?.product.identifier) {
       return;
     }
 
+    setIsPurchasingPremium(true);
     try {
       await Purchases.purchaseStoreProduct(premium.data.product);
 
@@ -56,6 +58,7 @@ export function AdsOrPremiumPrompt({
       console.error(e);
       console.error((e as PurchasesError).underlyingErrorMessage);
     } finally {
+      setIsPurchasingPremium(false);
     }
   }
 
@@ -72,15 +75,41 @@ export function AdsOrPremiumPrompt({
     const choices = await AdsConsent.getUserChoices();
 
     if (choices.storeAndAccessInformationOnDevice) {
-      if (Platform.OS === "ios") {
-        await request(PERMISSIONS.IOS.APP_TRACKING_TRANSPARENCY);
-      }
+    }
+
+    if (Platform.OS === "ios") {
+      await request(PERMISSIONS.IOS.APP_TRACKING_TRANSPARENCY);
     }
 
     adsConsent.refetch();
 
     canServeAds.refetch();
     ad.refetch();
+  }
+
+  const [isRestoringPurchases, setIsRestoringPurchases] = useState(false);
+
+  async function onRestorePurchases() {
+    setIsRestoringPurchases(true);
+
+    try {
+      await Purchases.restorePurchases();
+
+      setTimeout(() => {
+        onProceed();
+      }, 400);
+
+      navigation.navigate(SCREEN_THANK_YOU);
+    } catch (e) {
+      Alert.alert(
+        "Purchases not found",
+        "Is this a mistake? Contact us: hey@moviepals.io",
+      );
+      console.error(e);
+      console.error((e as PurchasesError).underlyingErrorMessage);
+    } finally {
+      setIsRestoringPurchases(false);
+    }
   }
 
   async function onAllowAds() {
@@ -96,9 +125,10 @@ export function AdsOrPremiumPrompt({
     const choices = await AdsConsent.getUserChoices();
 
     if (choices.storeAndAccessInformationOnDevice) {
-      if (Platform.OS === "ios") {
-        await request(PERMISSIONS.IOS.APP_TRACKING_TRANSPARENCY);
-      }
+    }
+
+    if (Platform.OS === "ios") {
+      await request(PERMISSIONS.IOS.APP_TRACKING_TRANSPARENCY);
     }
 
     adsConsent.refetch();
@@ -150,43 +180,14 @@ export function AdsOrPremiumPrompt({
     rewarded.load();
     rewarded.addAdEventListener(AdEventType.ERROR, (e) => {
       if (e.message.includes("no-fill")) {
-        Alert.alert("No ads available right now", "We're so sorry, please try again later");
+        Alert.alert(
+          "No ads available right now",
+          "We're so sorry, please try again later",
+        );
       }
 
       setLoading(false);
     });
-
-    /*
-    let data = ad.data;
-
-    console.log({ data });
-
-    if (!data) {
-      const refetchResult = await ad.refetch();
-
-      if (refetchResult.data) {
-        data = refetchResult.data;
-      } else {
-        Toast.show({
-          type: "error",
-          text1:
-            "Oops, something went wrong when fetching the ad, please try again later",
-        });
-      }
-    }
-
-    try {
-      if (data) {
-        await data.show();
-
-        data.addAdEventListener(AdEventType.CLOSED, () => {
-          onProceed();
-        });
-      }
-    } finally {
-      ad.refetch();
-    }
-     * */
   }
 
   return (
@@ -205,7 +206,16 @@ export function AdsOrPremiumPrompt({
       }
       buttons={[
         {
-          title: `Get Premium for ${premium.data?.formattedPrice}`,
+          kind: "text",
+          title: "Restore Purchases",
+          isLoading: isRestoringPurchases,
+          onPress: onRestorePurchases,
+        },
+        {
+          isLoading: isPurchasingPremium,
+          title: premium.isSuccess
+            ? `Get Premium for ${premium.data.formattedPrice}`
+            : "Get Premium",
           onPress: onPurchasePremium,
         },
         mode === "ad"
@@ -223,17 +233,9 @@ export function AdsOrPremiumPrompt({
               }
           : {
               kind: "outline",
-              title: "allow ads",
+              title: "Allow Ads",
               onPress: onAllowAds,
             },
-
-        mode === "ad-permission"
-          ? {
-              kind: "text",
-              title: "skip",
-              onPress: onSkip,
-            }
-          : undefined,
       ]}
     />
   );

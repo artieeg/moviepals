@@ -17,11 +17,13 @@ import {
   SCREEN_MY_SWIPE_LIST,
   SCREEN_SHARE_PREMIUM,
   SCREEN_STREAMING_SERVICE_LIST,
+  SCREEN_THANK_YOU,
   SCREEN_TIMEFRAME_INPUT,
   SharePremiumScreen,
   SplashScreen,
   StreamingServiceList,
   SwipeScreen,
+  ThankYouScreen,
   TimeframeInputScreen,
 } from "~/screens";
 import {
@@ -131,6 +133,12 @@ export default function RootNavigator() {
         options={options}
         name={SCREEN_MATCHES_LIST}
         component={MatchListScreen}
+      />
+
+      <Stack.Screen
+        options={options}
+        name={SCREEN_THANK_YOU}
+        component={ThankYouScreen}
       />
     </Stack.Navigator>
   );

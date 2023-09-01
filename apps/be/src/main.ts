@@ -26,11 +26,7 @@ const server = fastify({
 
 const revenueCatSchema = z
   .object({
-    event: z
-      .object({
-        app_user_id: z.string(),
-      })
-      .passthrough(),
+    event: z.object({}).passthrough(),
   })
   .passthrough();
 
@@ -119,23 +115,23 @@ export async function main() {
 
   server.get("/health", async () => {
     if (userDeliveryCacheClient.status !== "ready") {
-      await userDeliveryCacheClient.connect()
+      await userDeliveryCacheClient.connect();
       logger.error("USER_DELIVERY CACHE NOT READY");
     }
 
     if (lastestFeedResponseCacheClient.status !== "ready") {
-      await lastestFeedResponseCacheClient.connect()
+      await lastestFeedResponseCacheClient.connect();
       logger.error("LATEST_FEED_RESPONSE CACHE NOT READY");
     }
 
     if (userDeliveryCacheClient.status !== "ready") {
       logger.error("USER_DELIVERY CACHE RECONNECT FAILED");
-      throw new Error("USER_DELIVERY CACHE RECONNECT FAILED")
+      throw new Error("USER_DELIVERY CACHE RECONNECT FAILED");
     }
 
     if (lastestFeedResponseCacheClient.status !== "ready") {
       logger.error("LATEST_FEED_RESPONSE CACHE RECONNECT FAILED");
-      throw new Error("LATEST_FEED_RESPONSE CACHE RECONNECT FAILED")
+      throw new Error("LATEST_FEED_RESPONSE CACHE RECONNECT FAILED");
     }
 
     userDeliveryCacheClient.ping();
@@ -175,13 +171,16 @@ export async function main() {
   server.post("/revcat/callback", async (msg, reply) => {
     logger.info(msg.body, "revenue cat");
     try {
-      const {
-        event: { app_user_id },
-      } = revenueCatSchema.parse(msg.body);
+      const { event } = revenueCatSchema.parse(msg.body);
+
+      const user =
+        event.type === "TRANSFER"
+          ? (event.transferred_to as string[])[0]!
+          : event.app_user_id as string;
 
       await handleFullAccessPurchase({
         header: msg.headers.authorization?.split(" ")[1] ?? "",
-        user: app_user_id,
+        user,
       });
 
       reply.status(200).send();
