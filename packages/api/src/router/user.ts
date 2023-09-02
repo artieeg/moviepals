@@ -326,20 +326,20 @@ export const user = createTRPCRouter({
         const newUser = await ctx.appDb.transaction().execute(async (trx) => {
           let fullAccessPurchaseId: string | null = null;
 
-          if (_dev) {
-            const fullAccessPurchase = await trx
-              .insertInto("FullAccessPurchase")
-              .values({
-                id: createId(),
-                source: "gift",
-              })
-              .returning("id")
-              .executeTakeFirstOrThrow(
-                () => new TRPCError({ code: "INTERNAL_SERVER_ERROR" }),
-              );
+          /*
+          const fullAccessPurchase = await trx
+            .insertInto("FullAccessPurchase")
+            .values({
+              id: createId(),
+              source: "gift",
+            })
+            .returning("id")
+            .executeTakeFirstOrThrow(
+              () => new TRPCError({ code: "INTERNAL_SERVER_ERROR" }),
+            );
 
-            fullAccessPurchaseId = fullAccessPurchase.id;
-          }
+          fullAccessPurchaseId = fullAccessPurchase.id;
+            * */
 
           return await trx
             .insertInto("User")
@@ -360,30 +360,6 @@ export const user = createTRPCRouter({
               () => new TRPCError({ code: "INTERNAL_SERVER_ERROR" }),
             );
         });
-
-        if (!_dev) {
-          setTimeout(
-            async () => {
-              const { id } = await ctx.appDb
-                .insertInto("FullAccessPurchase")
-                .values({
-                  id: createId(),
-                  source: "gift",
-                })
-                .returning("id")
-                .executeTakeFirstOrThrow(
-                  () => new TRPCError({ code: "INTERNAL_SERVER_ERROR" }),
-                );
-
-              await ctx.appDb
-                .updateTable("User")
-                .set({ fullAccessPurchaseId: id })
-                .where("id", "=", newUser.id)
-                .execute();
-            },
-            1000 * 60 * 10,
-          );
-        }
 
         const token = createToken({ user: newUser.id });
 
