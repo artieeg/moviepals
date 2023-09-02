@@ -540,7 +540,7 @@ async function getMoviePage({
   const params: Omit<GetMoviesParams, "page"> = {
     "primary_release_date.gte": start_year ? `${start_year}-01-01` : undefined,
     "primary_release_date.lte": end_year ? `${end_year}-12-31` : undefined,
-    with_watch_providers: watchProviderIds,
+    with_watch_providers: watchProviderIds.join("|"),
     watch_region: region,
     with_genres: genres.join(","),
     with_cast: cast.join(","),
