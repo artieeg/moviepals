@@ -17,10 +17,10 @@ import { getMovies, GetMoviesParams } from "../services";
 import { Context, createTRPCRouter, protectedProcedure } from "../trpc";
 
 /** Number of movies that we return to the client */
-const MOVIES_PER_PAGE = 60;
+const MOVIES_PER_PAGE = 40;
 
 /** Max number of movies that we mix in from friend swipes */
-const MIX_IN_MOVIES_COUNT = 30;
+const MIX_IN_MOVIES_COUNT = 20;
 
 const getMovieFeedInput = z.object({
   start_year: z.number().min(1960).max(2019).optional(),
@@ -148,6 +148,12 @@ export const movie_feed = createTRPCRouter({
       const totalMovieFeedCount = userFeedDeliveryState
         ? MOVIES_PER_PAGE - (userFeedDeliveryState.swipes % MOVIES_PER_PAGE)
         : MOVIES_PER_PAGE;
+
+      logger.info({
+        user,
+        userFeedDeliveryState,
+        totalMovieFeedCount,
+      })
 
       const { movies: feed, nextRemoteApiPage } = await getMoviePage({
         ctx,
