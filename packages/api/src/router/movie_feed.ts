@@ -122,7 +122,7 @@ export const movie_feed = createTRPCRouter({
       if (
         !user.fullAccessPurchaseId &&
         userFeedDeliveryState &&
-        userFeedDeliveryState.swipes / MOVIES_PER_PAGE >
+        Math.floor(userFeedDeliveryState.swipes / MOVIES_PER_PAGE) >
           userFeedDeliveryState.ads_watched
       ) {
         logger.info({ user }, "User has to watch an ad");
@@ -185,7 +185,7 @@ export const movie_feed = createTRPCRouter({
         if (
           !user.fullAccessPurchaseId &&
           userFeedDeliveryState &&
-          userFeedDeliveryState.swipes / MOVIES_PER_PAGE >
+        Math.floor(userFeedDeliveryState.swipes / MOVIES_PER_PAGE) >
             userFeedDeliveryState.ads_watched
         ) {
           response.hasToWatchAd = true;
