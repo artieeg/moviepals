@@ -34,7 +34,7 @@ export default function Invite() {
     navigator.clipboard.writeText("https://moviepals.io/" + invite_id);
 
     if (iOS()) {
-      window.location.href = "https://testflight.apple.com/join/riAOMve5";
+      window.location.href = "https://apps.apple.com/us/app/moviepals-watch-together/id6461212763";
     } else {
       window.location.href = "https://play.google.com/store/apps/details?id=io.moviepals";
     }
