@@ -17,7 +17,7 @@ import { getMovies, GetMoviesParams } from "../services";
 import { Context, createTRPCRouter, protectedProcedure } from "../trpc";
 
 /** Number of movies that we return to the client */
-const MOVIES_PER_PAGE = 30;
+const MOVIES_PER_PAGE = 40;
 
 /** Max number of movies that we mix in from friend swipes */
 const MIX_IN_MOVIES_COUNT = 15;
@@ -146,7 +146,7 @@ export const movie_feed = createTRPCRouter({
       );
 
       const totalMovieFeedCount = userFeedDeliveryState
-        ? MOVIES_PER_PAGE - userFeedDeliveryState.swipes % MOVIES_PER_PAGE
+        ? MOVIES_PER_PAGE - (userFeedDeliveryState.swipes % MOVIES_PER_PAGE)
         : MOVIES_PER_PAGE;
 
       const { movies: feed, nextRemoteApiPage } = await getMoviePage({
@@ -185,7 +185,7 @@ export const movie_feed = createTRPCRouter({
         if (
           !user.fullAccessPurchaseId &&
           userFeedDeliveryState &&
-        Math.floor(userFeedDeliveryState.swipes / MOVIES_PER_PAGE) >
+          Math.floor(userFeedDeliveryState.swipes / MOVIES_PER_PAGE) >
             userFeedDeliveryState.ads_watched
         ) {
           response.hasToWatchAd = true;
