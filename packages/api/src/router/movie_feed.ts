@@ -17,10 +17,10 @@ import { getMovies, GetMoviesParams } from "../services";
 import { Context, createTRPCRouter, protectedProcedure } from "../trpc";
 
 /** Number of movies that we return to the client */
-const MOVIES_PER_PAGE = 40;
+const MOVIES_PER_PAGE = 24;
 
 /** Max number of movies that we mix in from friend swipes */
-const MIX_IN_MOVIES_COUNT = 20;
+const MIX_IN_MOVIES_COUNT = 12;
 
 const getMovieFeedInput = z.object({
   start_year: z.number().min(1960).max(2019).optional(),
