@@ -104,6 +104,8 @@ export const swipe = createTRPCRouter({
           movie_language,
         },
       }) => {
+        await ctx.userFeedDeliveryCache.incSwipes(ctx.user);
+
         await ctx.dbMovieSwipe.swipes.updateOne(
           {
             userId: ctx.user,

@@ -122,7 +122,8 @@ export const movie_feed = createTRPCRouter({
       if (
         !user.fullAccessPurchaseId &&
         userFeedDeliveryState &&
-        userFeedDeliveryState.page > userFeedDeliveryState.ads_watched
+        userFeedDeliveryState.swipes / MOVIES_PER_PAGE >
+          userFeedDeliveryState.ads_watched
       ) {
         logger.info({ user }, "User has to watch an ad");
 
@@ -144,6 +145,10 @@ export const movie_feed = createTRPCRouter({
         "Fetching movie feed for user",
       );
 
+      const totalMovieFeedCount = userFeedDeliveryState
+        ? userFeedDeliveryState.swipes % MOVIES_PER_PAGE
+        : MOVIES_PER_PAGE;
+
       const { movies: feed, nextRemoteApiPage } = await getMoviePage({
         ctx,
         userReviewState,
@@ -152,7 +157,8 @@ export const movie_feed = createTRPCRouter({
         fetchRandomSwipes,
         fetchMoviesDataFromLocalDb,
         fetchMoviesFromRemoteApi,
-        responseTotalMovieCount: MOVIES_PER_PAGE,
+        responseTotalMovieCount: totalMovieFeedCount,
+        //responseTotalMovieCount: MOVIES_PER_PAGE,
         previouslySwipedMovieIds,
         recentlyServedMovies,
         responseMovieFromFriendCount: MIX_IN_MOVIES_COUNT,
@@ -179,7 +185,8 @@ export const movie_feed = createTRPCRouter({
         if (
           !user.fullAccessPurchaseId &&
           userFeedDeliveryState &&
-          userFeedDeliveryState.page > userFeedDeliveryState.ads_watched
+          userFeedDeliveryState.swipes / MOVIES_PER_PAGE >
+            userFeedDeliveryState.ads_watched
         ) {
           response.hasToWatchAd = true;
         }
@@ -189,7 +196,6 @@ export const movie_feed = createTRPCRouter({
       if (!response.noMoreMovies && !response.unableToFindMovies) {
         await Promise.all([
           setRemoteApiPage(userReviewState.id, nextRemoteApiPage, ctx),
-          ctx.userFeedDeliveryCache.incPage(ctx.user),
           ctx.latestFeedResponseCache.setLatestFeedResponse(
             userReviewState.id,
             feed,
