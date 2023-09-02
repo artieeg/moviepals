@@ -194,6 +194,12 @@ export const movie_feed = createTRPCRouter({
           Math.floor(userFeedDeliveryState.swipes / MOVIES_PER_PAGE) >
             userFeedDeliveryState.ads_watched
         ) {
+          logger.info({
+            user,
+            userFeedDeliveryState,
+            MOVIES_PER_PAGE,
+            totalMovieFeedCount,
+          }, "User has to watch an ad")
           response.hasToWatchAd = true;
         }
       //}
