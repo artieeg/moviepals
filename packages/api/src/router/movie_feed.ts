@@ -146,7 +146,7 @@ export const movie_feed = createTRPCRouter({
       );
 
       const totalMovieFeedCount = userFeedDeliveryState
-        ? userFeedDeliveryState.swipes % MOVIES_PER_PAGE
+        ? MOVIES_PER_PAGE - userFeedDeliveryState.swipes % MOVIES_PER_PAGE
         : MOVIES_PER_PAGE;
 
       const { movies: feed, nextRemoteApiPage } = await getMoviePage({
