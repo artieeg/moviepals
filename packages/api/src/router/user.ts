@@ -374,7 +374,11 @@ export const user = createTRPCRouter({
    * */
   search: protectedProcedure
     .input(z.object({ query: z.string() }))
-    .query(async ({ input: { query }, ctx }) => {
+    .query(async ({ input: { query: _query }, ctx }) => {
+
+      //remove "@" from the query
+      const query = _query.replaceAll("@", "");
+
       const users = await ctx.appDb
         .selectFrom("User")
         .leftJoin(
