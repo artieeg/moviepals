@@ -181,13 +181,13 @@ export const movie_feed = createTRPCRouter({
         cursor: input.cursor + 1,
       };
 
-      if (feed.length < MOVIES_PER_PAGE) {
-        if (input.cursor === 0) {
-          response.unableToFindMovies = true;
-        } else {
-          response.noMoreMovies = true;
-        }
-      } else {
+      //if (feed.length < MOVIES_PER_PAGE) {
+        //if (input.cursor === 0) {
+          //response.unableToFindMovies = true;
+        //} else {
+          //response.noMoreMovies = true;
+        //}
+      //} else {
         if (
           !user.fullAccessPurchaseId &&
           userFeedDeliveryState &&
@@ -196,7 +196,7 @@ export const movie_feed = createTRPCRouter({
         ) {
           response.hasToWatchAd = true;
         }
-      }
+      //}
 
       //Count the response if it's fully successful
       if (!response.noMoreMovies && !response.unableToFindMovies) {
