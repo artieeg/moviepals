@@ -40,7 +40,7 @@ export const invite = createTRPCRouter({
         })
         .execute();
 
-      return { inviter: { nema: inviteLink.inviterName } };
+      return { inviter: { name: inviteLink.inviterName } };
     }),
 
   fetchInviteUrl: protectedProcedure.query(async ({ ctx }) => {
