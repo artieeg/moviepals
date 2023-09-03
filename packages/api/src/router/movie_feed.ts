@@ -181,6 +181,15 @@ export const movie_feed = createTRPCRouter({
         cursor: input.cursor + 1,
       };
 
+      if (feed.length < MOVIES_PER_PAGE && feed.length !== totalMovieFeedCount) {
+        logger.warn({
+          userFeedDeliveryState,
+          MOVIES_PER_PAGE,
+          totalMovieFeedCount,
+          feed,
+        }, "Served less movies than expected")
+      }
+
       //if (feed.length < MOVIES_PER_PAGE) {
         //if (input.cursor === 0) {
           //response.unableToFindMovies = true;
