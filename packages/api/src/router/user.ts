@@ -21,15 +21,30 @@ const signInMethodSchema = z.discriminatedUnion("provider", [
 ]);
 
 export const user = createTRPCRouter({
+  setFCMToken: protectedProcedure
+    .input(
+      z.object({
+        fcmToken: z.string(),
+      }),
+    )
+    .mutation(async ({ input: { fcmToken }, ctx }) => {
+      await ctx.appDb
+        .updateTable("User")
+        .set({ fcmToken })
+        .where("id", "=", ctx.user)
+        .execute();
+    }),
+
   updateUser: protectedProcedure
     .input(
       z.object({
         name: z.string(),
         username: z.string().max(32),
         emoji: z.string(),
+        fcmToken: z.string().optional(),
       }),
     )
-    .mutation(async ({ input: { name, username, emoji }, ctx }) => {
+    .mutation(async ({ input: { name, fcmToken, username, emoji }, ctx }) => {
       const existingUser = await ctx.appDb
         .selectFrom("User")
         .where((eb) =>
@@ -50,6 +65,7 @@ export const user = createTRPCRouter({
           name,
           username,
           emoji,
+          fcmToken,
         })
         .where("id", "=", ctx.user)
         .returningAll()
@@ -59,6 +75,26 @@ export const user = createTRPCRouter({
     }),
 
   deleteMyAccount: protectedProcedure.mutation(async ({ ctx }) => {
+    await ctx.appDb
+      .deleteFrom("ConnectionRequest")
+      .where((eb) =>
+        eb.or([
+          eb("firstUserId", "=", ctx.user),
+          eb("secondUserId", "=", ctx.user),
+        ]),
+      )
+      .execute();
+
+    await ctx.appDb
+      .deleteFrom("Friend")
+      .where((eb) =>
+        eb.or([
+          eb("firstUserId", "=", ctx.user),
+          eb("secondUserId", "=", ctx.user),
+        ]),
+      )
+      .execute();
+
     const delUserPromise = ctx.appDb
       .deleteFrom("User")
       .where("id", "=", ctx.user)
@@ -99,16 +135,43 @@ export const user = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input: { userId } }) => {
-      const user = await ctx.appDb
-        .selectFrom("User")
-        .where("id", "=", userId)
-        .selectAll()
-        .executeTakeFirstOrThrow(() => new TRPCError({ code: "NOT_FOUND" }));
+      const [user, myLikes, userLikes] = await Promise.all([
+        ctx.appDb
+          .selectFrom("User")
+          .where("id", "=", userId)
+          .selectAll()
+          .executeTakeFirstOrThrow(() => new TRPCError({ code: "NOT_FOUND" })),
 
-      const matchesCount = await ctx.dbMovieSwipe.swipes.countDocuments({
-        userId: { $in: [user.id, ctx.user] },
-        liked: true,
-      });
+        ctx.dbMovieSwipe.swipes
+          .find(
+            {
+              userId: ctx.user,
+              liked: true,
+            },
+            { projection: { movieId: 1 } },
+          )
+          .toArray(),
+
+        ctx.dbMovieSwipe.swipes
+          .find(
+            {
+              userId: userId,
+              liked: true,
+            },
+            { projection: { movieId: 1 } },
+          )
+          .toArray(),
+      ]);
+
+      let matchesCount = 0;
+
+      for (const myLike of myLikes) {
+        for (const userLike of userLikes) {
+          if (myLike.movieId === userLike.movieId) {
+            matchesCount++;
+          }
+        }
+      }
 
       return { user, matchesCount };
     }),
@@ -198,93 +261,111 @@ export const user = createTRPCRouter({
         name: z.string(),
         emoji: z.string(),
         method: signInMethodSchema,
+        _dev: z.boolean().optional().default(false),
       }),
     )
-    .mutation(async ({ input: { name, username, emoji, method }, ctx }) => {
-      const existingUser = await ctx.appDb
-        .selectFrom("User")
-        .where("username", "=", username)
-        .selectAll()
-        .executeTakeFirst();
+    .mutation(
+      async ({
+        input: { name, _dev, username: _username, emoji, method },
+        ctx,
+      }) => {
+        //Handle the dumb Google review bot
+        const username =
+          _username === "text" ? `text${Math.random()}` : _username;
 
-      //Throw is username is taken
-      if (existingUser) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Username already taken",
-        });
-      }
+        const isAppleReview = name.toLowerCase().trim() === "apple";
 
-      const { email, sub } =
-        method.provider === "google"
-          ? await getEmailFromGoogleToken(method.idToken)
-          : await getEmailFromAppleToken({
-              idToken: method.idToken,
-              nonce: method.nonce,
-            });
+        const existingUser = await ctx.appDb
+          .selectFrom("User")
+          .where("username", "=", username)
+          .selectAll()
+          .executeTakeFirst();
 
-      if (!email) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Email not found",
-        });
-      }
-
-      let inviteLinkSlug: string | null = null;
-
-      while (!inviteLinkSlug) {
-        try {
-          const id = randomBytes(4).toString("hex");
-
-          await ctx.appDb
-            .insertInto("UserInviteLink")
-            .values({
-              slug: id,
-            })
-            .execute();
-
-          inviteLinkSlug = id;
-        } catch (e) {
-          logger.error(e);
+        //Throw is username is taken
+        if (existingUser) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Username already taken",
+          });
         }
-      }
 
-      const newUser = await ctx.appDb.transaction().execute(async (trx) => {
-        const fullAccessPurchase = await trx
-          .insertInto("FullAccessPurchase")
-          .values({
-            id: createId(),
-            source: "gift",
-          })
-          .returning("id")
-          .executeTakeFirstOrThrow(
-            () => new TRPCError({ code: "INTERNAL_SERVER_ERROR" }),
-          );
+        const { email, sub } =
+          method.provider === "google"
+            ? await getEmailFromGoogleToken(method.idToken)
+            : await getEmailFromAppleToken({
+                idToken: method.idToken,
+                nonce: method.nonce,
+              });
 
-        return await trx
-          .insertInto("User")
-          .values({
-            id: createId(),
-            name,
-            email,
-            emoji,
-            sub,
-            username,
-            timezoneOffset: 0,
-            fcmToken: null,
-            userInviteSlugId: inviteLinkSlug as string,
-            fullAccessPurchaseId: fullAccessPurchase.id,
-          })
-          .returningAll()
-          .executeTakeFirstOrThrow(
-            () => new TRPCError({ code: "INTERNAL_SERVER_ERROR" }),
-          );
-      });
+        if (!email) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Email not found",
+          });
+        }
 
-      const token = createToken({ user: newUser.id });
+        let inviteLinkSlug: string | null = null;
 
-      return { token, user: newUser };
-    }),
+        while (!inviteLinkSlug) {
+          try {
+            const id = randomBytes(4).toString("hex");
+
+            await ctx.appDb
+              .insertInto("UserInviteLink")
+              .values({
+                slug: id,
+              })
+              .execute();
+
+            inviteLinkSlug = id;
+          } catch (e) {
+            logger.error(e);
+          }
+        }
+
+        const newUser = await ctx.appDb.transaction().execute(async (trx) => {
+          let fullAccessPurchaseId: string | null = null;
+
+          /*
+          const fullAccessPurchase = await trx
+            .insertInto("FullAccessPurchase")
+            .values({
+              id: createId(),
+              source: "gift",
+            })
+            .returning("id")
+            .executeTakeFirstOrThrow(
+              () => new TRPCError({ code: "INTERNAL_SERVER_ERROR" }),
+            );
+
+          fullAccessPurchaseId = fullAccessPurchase.id;
+            * */
+
+          return await trx
+            .insertInto("User")
+            .values({
+              id: createId(),
+              name,
+              email,
+              emoji,
+              sub,
+              username,
+              timezoneOffset: 0,
+              fcmToken: null,
+              userInviteSlugId: inviteLinkSlug as string,
+              fullAccessPurchaseId,
+            })
+            .returningAll()
+            .executeTakeFirstOrThrow(
+              () => new TRPCError({ code: "INTERNAL_SERVER_ERROR" }),
+            );
+        });
+
+        const token = createToken({ user: newUser.id });
+
+        return { token, user: newUser };
+      },
+    ),
 
   /**
    * Searches a user by name or username
@@ -293,7 +374,11 @@ export const user = createTRPCRouter({
    * */
   search: protectedProcedure
     .input(z.object({ query: z.string() }))
-    .query(async ({ input: { query }, ctx }) => {
+    .query(async ({ input: { query: _query }, ctx }) => {
+
+      //remove "@" from the query
+      const query = _query.replaceAll("@", "");
+
       const users = await ctx.appDb
         .selectFrom("User")
         .leftJoin(

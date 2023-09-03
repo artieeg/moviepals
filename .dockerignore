@@ -428,6 +428,10 @@ node_modules/react-native-webview/windows/**/.cr/personal
 node_modules/react-native-webview/windows/**/__pycache__
 node_modules/react-native-webview/windows/**/*.pyc
 
+#Exclude builds
+**/*.apk
+**/*.aab
+
 # Cake - Uncomment if you are using it
 # tools/**
 # !tools/packages.config

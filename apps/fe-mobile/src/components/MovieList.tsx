@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from "react";
-import { Pressable, PressableProps, Text, View } from "react-native";
+import { FlatList, Pressable, PressableProps, Text, View } from "react-native";
 import FastImage from "react-native-fast-image";
 
 import { Movie } from "@moviepals/api";
@@ -52,12 +52,12 @@ export function MovieList({
   }, []);
 
   return (
-    <FlashList
+    <FlatList
       contentContainerStyle={{ paddingHorizontal: 32 }}
       ListHeaderComponent={renderListHeader}
       ItemSeparatorComponent={renderItemSeparator}
       data={movies}
-      estimatedItemSize={64}
+      //estimatedItemSize={64}
       renderItem={renderMovieItem}
       onEndReached={onFetchNext}
     />

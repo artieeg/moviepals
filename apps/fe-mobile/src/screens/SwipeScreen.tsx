@@ -211,6 +211,19 @@ export function SwipeScreen() {
   return (
     <>
       <MainLayout
+        right={
+          showAdPermissionPrompt && (
+            <TouchableOpacity
+              onPress={() => {
+                setShowAdPermissionPrompt(false);
+              }}
+            >
+              <Text className="font-primary-bold text-base text-brand-1">
+                skip
+              </Text>
+            </TouchableOpacity>
+          )
+        }
         goBackCloseIcon
         title="Swipe"
         canGoBack
@@ -223,12 +236,6 @@ export function SwipeScreen() {
             className="flex-1"
           >
             <View className="aspect-[2/3] translate-y-8">
-              {loadingIndicator && (
-                <View className="items-center justify-center">
-                  <ActivityIndicator size="large" />
-                </View>
-              )}
-
               {!loadingIndicator &&
                 !result.isRefetching &&
                 result.isSuccess &&
@@ -278,7 +285,7 @@ export function SwipeScreen() {
           </Animated.View>
         )}
 
-        {!currentMovie && (result.isFetchingNextPage || result.isLoading) && (
+        {!currentMovie && (result.isFetchingNextPage || result.isLoading) ? (
           <Animated.View
             className="flex-1 items-center justify-center pb-8"
             entering={FadeIn}
@@ -296,9 +303,7 @@ export function SwipeScreen() {
               give us a short second 😄🐢
             </Animated.Text>
           </Animated.View>
-        )}
-
-        {!currentMovie && (
+        ) : !currentMovie ? (
           <>
             {noMoreMovies && (
               <Animated.View
@@ -335,28 +340,26 @@ export function SwipeScreen() {
                 />
               </Animated.View>
             )}
-
-            {showAdPermissionPrompt && (
-              <Animated.View
-                className="flex-1 pb-8"
-                entering={FadeIn}
-                exiting={FadeOut}
-              >
-                <AdsOrPremiumPrompt
-                  mode="ad-permission"
-                  onSkip={() => {
-                    setShowAdPermissionPrompt(false);
-                  }}
-                  onProceed={() => {
-                    onProceedAfterPurchaseOrAd();
-
-                    setShowAdPermissionPrompt(false);
-                  }}
-                />
-              </Animated.View>
-            )}
           </>
-        )}
+        ) : showAdPermissionPrompt ? (
+          <Animated.View
+            className="flex-1 pb-8"
+            entering={FadeIn}
+            exiting={FadeOut}
+          >
+            <AdsOrPremiumPrompt
+              mode="ad-permission"
+              onSkip={() => {
+                setShowAdPermissionPrompt(false);
+              }}
+              onProceed={() => {
+                onProceedAfterPurchaseOrAd();
+
+                setShowAdPermissionPrompt(false);
+              }}
+            />
+          </Animated.View>
+        ) : null}
       </MainLayout>
       <MovieDetailsBottomSheet ref={movieDetailsRef} />
     </>

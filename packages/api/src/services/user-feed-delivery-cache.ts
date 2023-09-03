@@ -3,7 +3,7 @@ import { DateTime } from "luxon";
 import { z } from "zod";
 
 const userFeedDeliveryStateSchema = z.object({
-  page: z.string().transform((v) => parseInt(v)),
+  swipes: z.string().transform((v) => parseInt(v)),
   ads_watched: z.string().transform((v) => parseInt(v)),
 });
 
@@ -21,18 +21,18 @@ export class UserFeedDeliveryCache {
     return `user_feed_delivery:${user}`;
   }
 
-  async incPage(userId: string) {
+  async incSwipes(userId: string) {
     const state = await this.getDeliveryState(userId);
 
     if (!state) {
       await this.setDeliveryState(userId, {
-        page: 1,
+        swipes: 1,
         ads_watched: 0,
       });
     } else {
       await this.setDeliveryState(userId, {
         ...state,
-        page: state.page + 1,
+        swipes: state.swipes + 1,
       });
     }
   }
@@ -42,7 +42,7 @@ export class UserFeedDeliveryCache {
 
     if (!state) {
       await this.setDeliveryState(userId, {
-        page: 0,
+        swipes: 0,
         ads_watched: 1,
       });
     } else {

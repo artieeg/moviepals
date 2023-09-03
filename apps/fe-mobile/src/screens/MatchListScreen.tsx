@@ -1,34 +1,38 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Pressable, PressableProps, Text, View } from "react-native";
-import FastImage from "react-native-fast-image";
-import { FlashList } from "@shopify/flash-list";
-import { Search } from "iconoir-react-native";
-import { useDebounce } from "use-debounce";
-
-import { Movie } from "@moviepals/dbmovieswipe";
+import React, { useCallback, useMemo, useState } from "react";
+import { Text, View } from "react-native";
 
 import { api } from "~/utils/api";
-import { getTMDBStaticUrl } from "~/utils/uri";
 import {
-  Input,
   MovieDetailsBottomSheet,
   MovieDetailsBottomSheetRef,
-  MovieItem,
   MovieList,
 } from "~/components";
 import { useRouteParams } from "~/hooks";
 import { MainLayout } from "./layouts/MainLayout";
 
+export const SCREEN_MATCHES_LIST = "MatchesList";
+
 export function MatchListScreen() {
-  const { userId } = useRouteParams<{ userId: string }>();
+  const { userIds, title, subtitle } = useRouteParams<{
+    userIds: string[];
+    title: string;
+    subtitle: string;
+  }>();
 
   const [query, setQuery] = useState("");
 
   const matchedMovieSearch = api.matches.search.useQuery(
-    { userId, query },
+    { userIds, query },
     { enabled: !!query },
   );
-  const movies = api.matches.getMatches.useInfiniteQuery({ userId });
+
+  const movies = api.matches.getMatches.useInfiniteQuery(
+    { userIds },
+    {
+      initialCursor: 0,
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    },
+  );
 
   const moviesList = useMemo(() => {
     return movies.data?.pages.flatMap(({ movies }) => movies);
@@ -44,9 +48,14 @@ export function MatchListScreen() {
 
   return (
     <>
-      <MainLayout title="matches" canGoBack>
+      <MainLayout title="Movie Matches" canGoBack>
+        <View className="space-y-3">
+          <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
+            {subtitle}
+          </Text>
+        </View>
         {moviesList && (
-          <View className="-mx-8 flex-1">
+          <View className="-mx-8 pt-6 flex-1">
             <MovieList
               onOpenMovieDetails={onOpenMovieDetails}
               onSearch={(search) => {

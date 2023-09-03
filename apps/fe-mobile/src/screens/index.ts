@@ -22,3 +22,4 @@ export * from "./JoinMailingListScreen";
 export * from "./NotificationPermissionRequestScreen";
 export * from "./UserInfoScreen";
 export * from "./TimeframeInputScreen";
+export * from "./MatchListScreenV2";

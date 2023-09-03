@@ -14,7 +14,11 @@ import { AppDb } from "@moviepals/db";
 import { DbMovieSwipe } from "@moviepals/dbmovieswipe";
 
 import { logger } from "./logger";
-import { LatestFeedResponseCache, UserFeedDeliveryCache } from "./services";
+import {
+  LatestFeedResponseCache,
+  RemoteApiResponseCache,
+  UserFeedDeliveryCache,
+} from "./services";
 import { verifyToken } from "./utils/jwt";
 
 /**
@@ -33,6 +37,7 @@ interface CreateContextOptions {
   dbMovieSwipe: DbMovieSwipe;
   userFeedDeliveryCache: UserFeedDeliveryCache;
   latestFeedResponseCache: LatestFeedResponseCache;
+  remoteApiResponseCache: RemoteApiResponseCache;
 }
 
 export interface Context extends CreateContextOptions {}
@@ -64,6 +69,7 @@ export const createTRPCContext = async ({
   dbMovieSwipe,
   userFeedDeliveryCache,
   latestFeedResponseCache,
+  remoteApiResponseCache,
 }: {
   authorization?: string;
 
@@ -72,6 +78,7 @@ export const createTRPCContext = async ({
   dbMovieSwipe: DbMovieSwipe;
   userFeedDeliveryCache: UserFeedDeliveryCache;
   latestFeedResponseCache: LatestFeedResponseCache;
+  remoteApiResponseCache: RemoteApiResponseCache;
 }) => {
   const token = authorization?.split(" ")[1];
 
@@ -82,6 +89,7 @@ export const createTRPCContext = async ({
     userFeedDeliveryCache,
     appDb,
     dbMovieSwipe,
+    remoteApiResponseCache,
     latestFeedResponseCache,
     ip,
   });
@@ -160,7 +168,7 @@ export const loggerMiddleware = t.middleware(
           },
           input: rawInput,
         },
-        //response: response.data,
+        response: response.data,
       });
     } else {
       logger.error({

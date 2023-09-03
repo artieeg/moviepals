@@ -65,7 +65,7 @@ export function GenreFilterScreen() {
         data={allGenres.data}
       />
 
-      <Button onPress={onSaveData} className="absolute bottom-0 left-8 right-8">
+      <Button onPress={onSaveData} className="absolute bottom-3 left-8 right-8">
         done
       </Button>
     </MainLayout>

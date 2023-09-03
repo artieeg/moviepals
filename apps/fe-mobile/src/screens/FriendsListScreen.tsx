@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect } from "react";
 import {
+  ActivityIndicator,
   Alert,
   FlatList,
   Text,
@@ -11,6 +12,7 @@ import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { useFocusEffect } from "@react-navigation/native";
 import { MoreHoriz, NavArrowRight, Search } from "iconoir-react-native";
 import { produce } from "immer";
+import { useColorScheme } from "nativewind";
 import { useDebounce } from "use-debounce";
 
 import { api } from "~/utils/api";
@@ -26,6 +28,8 @@ export function FriendsListScreen() {
   const user = api.user.getMyData.useQuery();
   const friends = api.connection.listConnections.useQuery();
 
+  const { colorScheme } = useColorScheme();
+
   const connectionRequestsCount =
     api.connection_requests.countConnectionRequests.useQuery();
 
@@ -36,6 +40,7 @@ export function FriendsListScreen() {
 
   useEffect(() => {
     friends.refetch();
+    connectionRequestsCount.refetch();
   }, [query]);
 
   useFocusEffect(
@@ -52,7 +57,7 @@ export function FriendsListScreen() {
           if (!draft) return draft;
 
           draft.connections = draft?.connections.filter(
-            (item) => item.id !== connectionId,
+            (item) => item.userConnectionId !== connectionId,
           );
         }),
       );
@@ -115,7 +120,7 @@ export function FriendsListScreen() {
   }
 
   return (
-    <MainLayout title="people">
+    <MainLayout title="People">
       <View className="flex-1 space-y-8">
         <View className="space-y-2">
           <Input
@@ -126,22 +131,36 @@ export function FriendsListScreen() {
             icon={<Search />}
           />
 
-          {connectionRequestsCount.data?.count && (
-            <TouchableOpacity
-              onPress={() => navigation.navigate(SCREEN_FRIEND_REQUEST_LIST)}
-              className="flex-row justify-end"
-            >
-              <View className="flex-row items-center justify-center space-x-1">
-                <Text className="text-brand-1 font-primary-bold text-base">
-                  {connectionRequestsCount.data?.count} requests
-                </Text>
-                <NavArrowRight width="16" height="16" color="#6356E4" />
-              </View>
-            </TouchableOpacity>
-          )}
+          {connectionRequestsCount.isSuccess &&
+            connectionRequestsCount.data.count > 0 && (
+              <TouchableOpacity
+                onPress={() => navigation.navigate(SCREEN_FRIEND_REQUEST_LIST)}
+                className="flex-row justify-end"
+              >
+                <View className="flex-row items-center justify-center space-x-1">
+                  <Text className="text-brand-1 font-primary-bold text-base">
+                    {connectionRequestsCount.data?.count} {
+                      connectionRequestsCount.data?.count === 1
+                        ? "request"
+                        : "requests"
+                    }
+                  </Text>
+                  <NavArrowRight width="16" height="16" color="#6867AA" className="translate-y-[0.5px]" />
+                </View>
+              </TouchableOpacity>
+            )}
         </View>
 
         <View className="flex-1">
+          {friends.isLoading && (
+            <View className="flex-1 justify-center items-center">
+              <ActivityIndicator
+                size="large"
+                color={colorScheme === "dark" ? "white" : "black"}
+              />
+            </View>
+          )}
+
           {userSearch.data && user.isSuccess && friends.isSuccess && (
             <FlatList
               data={userSearch.data}
@@ -166,18 +185,13 @@ export function FriendsListScreen() {
               data={friends.data?.connections}
               ItemSeparatorComponent={() => <View className="h-4" />}
               renderItem={({ item }) => {
-                const source =
-                  item.firstUser.id === user.data?.id
-                    ? item.secondUser
-                    : item.firstUser;
-
                 return (
                   <UserConnection
-                    connectionId={item.id}
-                    userId={source.id}
-                    username={source.username}
-                    name={source.name}
-                    emoji={source.emoji}
+                    connectionId={item.userConnectionId}
+                    userId={item.id}
+                    username={item.username}
+                    name={item.name}
+                    emoji={item.emoji}
                     isFollowing
                     onRemove={onRemoveConnection}
                   />
@@ -218,7 +232,7 @@ function UnknownUser({
         }
         itemId={userId}
         title={name}
-        subtitle={username}
+        subtitle={"@" + username}
         icon={emoji}
       />
     </Animated.View>
@@ -273,7 +287,7 @@ function UserConnection({
       }
       itemId={userId}
       title={name}
-      subtitle={username}
+      subtitle={"@" + username}
       icon={emoji}
     />
   );

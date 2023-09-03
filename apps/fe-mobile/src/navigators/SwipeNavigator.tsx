@@ -26,12 +26,6 @@ export default function SwipeNavigator() {
         name={SCREEN_PREPARE_SWIPE}
         component={PrepareSwipeScreen}
       />
-
-      <Stack.Screen
-        options={options}
-        name={SCREEN_THANK_YOU}
-        component={ThankYouScreen}
-      />
     </Stack.Navigator>
   );
 }

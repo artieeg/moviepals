@@ -37,7 +37,7 @@ export function FriendRequestListScreen() {
             if (!draft) return draft;
 
             draft.requests = draft?.requests.filter(
-              (item) => item.id !== connectionRequestId,
+              (item) => item.connectionRequestId !== connectionRequestId,
             );
           }),
         );
@@ -61,9 +61,7 @@ export function FriendRequestListScreen() {
           produce((draft) => {
             if (!draft) return draft;
 
-            draft.requests = draft?.requests.filter(
-              (item) => item.firstUserId !== user,
-            );
+            draft.requests = draft?.requests.filter((item) => item.id !== user);
           }),
         );
       },
@@ -95,17 +93,15 @@ export function FriendRequestListScreen() {
         <FlatList
           data={friendRequestList.data?.requests}
           renderItem={({ item }) => {
-            const requestingUser = item.firstUser;
-
             return (
               <FriendRequestItem
-                connectionId={item.id}
-                userId={requestingUser.id}
-                username={requestingUser.username}
+                connectionId={item.connectionRequestId}
+                userId={item.id}
+                username={item.username}
                 onAcceptRequest={onAcceptRequest}
                 onRejectRequest={onRejectRequest}
-                name={requestingUser.name}
-                emoji={requestingUser.emoji}
+                name={item.name}
+                emoji={item.emoji}
               />
             );
           }}

@@ -1,6 +1,14 @@
 import React from "react";
 import { ActivityIndicator } from "react-native";
+import { useColorScheme } from "nativewind";
 
 export function LoadingIndicator() {
-  return <ActivityIndicator size="large" color="black" />;
+  const { colorScheme } = useColorScheme();
+
+  return (
+    <ActivityIndicator
+      size="large"
+      color={colorScheme === "dark" ? "white" : "black"}
+    />
+  );
 }

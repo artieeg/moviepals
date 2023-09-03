@@ -1,9 +1,11 @@
+import { encode } from "querystring";
 import { createId } from "@paralleldrive/cuid2";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import {
   dbMovieSwipe,
+  MongoBulkWriteError,
   Movie,
   ReviewState,
   Swipe,
@@ -15,10 +17,10 @@ import { getMovies, GetMoviesParams } from "../services";
 import { Context, createTRPCRouter, protectedProcedure } from "../trpc";
 
 /** Number of movies that we return to the client */
-const MOVIES_PER_PAGE = 10;
+const MOVIES_PER_PAGE = 30;
 
 /** Max number of movies that we mix in from friend swipes */
-const MIX_IN_MOVIES_COUNT = 5;
+const MIX_IN_MOVIES_COUNT = 15;
 
 const getMovieFeedInput = z.object({
   start_year: z.number().min(1960).max(2019).optional(),
@@ -79,10 +81,79 @@ export const movie_feed = createTRPCRouter({
         c.firstUserId === ctx.user ? c.secondUserId : c.firstUserId,
       );
 
+      console.log(
+        {
+          user,
+          friendUserIds,
+          userFeedDeliveryState,
+          userReviewState,
+          previouslySwipedMovieIds,
+        },
+        "movie feed data fetch",
+      );
+
+      logger.info(
+        {
+          user,
+          friendUserIds,
+          userFeedDeliveryState,
+          userReviewState,
+          previouslySwipedMovieIds,
+        },
+        "movie feed data fetch",
+      );
+
       const recentlyServedMovies = await getRecentlyServedMovies(
         userReviewState.id,
         ctx,
       );
+
+      console.log({
+        recentlyServedMovieIds: recentlyServedMovies.map((m) => m.id),
+      });
+
+      logger.info(
+        {
+          recentlyServedMovies,
+        },
+        "Recently served movies",
+      );
+
+      if (
+        !user.fullAccessPurchaseId &&
+        userFeedDeliveryState &&
+        Math.floor(userFeedDeliveryState.swipes / MOVIES_PER_PAGE) >
+          userFeedDeliveryState.ads_watched
+      ) {
+        logger.info({ user }, "User has to watch an ad");
+
+        return {
+          hasToWatchAd: true,
+          feed: [],
+          cursor: input.cursor + 1,
+        };
+      }
+
+      console.log({
+        user,
+        input,
+        userFeedDeliveryState,
+      });
+
+      logger.info(
+        { user, input, userFeedDeliveryState },
+        "Fetching movie feed for user",
+      );
+
+      const totalMovieFeedCount = userFeedDeliveryState
+        ? MOVIES_PER_PAGE - (userFeedDeliveryState.swipes % MOVIES_PER_PAGE)
+        : MOVIES_PER_PAGE;
+
+      logger.info({
+        user,
+        userFeedDeliveryState,
+        totalMovieFeedCount,
+      })
 
       const { movies: feed, nextRemoteApiPage } = await getMoviePage({
         ctx,
@@ -92,7 +163,8 @@ export const movie_feed = createTRPCRouter({
         fetchRandomSwipes,
         fetchMoviesDataFromLocalDb,
         fetchMoviesFromRemoteApi,
-        responseTotalMovieCount: MOVIES_PER_PAGE,
+        responseTotalMovieCount: totalMovieFeedCount,
+        //responseTotalMovieCount: MOVIES_PER_PAGE,
         previouslySwipedMovieIds,
         recentlyServedMovies,
         responseMovieFromFriendCount: MIX_IN_MOVIES_COUNT,
@@ -109,27 +181,42 @@ export const movie_feed = createTRPCRouter({
         cursor: input.cursor + 1,
       };
 
-      if (feed.length < MOVIES_PER_PAGE) {
-        if (input.cursor === 0) {
-          response.unableToFindMovies = true;
-        } else {
-          response.noMoreMovies = true;
-        }
-      } else {
+      if (feed.length < MOVIES_PER_PAGE && feed.length !== totalMovieFeedCount) {
+        logger.warn({
+          userFeedDeliveryState,
+          MOVIES_PER_PAGE,
+          totalMovieFeedCount,
+          feed,
+        }, "Served less movies than expected")
+      }
+
+      //if (feed.length < MOVIES_PER_PAGE) {
+        //if (input.cursor === 0) {
+          //response.unableToFindMovies = true;
+        //} else {
+          //response.noMoreMovies = true;
+        //}
+      //} else {
         if (
           !user.fullAccessPurchaseId &&
           userFeedDeliveryState &&
-          userFeedDeliveryState.page > userFeedDeliveryState.ads_watched
+          Math.floor(userFeedDeliveryState.swipes / MOVIES_PER_PAGE) >
+            userFeedDeliveryState.ads_watched
         ) {
+          logger.info({
+            user,
+            userFeedDeliveryState,
+            MOVIES_PER_PAGE,
+            totalMovieFeedCount,
+          }, "User has to watch an ad")
           response.hasToWatchAd = true;
         }
-      }
+      //}
 
       //Count the response if it's fully successful
       if (!response.noMoreMovies && !response.unableToFindMovies) {
         await Promise.all([
           setRemoteApiPage(userReviewState.id, nextRemoteApiPage, ctx),
-          ctx.userFeedDeliveryCache.incPage(ctx.user),
           ctx.latestFeedResponseCache.setLatestFeedResponse(
             userReviewState.id,
             feed,
@@ -160,10 +247,71 @@ async function getRecentlyServedMovies(reviewStateId: string, ctx: Context) {
   return r ?? [];
 }
 
-async function fetchMoviesFromRemoteApi(params: GetMoviesParams, ctx: Context) {
-  //TODO: cache
+async function fetchMoviesFromRemoteApi(
+  params: GetMoviesParams,
+  ctx: Context,
+  prefetchNextPages = false,
+) {
+  const qs = encode(params);
+  const cached = await ctx.remoteApiResponseCache.getCachedResponse(qs);
+
+  if (cached) {
+    logger.info(
+      {
+        params,
+        qs,
+        cached,
+      },
+      "Returning cached api response",
+    );
+
+    return cached;
+  }
+
   const movies = await getMovies(params);
-  await ctx.dbMovieSwipe.movies.insertMany(movies);
+
+  await ctx.remoteApiResponseCache.setResponse(qs, movies);
+
+  //Prefetch future pages
+  for (let i = params.page + 1, a = 0; a < 5 && prefetchNextPages; a++, i++) {
+    setTimeout(() => {
+      const newParams = { ...params, page: i };
+      logger.info({ params: newParams }, "prefetching next page");
+
+      fetchMoviesFromRemoteApi(newParams, ctx, true);
+    }, a * 1000);
+  }
+
+  try {
+    if (movies.length > 0) {
+      //The index should exist
+      const result = await ctx.dbMovieSwipe.movies.insertMany(movies, {
+        ordered: false,
+      });
+
+      logger.info(
+        {
+          message: "Inserted movies",
+          count: result.insertedCount,
+        },
+        "Inserted new movies",
+      );
+    }
+  } catch (e) {
+    if (e instanceof MongoBulkWriteError) {
+      logger.info(
+        {
+          message: "Inserted movies",
+          count: (e as MongoBulkWriteError).result.insertedCount,
+        },
+        "Inserted new movies",
+      );
+    } else {
+      logger.error(e, typeof e);
+
+      throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    }
+  }
 
   return movies;
 }
@@ -196,6 +344,8 @@ async function fetchRandomSwipes(
       ...filters,
     })
     .toArray();
+
+  console.log("FETCHED FROM MONGO", swipes.length);
 
   return randomElements(swipes, count);
 }
@@ -315,6 +465,8 @@ async function getMoviePage({
     );
 
     if (filtered.length > 0) {
+      logger.info("Serve a portion of the previous response", filtered.length);
+
       shouldShuffleResponse = false;
 
       for (const movie of filtered) {
@@ -322,6 +474,11 @@ async function getMoviePage({
       }
     }
   }
+
+  console.log({
+    moviesToServeLength: moviesToServe.length,
+    shouldShuffleResponse,
+  });
 
   /**
    * Filter out movies that the user has already swiped on.
@@ -334,6 +491,17 @@ async function getMoviePage({
     recentlyServedMovieIds,
     previouslySwipedMovieIds,
   ].flat();
+
+  console.log({
+    excludedMovieIdsLength: excludedMovieIds.length,
+  });
+
+  logger.info(
+    {
+      excludedMovieIdsLength: excludedMovieIds.length,
+    },
+    "excluded movie ids",
+  );
 
   const randomFriendSwipes = await fetchRandomSwipes(
     friendUserIds,
@@ -362,6 +530,20 @@ async function getMoviePage({
 
   const randomFriendSwipesMovieIds = randomFriendSwipes.map((s) => s.movieId);
 
+  console.log(
+    {
+      randomFriendSwipesLength: randomFriendSwipesMovieIds.length,
+    },
+    "random friend swipe length",
+  );
+
+  logger.info(
+    {
+      randomFriendSwipesLength: randomFriendSwipesMovieIds.length,
+    },
+    "random friend swipe length",
+  );
+
   const friendMoviesToMixInPromise = fetchMoviesDataFromLocalDb(
     randomFriendSwipesMovieIds,
     ctx,
@@ -379,7 +561,7 @@ async function getMoviePage({
   const params: Omit<GetMoviesParams, "page"> = {
     "primary_release_date.gte": start_year ? `${start_year}-01-01` : undefined,
     "primary_release_date.lte": end_year ? `${end_year}-12-31` : undefined,
-    with_watch_providers: watchProviderIds,
+    with_watch_providers: watchProviderIds.join("|"),
     watch_region: region,
     with_genres: genres.join(","),
     with_cast: cast.join(","),
@@ -389,7 +571,37 @@ async function getMoviePage({
   const moviesFetchedFromRemoteApi: Movie[] = [];
   let page = latestRemoteApiPage;
 
+  console.log(
+    {
+      leftToFetch,
+      responseTotalMovieCount,
+      randomFriendSwipes: randomFriendSwipes.length,
+      moviesToServe: moviesToServe.length,
+    },
+    "Left to fetch",
+  );
+
+  logger.info(
+    {
+      leftToFetch,
+      responseTotalMovieCount,
+      randomFriendSwipes: randomFriendSwipes.length,
+      moviesToServe: moviesToServe.length,
+    },
+    "Left to fetch",
+  );
+
+  let noMoreMovies = false;
+
   for (; moviesFetchedFromRemoteApi.length < leftToFetch; page++) {
+    console.log(
+      {
+        ...params,
+        page,
+      },
+      "Fetching movies from remote api",
+    );
+
     logger.info(
       {
         ...params,
@@ -407,6 +619,7 @@ async function getMoviePage({
     );
 
     if (fetchedMovies.length === 0) {
+      noMoreMovies = true;
       break;
     }
 
@@ -440,6 +653,16 @@ async function getMoviePage({
   //Finish loading friend movies and append them to response
   const friendMoviesToMixIn = await friendMoviesToMixInPromise;
 
+  console.log(
+    { friendMoviesCount: friendMoviesToMixIn.length },
+    "mixing in friend movies",
+  );
+
+  logger.info(
+    { friendMoviesCount: friendMoviesToMixIn.length },
+    "mixing in friend movies",
+  );
+
   for (const movie of friendMoviesToMixIn) {
     moviesToServe.push(movie);
   }
@@ -468,7 +691,21 @@ function randomElements<T>(array: T[], count: number) {
 
   const elements: T[] = [];
 
-  for (let i = 0; elements.length <= Math.min(array.length, count); i++) {
+  let attemps = count * 3;
+
+  for (
+    let i = 0;
+    elements.length < Math.min(array.length, count) && attemps >= 0;
+    i++, attemps--
+  ) {
+    if (attemps % 10 === 0) {
+      console.log({ attemps, i });
+    }
+
+    logger.info(
+      { count, ellen: elements.length, len: array.length, i },
+      "Random elements",
+    );
     const randomIndex = Math.floor(Math.random() * array.length);
 
     if (elements.includes(array[randomIndex]!)) {
@@ -476,6 +713,13 @@ function randomElements<T>(array: T[], count: number) {
     }
 
     elements.push(array[randomIndex]!);
+  }
+
+  if (attemps <= 0) {
+    logger.error(
+      { count, found: elements.length, input_len: array.length, array },
+      "Failed to pick random elements",
+    );
   }
 
   return elements;

@@ -12,12 +12,14 @@ import {
   dbMovieSwipe,
   handleFullAccessPurchase,
   LatestFeedResponseCache,
+  RemoteApiResponseCache,
   UserFeedDeliveryCache,
   verifyRewardedAdCallback,
 } from "@moviepals/api";
+import { logger } from "@moviepals/api/src/logger";
+import { appDb, connectAppDb } from "@moviepals/db";
 
 import { env } from "./env";
-import {appDb, connectAppDb} from "@moviepals/db/src/db";
 
 const server = fastify({
   maxParamLength: 10000,
@@ -25,47 +27,70 @@ const server = fastify({
 
 const revenueCatSchema = z
   .object({
-    event: z
-      .object({
-        app_user_id: z.string(),
-      })
-      .passthrough(),
+    event: z.object({}).passthrough(),
   })
   .passthrough();
 
 export async function main() {
-  const userDeliveryCacheClient = new Redis(env.USER_DELIVERY_CACHE_REDIS_URL, {
+  const redis = new Redis(env.USER_DELIVERY_CACHE_REDIS_URL, {
     lazyConnect: true,
     family: 6,
+    reconnectOnError: () => true,
+    retryStrategy: () => 100,
+    keepAlive: 1,
   });
 
-  const lastestFeedResponseCacheClient = new Redis(
-    env.LATEST_FEED_RESPONSE_CACHE_REDIS_URL,
-    {
-      lazyConnect: true,
-      family: 6,
-    },
-  );
+  redis.on("error", (err) => {
+    logger.error("Redis cache error", err);
+  });
 
+  redis.on("close", async () => {
+    logger.error("Redis cache close");
+    await redis.connect();
+  });
 
-  await Promise.all([
-    //prisma.$connect(),
-    connectAppDb(),
-    dbMovieSwipe.connect(),
-    userDeliveryCacheClient.connect(),
-    lastestFeedResponseCacheClient.connect(),
-  ]);
+  redis.on("connect", () => {
+    logger.info("Redis connect");
+  });
 
-  const latestFeedResponseCache = new LatestFeedResponseCache(
-    lastestFeedResponseCacheClient,
-  );
+  redis.on("reconnecting", () => {
+    logger.warn("Redis reconnecting");
+  });
 
-  const userFeedDeliveryCache = new UserFeedDeliveryCache(
-    userDeliveryCacheClient,
-  );
+  redis.on("end", () => {
+    logger.warn("Redis end");
+  });
+
+  await Promise.all([connectAppDb(), dbMovieSwipe.connect(), redis.connect()]);
+
+  setInterval(() => {
+    redis.set("user-delivery-cache", Math.random());
+  }, 400);
+
+  const remoteApiResponseCache = new RemoteApiResponseCache(redis);
+
+  const latestFeedResponseCache = new LatestFeedResponseCache(redis);
+
+  const userFeedDeliveryCache = new UserFeedDeliveryCache(redis);
 
   server.get("/health", async () => {
-    return { status: "ok" };
+    if (redis.status !== "ready") {
+      await redis.connect();
+      logger.error("USER_DELIVERY CACHE NOT READY");
+    }
+
+    if (redis.status !== "ready") {
+      logger.error("USER_DELIVERY CACHE RECONNECT FAILED");
+      throw new Error("USER_DELIVERY CACHE RECONNECT FAILED");
+    }
+
+    redis.ping();
+    redis.set("user-delivery-cache", Math.random());
+
+    return {
+      status: "ok",
+      userDeliveryCacheClient: redis.status,
+    };
   });
 
   //TRPC
@@ -84,30 +109,37 @@ export async function main() {
           dbMovieSwipe,
           userFeedDeliveryCache,
           latestFeedResponseCache,
+          remoteApiResponseCache,
         });
       },
     },
   });
 
   server.post("/revcat/callback", async (msg, reply) => {
-    console.log(msg.body);
+    logger.info(msg.body, "revenue cat");
     try {
-      const {
-        event: { app_user_id },
-      } = revenueCatSchema.parse(msg.body);
+      const { event } = revenueCatSchema.parse(msg.body);
+
+      const user =
+        event.type === "TRANSFER"
+          ? (event.transferred_to as string[])[0]!
+          : (event.app_user_id as string);
 
       await handleFullAccessPurchase({
         header: msg.headers.authorization?.split(" ")[1] ?? "",
-        user: app_user_id,
+        user,
       });
 
       reply.status(200).send();
     } catch (e) {
+      logger.error(e);
       reply.status(500).send();
     }
   });
 
   server.get("/admob/callback", async (msg, reply) => {
+    logger.info(msg.query, "admob callback");
+
     console.log(msg.query);
     try {
       await verifyRewardedAdCallback({
@@ -117,10 +149,15 @@ export async function main() {
 
       reply.status(200).send();
     } catch (e) {
-      console.log(e);
+      logger.error(e, "admob error");
+
+      console.error(e);
       reply.status(400).send();
     }
   });
 
   await server.listen({ port: env.PORT, host: env.HOST });
+  logger.info(
+    `Listening on ${env.HOST}:${env.PORT}, region: ${process.env.FLY_REGION}`,
+  );
 }

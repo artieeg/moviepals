@@ -14,6 +14,7 @@ export const connection_requests = createTRPCRouter({
           id: createId(),
           firstUserId: ctx.user,
           secondUserId: user,
+          rejected: false,
         })
         .returningAll()
         .execute();
@@ -27,6 +28,14 @@ export const connection_requests = createTRPCRouter({
       .where((eb) =>
         eb.and([eb("secondUserId", "=", ctx.user), eb("rejected", "=", false)]),
       )
+      .innerJoin("User", "User.id", "ConnectionRequest.firstUserId")
+      .select([
+        "ConnectionRequest.id as connectionRequestId",
+        "User.id",
+        "User.username",
+        "User.name",
+        "User.emoji",
+      ])
       .execute();
 
     return { requests };

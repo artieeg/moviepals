@@ -6,6 +6,7 @@ import FriendsNavigator from "./FriendsNavigator";
 import { options } from "./options";
 import SwipeNavigator from "./SwipeNavigator";
 import MeNavigator from "./MeNavigator";
+import MatchesNavigator from "./MatchesNavigator";
 
 const Tabs = createBottomTabNavigator();
 
@@ -14,7 +15,7 @@ export const SCREEN_WHATS_YOUR_NAME = "WhatsYourName";
 
 export const NAVIGATOR_SWIPE = "SwipeNavigator";
 export const NAVIGATOR_FRIENDS = "FriendsNavigator";
-export const NAVIGATOR_EVENTS = "EventsNavigator";
+export const NAVIGATOR_MATCHES = "MatchesNavigator";
 export const NAVIGATOR_ME = "MeNavigator";
 
 export default function MainNavigator() {
@@ -33,8 +34,8 @@ export default function MainNavigator() {
       />
       <Tabs.Screen
         options={options}
-        name={NAVIGATOR_EVENTS}
-        component={SwipeNavigator}
+        name={NAVIGATOR_MATCHES}
+        component={MatchesNavigator}
       />
 
       <Tabs.Screen

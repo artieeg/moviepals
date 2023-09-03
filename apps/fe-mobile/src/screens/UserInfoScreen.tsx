@@ -5,8 +5,8 @@ import { useRoute } from "@react-navigation/native";
 import { api } from "~/utils/api";
 import { Section, UserAvatar } from "~/components";
 import { useNavigation } from "~/hooks";
-import { SCREEN_MATCHES_LIST } from "~/navigators/FriendsNavigator";
 import { MainLayout } from "./layouts/MainLayout";
+import {SCREEN_MATCHES_LIST} from "./MatchListScreen";
 
 export function UserInfoScreen() {
   const params = useRoute().params as any;
@@ -42,7 +42,11 @@ export function UserInfoScreen() {
             }
             onPress={() => {
               if (user.data.matchesCount > 0) {
-                navigation.navigate(SCREEN_MATCHES_LIST, { userId });
+                navigation.navigate(SCREEN_MATCHES_LIST, {
+                  userIds: [userId],
+                  title: "Matches",
+                  subtitle: `You and ${user.data.user.name} want to watch:`,
+                });
               }
             }}
             showArrowRight={user.data.matchesCount > 0}

@@ -1,15 +1,19 @@
-import React from "react";
-import { Platform, ViewProps } from "react-native";
+import React, { useState } from "react";
+import { Alert, Platform, ViewProps } from "react-native";
 import {
   AdEventType,
   AdsConsent,
   AdsConsentStatus,
+  RewardedAd,
+  RewardedAdEventType,
 } from "react-native-google-mobile-ads";
 import { PERMISSIONS, request } from "react-native-permissions";
-import { PurchasesError } from "react-native-purchases";
+import Purchases, { PurchasesError } from "react-native-purchases";
 import Toast from "react-native-toast-message";
 import { BrightStar } from "iconoir-react-native";
 
+import { api } from "~/utils/api";
+import { env } from "~/utils/env";
 import {
   useAdsConsentQuery,
   useCanServeAds,
@@ -17,7 +21,7 @@ import {
   usePremiumProduct,
   useRewardedAd,
 } from "~/hooks";
-import { SCREEN_THANK_YOU } from "~/navigators/SwipeNavigator";
+import { SCREEN_THANK_YOU } from "~/screens";
 import { Prompt } from "./Prompt";
 
 export function AdsOrPremiumPrompt({
@@ -37,18 +41,24 @@ export function AdsOrPremiumPrompt({
 
   const navigation = useNavigation();
 
+  const [isPurchasingPremium, setIsPurchasingPremium] = useState(false);
   async function onPurchasePremium() {
     if (!premium.data?.product.identifier) {
       return;
     }
 
+    setIsPurchasingPremium(true);
     try {
+      await Purchases.purchaseStoreProduct(premium.data.product);
+
       onProceed();
 
       navigation.navigate(SCREEN_THANK_YOU);
     } catch (e) {
+      console.error(e);
       console.error((e as PurchasesError).underlyingErrorMessage);
     } finally {
+      setIsPurchasingPremium(false);
     }
   }
 
@@ -65,14 +75,41 @@ export function AdsOrPremiumPrompt({
     const choices = await AdsConsent.getUserChoices();
 
     if (choices.storeAndAccessInformationOnDevice) {
-      if (Platform.OS === "ios") {
-        await request(PERMISSIONS.IOS.APP_TRACKING_TRANSPARENCY);
-      }
     }
 
-    canServeAds.refetch();
+    if (Platform.OS === "ios") {
+      await request(PERMISSIONS.IOS.APP_TRACKING_TRANSPARENCY);
+    }
 
     adsConsent.refetch();
+
+    canServeAds.refetch();
+    ad.refetch();
+  }
+
+  const [isRestoringPurchases, setIsRestoringPurchases] = useState(false);
+
+  async function onRestorePurchases() {
+    setIsRestoringPurchases(true);
+
+    try {
+      await Purchases.restorePurchases();
+
+      setTimeout(() => {
+        onProceed();
+      }, 400);
+
+      navigation.navigate(SCREEN_THANK_YOU);
+    } catch (e) {
+      Alert.alert(
+        "Purchases not found",
+        "Is this a mistake? Contact us: hey@moviepals.io",
+      );
+      console.error(e);
+      console.error((e as PurchasesError).underlyingErrorMessage);
+    } finally {
+      setIsRestoringPurchases(false);
+    }
   }
 
   async function onAllowAds() {
@@ -88,9 +125,10 @@ export function AdsOrPremiumPrompt({
     const choices = await AdsConsent.getUserChoices();
 
     if (choices.storeAndAccessInformationOnDevice) {
-      if (Platform.OS === "ios") {
-        await request(PERMISSIONS.IOS.APP_TRACKING_TRANSPARENCY);
-      }
+    }
+
+    if (Platform.OS === "ios") {
+      await request(PERMISSIONS.IOS.APP_TRACKING_TRANSPARENCY);
     }
 
     adsConsent.refetch();
@@ -99,35 +137,57 @@ export function AdsOrPremiumPrompt({
     onSkip?.();
   }
 
+  const user = api.user.getMyData.useQuery();
+  const adCallback = api.ad_impression.adImpression.useMutation();
+
+  const [loading, setLoading] = useState(false);
+
   async function onWatchRewardedAd() {
-    let data = ad.data;
+    setLoading(true);
 
-    if (!data) {
-      const refetchResult = await ad.refetch();
-      console.log(refetchResult);
+    const ad = Platform.select({
+      ios: env.REWARDED_AD_IOS,
+      default: env.REWARDED_AD_ANDROID,
+    });
 
-      if (refetchResult.data) {
-        data = refetchResult.data;
-      } else {
-        Toast.show({
-          type: "error",
-          text1:
-            "Oops, something went wrong when fetching the ad, please try again later",
-        });
+    const rewarded = RewardedAd.createForAdRequest(ad, {
+      serverSideVerificationOptions: {
+        userId: user.data?.id,
+      },
+    });
+
+    const watchedUnsub = rewarded.addAdEventListener(
+      RewardedAdEventType.EARNED_REWARD,
+      () => {
+        watchedUnsub();
+
+        adCallback.mutate();
+      },
+    );
+
+    const loadedUnsub = rewarded.addAdEventListener(
+      RewardedAdEventType.LOADED,
+      () => {
+        rewarded.show();
+
+        setLoading(false);
+        onProceed();
+
+        loadedUnsub();
+      },
+    );
+
+    rewarded.load();
+    rewarded.addAdEventListener(AdEventType.ERROR, (e) => {
+      if (e.message.includes("no-fill")) {
+        Alert.alert(
+          "No ads available right now",
+          "We're so sorry, please try again later",
+        );
       }
-    }
 
-    try {
-      if (data) {
-        await data.show();
-
-        data.addAdEventListener(AdEventType.CLOSED, () => {
-          onProceed();
-        });
-      }
-    } finally {
-      ad.refetch();
-    }
+      setLoading(false);
+    });
   }
 
   return (
@@ -146,14 +206,24 @@ export function AdsOrPremiumPrompt({
       }
       buttons={[
         {
-          title: `get premium for ${premium.data?.formattedPrice}`,
+          kind: "text",
+          title: "Restore Purchases",
+          isLoading: isRestoringPurchases,
+          onPress: onRestorePurchases,
+        },
+        {
+          isLoading: isPurchasingPremium,
+          title: premium.isSuccess
+            ? `Get Premium for ${premium.data.formattedPrice}`
+            : "Get Premium",
           onPress: onPurchasePremium,
         },
         mode === "ad"
           ? canServeAds.data
             ? {
                 kind: "outline",
-                title: `watch a rewarded ad`,
+                isLoading: loading,
+                title: `Watch a rewarded ad`,
                 onPress: onWatchRewardedAd,
               }
             : {
@@ -163,17 +233,9 @@ export function AdsOrPremiumPrompt({
               }
           : {
               kind: "outline",
-              title: "allow ads",
+              title: "Allow Ads",
               onPress: onAllowAds,
             },
-
-        mode === "ad-permission"
-          ? {
-              kind: "text",
-              title: "skip",
-              onPress: onSkip,
-            }
-          : undefined,
       ]}
     />
   );

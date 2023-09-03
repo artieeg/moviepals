@@ -88,6 +88,7 @@ export function WhatsYourNameScreen() {
       name,
       username,
       method: method!,
+      _dev: true,
       emoji,
     });
   }
@@ -99,7 +100,7 @@ export function WhatsYourNameScreen() {
           <View className="space-y-6">
             <View className="space-y-3">
               <Text className="font-primary-bold text-neutral-1 dark:text-white pt-8 text-2xl">
-                Hey, introduce{"\n"}yourself please 😄
+                Hey, please introduce{"\n"}yourself 😄
               </Text>
               <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
                 Your friends will be able to find you by your username
@@ -125,6 +126,8 @@ export function WhatsYourNameScreen() {
                 autoCapitalize="none"
                 maxLength={32}
                 placeholder="username"
+                autoCorrect={false}
+                autoComplete="username"
                 onChangeText={setUsername}
                 autoFocus
                 value={username}

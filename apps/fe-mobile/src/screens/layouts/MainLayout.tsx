@@ -1,5 +1,6 @@
 import { PropsWithChildren } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Cancel, NavArrowLeft } from "iconoir-react-native";
 
@@ -10,12 +11,14 @@ export function MainLayout({
   title,
   goBackCloseIcon,
   onGoBack,
+  right,
   canGoBack,
   edges,
 }: PropsWithChildren & {
   title: string;
   /** Override default "go back" behavior */
   onGoBack?: () => void;
+  right?: React.ReactNode;
   canGoBack?: boolean;
   goBackCloseIcon?: boolean;
   edges?: ("top" | "left" | "right" | "bottom")[];
@@ -48,6 +51,16 @@ export function MainLayout({
               {title}
             </Text>
           </View>
+
+          {right && (
+            <Animated.View
+              entering={FadeIn}
+              exiting={FadeOut}
+              className="absolute right-6"
+            >
+              {right}
+            </Animated.View>
+          )}
         </View>
 
         {/* CONTENT */}

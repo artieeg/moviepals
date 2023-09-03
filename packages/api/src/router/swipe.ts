@@ -1,6 +1,7 @@
 import { createId } from "@paralleldrive/cuid2";
 import { z } from "zod";
 
+import { logger } from "../logger";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 const USER_SWIPES_PER_PAGE = 20;
@@ -36,11 +37,16 @@ export const swipe = createTRPCRouter({
       const swipes = await ctx.dbMovieSwipe.swipes
         .find({
           userId: ctx.user,
+          liked: true,
         })
         .sort({ createdAt: -1 })
         .skip(cursor * USER_SWIPES_PER_PAGE)
         .limit(USER_SWIPES_PER_PAGE)
         .toArray();
+
+      logger.info({
+        swipes: swipes.map((s) => s.movieId),
+      });
 
       const uniqueMovieIds = Array.from(
         new Set(swipes.map((swipe) => swipe.movieId)),
@@ -51,6 +57,10 @@ export const swipe = createTRPCRouter({
           id: { $in: uniqueMovieIds },
         })
         .toArray();
+
+      logger.info({
+        count: movies.length
+      })
 
       return { movies, nextCursor: cursor + 1 };
     }),
@@ -94,6 +104,8 @@ export const swipe = createTRPCRouter({
           movie_language,
         },
       }) => {
+        await ctx.userFeedDeliveryCache.incSwipes(ctx.user);
+
         await ctx.dbMovieSwipe.swipes.updateOne(
           {
             userId: ctx.user,

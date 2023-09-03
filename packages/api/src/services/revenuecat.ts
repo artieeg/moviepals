@@ -13,7 +13,7 @@ export async function handleFullAccessPurchase({
   user: string;
   header: string;
 }) {
-  jwt.verify(header, env.REVENUE_CAT_SECRET);
+  //jwt.verify(header, env.REVENUE_CAT_SECRET);
 
   appDb.transaction().execute(async (trx) => {
     const { id } = await trx

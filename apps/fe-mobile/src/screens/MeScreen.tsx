@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -10,17 +10,20 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Purchases, { PurchasesError } from "react-native-purchases";
 import Toast from "react-native-toast-message";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
 import { useColorScheme } from "nativewind";
 
 import { api, signOut } from "~/utils/api";
 import { Section, Switch, UserAvatar } from "~/components";
-import { useNavigation } from "~/hooks";
+import { useNavigation, usePremiumProduct } from "~/hooks";
 import { SCREEN_INVITE } from "./InviteScreen";
 import { MainLayout } from "./layouts/MainLayout";
 import { SCREEN_MY_SWIPE_LIST } from "./MySwipeListScreen";
 import { SCREEN_SHARE_PREMIUM } from "./SharePremiumScreen";
+import { SCREEN_THANK_YOU } from "./ThankYouScreen";
 import { SCREEN_USER_SETTINGS } from "./UserSettingsScreen";
 
 export const SCREEN_ME = "MeScreen";
@@ -78,7 +81,65 @@ export function MeScreen() {
     );
   }
 
-  function onPurchasePremium() {}
+  const premium = usePremiumProduct();
+
+  const [isPurchasingPremium, setIsPurchasingPremium] = React.useState(false);
+  const [isRestoringPurchases, setIsRestoringPurchases] = React.useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      user.refetch();
+      paidStatus.refetch();
+    }, []),
+  );
+
+  async function onRestorePurchases() {
+    setIsRestoringPurchases(true);
+
+    try {
+      await Purchases.restorePurchases();
+
+      setTimeout(() => {
+        user.refetch();
+        paidStatus.refetch();
+      }, 400);
+
+      navigation.navigate(SCREEN_THANK_YOU);
+    } catch (e) {
+      Alert.alert(
+        "Purchases not found",
+        "Is this a mistake? Contact us: hey@moviepals.io",
+      );
+      console.error(e);
+      console.error((e as PurchasesError).underlyingErrorMessage);
+    } finally {
+      setIsRestoringPurchases(false);
+    }
+  }
+
+  async function onPurchasePremium() {
+    if (!premium.data?.product.identifier) {
+      return;
+    }
+
+    setIsPurchasingPremium(true);
+
+    try {
+      await Purchases.purchaseStoreProduct(premium.data.product);
+
+      navigation.navigate(SCREEN_THANK_YOU);
+    } catch (e) {
+      console.error(e);
+      console.error((e as PurchasesError).underlyingErrorMessage);
+    } finally {
+      setTimeout(() => {
+        user.refetch();
+        paidStatus.refetch();
+
+        setIsPurchasingPremium(false);
+      }, 1000);
+    }
+  }
 
   const deleteMyAccount = api.user.deleteMyAccount.useMutation({
     onSuccess() {
@@ -157,21 +218,6 @@ export function MeScreen() {
               />
 
               <Section
-                title="Reset Swipes"
-                onPress={onResetSwipes}
-                right={
-                  resetSwipes.isLoading ? (
-                    <View className="h-5 w-5">
-                      <ActivityIndicator />
-                    </View>
-                  ) : (
-                    <View className="w-5" />
-                  )
-                }
-                subtitle="Start swiping from scratch"
-              />
-
-              <Section
                 title="Invite People"
                 onPress={onInvitePeople}
                 showArrowRight
@@ -206,27 +252,66 @@ export function MeScreen() {
               )}
 
               {paidStatus.isSuccess && !paidStatus.data.isPaid && (
-                <Section
-                  title="Get Premium"
-                  onPress={onPurchasePremium}
-                  showArrowRight
-                  subtitle="Ad-free, unlimited matches, share with your friends"
-                />
+                <View className="space-y-6">
+                  <Section
+                    title="Restore Premium"
+                    onPress={onRestorePurchases}
+                    right={
+                      isRestoringPurchases ? (
+                        <View className="h-5 w-5">
+                          <ActivityIndicator />
+                        </View>
+                      ) : (
+                        <View className="w-5" />
+                      )
+                    }
+                    subtitle="Restore your previous premium purchase"
+                  />
+
+                  <Section
+                    title="Get Premium"
+                    onPress={onPurchasePremium}
+                    right={
+                      isPurchasingPremium ? (
+                        <View className="h-5 w-5">
+                          <ActivityIndicator />
+                        </View>
+                      ) : (
+                        <View className="w-5" />
+                      )
+                    }
+                    subtitle="Ad-free experience, unlimited swipes, and more!"
+                  />
+                </View>
               )}
 
+              <Section
+                title="Reset Swipes"
+                onPress={onResetSwipes}
+                right={
+                  resetSwipes.isLoading ? (
+                    <View className="h-5 w-5">
+                      <ActivityIndicator />
+                    </View>
+                  ) : (
+                    <View className="w-5" />
+                  )
+                }
+                subtitle="Start swiping from scratch"
+              />
+
+
               <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
-                Need help?{" "}
+                Need help? Email us at{" "}
                 <Pressable
-                  onPress={() =>
-                    Linking.openURL("mailto:getmoviepals@gmail.com")
-                  }
+                  onPress={() => Linking.openURL("mailto:hey@moviepals.io")}
                   className={Platform.select({
                     ios: "translate-y-0.5",
                     default: "translate-y-[7px]",
                   })}
                 >
                   <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base underline">
-                    Email us!
+                    hey@moviepals.io
                   </Text>
                 </Pressable>
               </Text>

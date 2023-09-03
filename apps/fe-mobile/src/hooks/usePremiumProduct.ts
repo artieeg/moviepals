@@ -14,15 +14,22 @@ export function usePremiumProduct() {
       appUserID: user.data?.id,
     });
 
+    const offerings = await Purchases.getOfferings()
+
+    const premium = offerings.all.go_pro_offering.lifetime?.product;
+    /*
     const products = await Purchases.getProducts([
       env.REVCAT_GO_PRO_PRODUCT_ID,
     ]);
 
+    console.log(products)
+     * */
+
     return {
-      product: products[0]!,
+      product: premium!,
       formattedPrice: `${getCurrencySymbol(
-        products[0]!.currencyCode
-      )}${products[0]!.price}`,
+        premium!.currencyCode
+      )}${premium!.price}`,
     };
   });
 }
