@@ -168,7 +168,7 @@ export const loggerMiddleware = t.middleware(
           },
           input: rawInput,
         },
-        //response: response.data,
+        response: response.data,
       });
     } else {
       logger.error({

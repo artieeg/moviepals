@@ -591,6 +591,8 @@ async function getMoviePage({
     "Left to fetch",
   );
 
+  let noMoreMovies = false;
+
   for (; moviesFetchedFromRemoteApi.length < leftToFetch; page++) {
     console.log(
       {
@@ -617,6 +619,7 @@ async function getMoviePage({
     );
 
     if (fetchedMovies.length === 0) {
+      noMoreMovies = true;
       break;
     }
 
