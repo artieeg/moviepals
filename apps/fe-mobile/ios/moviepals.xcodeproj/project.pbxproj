@@ -18,7 +18,7 @@
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		8C2B08A72A951C120091F72D /* welcome_screen_graphics.riv in Resources */ = {isa = PBXBuildFile; fileRef = 8C2B08A62A951C120091F72D /* welcome_screen_graphics.riv */; };
 		8C2B08A82A951C120091F72D /* welcome_screen_graphics.riv in Resources */ = {isa = PBXBuildFile; fileRef = 8C2B08A62A951C120091F72D /* welcome_screen_graphics.riv */; };
-		8C6D98232A7705CA00BC87B0 /* logo.riv in Resources */ = {isa = PBXBuildFile; fileRef = 8C6D98222A7705CA00BC87B0 /* logo.riv */; };
+		8C51B2CF2AA4A9AF00346958 /* moviepals.riv in Resources */ = {isa = PBXBuildFile; fileRef = 8C51B2CE2AA4A9AF00346958 /* moviepals.riv */; };
 		8C7FEBF32A8AAD060014D92B /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C7FEBF22A8AAD060014D92B /* StoreKit.framework */; };
 		8C7FEBFB2A8AB78D0014D92B /* moviepals-store-kit.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 8C7FEBFA2A8AB78D0014D92B /* moviepals-store-kit.storekit */; };
 		8C7FEBFC2A8AB78D0014D92B /* moviepals-store-kit.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 8C7FEBFA2A8AB78D0014D92B /* moviepals-store-kit.storekit */; };
@@ -55,7 +55,7 @@
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = moviepals/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8C2B08A62A951C120091F72D /* welcome_screen_graphics.riv */ = {isa = PBXFileReference; lastKnownFileType = file; path = welcome_screen_graphics.riv; sourceTree = "<group>"; };
 		8C3EE42B2A7E74850085EEEC /* moviepals.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = moviepals.entitlements; path = moviepals/moviepals.entitlements; sourceTree = "<group>"; };
-		8C6D98222A7705CA00BC87B0 /* logo.riv */ = {isa = PBXFileReference; lastKnownFileType = file; path = logo.riv; sourceTree = "<group>"; };
+		8C51B2CE2AA4A9AF00346958 /* moviepals.riv */ = {isa = PBXFileReference; lastKnownFileType = file; path = moviepals.riv; sourceTree = "<group>"; };
 		8C7FEBF22A8AAD060014D92B /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		8C7FEBFA2A8AB78D0014D92B /* moviepals-store-kit.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = "moviepals-store-kit.storekit"; sourceTree = "<group>"; };
 		8C7FEBFD2A8AB7E30014D92B /* StoreKitTestCertificate.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = StoreKitTestCertificate.cer; sourceTree = "<group>"; };
@@ -111,13 +111,13 @@
 			isa = PBXGroup;
 			children = (
 				8C3EE42B2A7E74850085EEEC /* moviepals.entitlements */,
+				8C51B2CE2AA4A9AF00346958 /* moviepals.riv */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
 				8CD6B3D62A79193300EE747B /* GoogleService-Info.plist */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				8C2B08A62A951C120091F72D /* welcome_screen_graphics.riv */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
-				8C6D98222A7705CA00BC87B0 /* logo.riv */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				8CDB40A62A9361450071E014 /* logo_light.riv */,
 				13B07FB71A68108700A75B9A /* main.m */,
@@ -292,7 +292,7 @@
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				8C2B08A72A951C120091F72D /* welcome_screen_graphics.riv in Resources */,
-				8C6D98232A7705CA00BC87B0 /* logo.riv in Resources */,
+				8C51B2CF2AA4A9AF00346958 /* moviepals.riv in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				8CDB40A72A9361450071E014 /* logo_light.riv in Resources */,
 				8C7FEBFB2A8AB78D0014D92B /* moviepals-store-kit.storekit in Resources */,

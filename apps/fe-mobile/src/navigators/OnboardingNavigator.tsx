@@ -3,10 +3,14 @@ import { createStackNavigator } from "@react-navigation/stack";
 import {
   CheckInviteScreen,
   JoinMailingListScreen,
+  NiceToMeetYouScreen,
   NotificationPermissionRequestScreen,
+  OnboardingSendInviteScreen,
   SCREEN_CHECK_INVITE,
   SCREEN_JOIN_MAILING_LIST,
+  SCREEN_NICE_TO_MEET_YOU,
   SCREEN_NOTIFICATION_PERMISSION,
+  SCREEN_ONBOARDING_SEND_INVITE,
   WelcomeScreen,
   WhatsYourNameScreen,
 } from "~/screens";
@@ -30,6 +34,18 @@ export default function OnboardingNavigator() {
         options={options}
         name={SCREEN_WHATS_YOUR_NAME}
         component={WhatsYourNameScreen}
+      />
+
+      <Stack.Screen
+        options={options}
+        name={SCREEN_NICE_TO_MEET_YOU}
+        component={NiceToMeetYouScreen}
+      />
+
+      <Stack.Screen
+        options={options}
+        name={SCREEN_ONBOARDING_SEND_INVITE}
+        component={OnboardingSendInviteScreen}
       />
 
       <Stack.Screen

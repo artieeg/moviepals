@@ -33,6 +33,7 @@
     "iconoir-react-native": "^6.10.0",
     "immer": "^10.0.2",
     "nativewind": "^2.0.11",
+    "plausible-tracker": "^0.3.8",
     "react": "18.2.0",
     "react-native": "0.72.3",
     "react-native-contacts": "^7.0.6",

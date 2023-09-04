@@ -4,11 +4,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import {
-  Text,
-  useWindowDimensions,
-  View,
-} from "react-native";
+import { Text, useWindowDimensions, View } from "react-native";
 import EmojiSelector from "react-native-emoji-selector";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -17,7 +13,6 @@ import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
 } from "@gorhom/bottom-sheet";
-import Clipboard from "@react-native-clipboard/clipboard";
 import { ArrowRight, AtSign } from "iconoir-react-native";
 
 import { api, setAuthToken } from "~/utils/api";
@@ -25,8 +20,7 @@ import { IconButton } from "~/components/IconButton";
 import { Input, ListItem } from "~/components";
 import { useNavigation } from "~/hooks";
 import { useOnboardingStore } from "~/stores";
-import { SCREEN_CHECK_INVITE } from "./CheckInviteScreen";
-import { SCREEN_JOIN_MAILING_LIST } from "./JoinMailingListScreen";
+import { SCREEN_NICE_TO_MEET_YOU } from "./NiceToMeetYouScreen";
 
 export function WhatsYourNameScreen() {
   const navigation = useNavigation();
@@ -35,11 +29,7 @@ export function WhatsYourNameScreen() {
     async onSuccess({ token }) {
       await setAuthToken(token);
 
-      if (await Clipboard.hasURL()) {
-        navigation.navigate(SCREEN_CHECK_INVITE);
-      } else {
-        navigation.navigate(SCREEN_JOIN_MAILING_LIST);
-      }
+      navigation.navigate(SCREEN_NICE_TO_MEET_YOU);
     },
     onError(e) {
       Toast.show({
@@ -205,7 +195,7 @@ export const EmojiPickerBottomSheet = React.forwardRef<
       backdropComponent={renderBackdrop}
     >
       {renderEmoji && (
-      <EmojiSelector theme="#6867AA" onEmojiSelected={onEmojiSelected} />
+        <EmojiSelector theme="#6867AA" onEmojiSelected={onEmojiSelected} />
       )}
     </BottomSheet>
   );
