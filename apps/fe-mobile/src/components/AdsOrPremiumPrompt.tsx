@@ -93,7 +93,12 @@ export function AdsOrPremiumPrompt({
     setIsRestoringPurchases(true);
 
     try {
-      await Purchases.restorePurchases();
+      const r = await Purchases.restorePurchases();
+
+      console.log(r);
+      if (!r.entitlements.active.go_pro) {
+        return;
+      }
 
       setTimeout(() => {
         onProceed();

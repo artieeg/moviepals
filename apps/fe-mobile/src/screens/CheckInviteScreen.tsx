@@ -7,9 +7,9 @@ import Clipboard from "@react-native-clipboard/clipboard";
 import { api } from "~/utils/api";
 import { Button } from "~/components";
 import { useNavigation } from "~/hooks";
-import { NAVIGATOR_MAIN } from "~/navigators/RootNavigator";
 import { SCREEN_JOIN_MAILING_LIST } from "./JoinMailingListScreen";
 import { MainLayout } from "./layouts/MainLayout";
+import {SCREEN_ONBOARDING_SEND_INVITE} from "./OnboardingSendInviteScreen";
 
 export const SCREEN_CHECK_INVITE = "CheckInviteScreen";
 
@@ -21,7 +21,7 @@ export function CheckInviteScreen() {
         text1: `Accepted an invite from ${inviter.name}!`,
       });
 
-      navigation.navigate(SCREEN_JOIN_MAILING_LIST);
+      navigation.navigate(SCREEN_ONBOARDING_SEND_INVITE);
     },
   });
 

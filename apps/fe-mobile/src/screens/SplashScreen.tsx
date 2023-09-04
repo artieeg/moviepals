@@ -34,6 +34,19 @@ export function SplashScreen() {
   >();
   const [animationFinished, setAnimationFinished] = useState(false);
 
+  //Prefetch stuff if possible
+  api.user.isPaid.useQuery(undefined, {
+    enabled: tokenStatus === "available",
+  });
+
+  api.connection.listConnections.useQuery(undefined, {
+    enabled: tokenStatus === "available",
+  });
+
+  api.connection_requests.countConnectionRequests.useQuery(undefined, {
+    enabled: tokenStatus === "available",
+  });
+
   const userData = api.user.getMyData.useQuery(undefined, {
     enabled: tokenStatus === "available",
     onError() {
@@ -53,7 +66,10 @@ export function SplashScreen() {
     }
 
     if (userData.isError) {
-      if (userData.error.data?.code === "NOT_FOUND" || userData.error.data?.code === "UNAUTHORIZED") {
+      if (
+        userData.error.data?.code === "NOT_FOUND" ||
+        userData.error.data?.code === "UNAUTHORIZED"
+      ) {
         return navigation.replace(NAVIGATOR_ONBOARDING);
       } else {
         return Toast.show({
@@ -75,18 +91,18 @@ export function SplashScreen() {
   return (
     <View className="flex-1 items-center justify-center bg-white dark:bg-neutral-1">
       <View className="items-center justify-center space-y-2">
-        <View className="h-16 w-16">
+        <View className="h-32 w-32">
           {theme.isSuccess && (
             <Rive
               onPause={() => {
                 setAnimationFinished(true);
               }}
-              resourceName={theme.data === "dark" ? "logo_light" : "logo"}
+              resourceName={"moviepals"}
             />
           )}
         </View>
-        <Text className="font-primary-bold text-neutral-1 dark:text-white text-base">
-          moviepals
+        <Text className="font-primary-bold text-neutral-1 dark:text-white text-lg">
+          MoviePals
         </Text>
       </View>
     </View>
