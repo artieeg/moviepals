@@ -19,6 +19,7 @@ import {
   RemoteApiResponseCache,
   UserFeedDeliveryCache,
 } from "./services";
+import { env } from "./utils/env";
 import { verifyToken } from "./utils/jwt";
 
 /**
@@ -168,7 +169,7 @@ export const loggerMiddleware = t.middleware(
           },
           input: rawInput,
         },
-        response: response.data,
+        response: env.NODE_ENV === "production" ? response.data : undefined,
       });
     } else {
       logger.error({
