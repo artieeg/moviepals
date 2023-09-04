@@ -306,7 +306,8 @@ export const user = createTRPCRouter({
 
         let inviteLinkSlug: string | null = null;
 
-        while (!inviteLinkSlug) {
+        let attempts = 10;
+        while (!inviteLinkSlug && attempts-- > 0) {
           try {
             const id = randomBytes(4).toString("hex");
 

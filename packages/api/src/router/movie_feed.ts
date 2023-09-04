@@ -81,17 +81,6 @@ export const movie_feed = createTRPCRouter({
         c.firstUserId === ctx.user ? c.secondUserId : c.firstUserId,
       );
 
-      console.log(
-        {
-          user,
-          friendUserIds,
-          userFeedDeliveryState,
-          userReviewState,
-          previouslySwipedMovieIds,
-        },
-        "movie feed data fetch",
-      );
-
       logger.info(
         {
           user,
@@ -106,17 +95,6 @@ export const movie_feed = createTRPCRouter({
       const recentlyServedMovies = await getRecentlyServedMovies(
         userReviewState.id,
         ctx,
-      );
-
-      console.log({
-        recentlyServedMovieIds: recentlyServedMovies.map((m) => m.id),
-      });
-
-      logger.info(
-        {
-          recentlyServedMovies,
-        },
-        "Recently served movies",
       );
 
       if (
@@ -134,12 +112,6 @@ export const movie_feed = createTRPCRouter({
         };
       }
 
-      console.log({
-        user,
-        input,
-        userFeedDeliveryState,
-      });
-
       logger.info(
         { user, input, userFeedDeliveryState },
         "Fetching movie feed for user",
@@ -153,7 +125,7 @@ export const movie_feed = createTRPCRouter({
         user,
         userFeedDeliveryState,
         totalMovieFeedCount,
-      })
+      });
 
       const { movies: feed, nextRemoteApiPage } = await getMoviePage({
         ctx,
@@ -181,36 +153,45 @@ export const movie_feed = createTRPCRouter({
         cursor: input.cursor + 1,
       };
 
-      if (feed.length < MOVIES_PER_PAGE && feed.length !== totalMovieFeedCount) {
-        logger.warn({
-          userFeedDeliveryState,
-          MOVIES_PER_PAGE,
-          totalMovieFeedCount,
-          feed,
-        }, "Served less movies than expected")
+      if (
+        feed.length < MOVIES_PER_PAGE &&
+        feed.length !== totalMovieFeedCount
+      ) {
+        logger.warn(
+          {
+            userFeedDeliveryState,
+            MOVIES_PER_PAGE,
+            totalMovieFeedCount,
+            feed,
+          },
+          "Served less movies than expected",
+        );
       }
 
       //if (feed.length < MOVIES_PER_PAGE) {
-        //if (input.cursor === 0) {
-          //response.unableToFindMovies = true;
-        //} else {
-          //response.noMoreMovies = true;
-        //}
+      //if (input.cursor === 0) {
+      //response.unableToFindMovies = true;
       //} else {
-        if (
-          !user.fullAccessPurchaseId &&
-          userFeedDeliveryState &&
-          Math.floor(userFeedDeliveryState.swipes / MOVIES_PER_PAGE) >
-            userFeedDeliveryState.ads_watched
-        ) {
-          logger.info({
+      //response.noMoreMovies = true;
+      //}
+      //} else {
+      if (
+        !user.fullAccessPurchaseId &&
+        userFeedDeliveryState &&
+        Math.floor(userFeedDeliveryState.swipes / MOVIES_PER_PAGE) >
+          userFeedDeliveryState.ads_watched
+      ) {
+        logger.info(
+          {
             user,
             userFeedDeliveryState,
             MOVIES_PER_PAGE,
             totalMovieFeedCount,
-          }, "User has to watch an ad")
-          response.hasToWatchAd = true;
-        }
+          },
+          "User has to watch an ad",
+        );
+        response.hasToWatchAd = true;
+      }
       //}
 
       //Count the response if it's fully successful
@@ -345,8 +326,6 @@ async function fetchRandomSwipes(
     })
     .toArray();
 
-  console.log("FETCHED FROM MONGO", swipes.length);
-
   return randomElements(swipes, count);
 }
 
@@ -475,11 +454,6 @@ async function getMoviePage({
     }
   }
 
-  console.log({
-    moviesToServeLength: moviesToServe.length,
-    shouldShuffleResponse,
-  });
-
   /**
    * Filter out movies that the user has already swiped on.
    *
@@ -491,10 +465,6 @@ async function getMoviePage({
     recentlyServedMovieIds,
     previouslySwipedMovieIds,
   ].flat();
-
-  console.log({
-    excludedMovieIdsLength: excludedMovieIds.length,
-  });
 
   logger.info(
     {
@@ -530,13 +500,6 @@ async function getMoviePage({
 
   const randomFriendSwipesMovieIds = randomFriendSwipes.map((s) => s.movieId);
 
-  console.log(
-    {
-      randomFriendSwipesLength: randomFriendSwipesMovieIds.length,
-    },
-    "random friend swipe length",
-  );
-
   logger.info(
     {
       randomFriendSwipesLength: randomFriendSwipesMovieIds.length,
@@ -571,16 +534,6 @@ async function getMoviePage({
   const moviesFetchedFromRemoteApi: Movie[] = [];
   let page = latestRemoteApiPage;
 
-  console.log(
-    {
-      leftToFetch,
-      responseTotalMovieCount,
-      randomFriendSwipes: randomFriendSwipes.length,
-      moviesToServe: moviesToServe.length,
-    },
-    "Left to fetch",
-  );
-
   logger.info(
     {
       leftToFetch,
@@ -594,14 +547,6 @@ async function getMoviePage({
   let noMoreMovies = false;
 
   for (; moviesFetchedFromRemoteApi.length < leftToFetch; page++) {
-    console.log(
-      {
-        ...params,
-        page,
-      },
-      "Fetching movies from remote api",
-    );
-
     logger.info(
       {
         ...params,
@@ -653,11 +598,6 @@ async function getMoviePage({
   //Finish loading friend movies and append them to response
   const friendMoviesToMixIn = await friendMoviesToMixInPromise;
 
-  console.log(
-    { friendMoviesCount: friendMoviesToMixIn.length },
-    "mixing in friend movies",
-  );
-
   logger.info(
     { friendMoviesCount: friendMoviesToMixIn.length },
     "mixing in friend movies",
@@ -698,10 +638,6 @@ function randomElements<T>(array: T[], count: number) {
     elements.length < Math.min(array.length, count) && attemps >= 0;
     i++, attemps--
   ) {
-    if (attemps % 10 === 0) {
-      console.log({ attemps, i });
-    }
-
     logger.info(
       { count, ellen: elements.length, len: array.length, i },
       "Random elements",
