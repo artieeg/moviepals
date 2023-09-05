@@ -392,6 +392,23 @@ export const user = createTRPCRouter({
       //remove "@" from the query
       const query = _query.replaceAll("@", "");
 
+      const connections = await ctx.appDb
+        .selectFrom("Friend")
+        .where((eb) =>
+          eb.or([
+            eb("firstUserId", "=", ctx.user),
+            eb("secondUserId", "=", ctx.user),
+          ]),
+        )
+        .select(["firstUserId", "secondUserId"])
+        .execute();
+
+      const filteredIds = connections.map((connection) =>
+        connection.firstUserId === ctx.user
+          ? connection.secondUserId
+          : connection.firstUserId,
+      );
+
       const users = await ctx.appDb
         .selectFrom("User")
         .leftJoin(
@@ -399,17 +416,11 @@ export const user = createTRPCRouter({
           "User.id",
           "ConnectionRequest.secondUserId",
         )
-        .leftJoin("Friend as F1", "User.id", "F1.secondUserId")
-        .leftJoin("Friend as F2", "User.id", "F2.firstUserId")
         .where((e) =>
           e.and([
-            e.or([
-              e("F1.firstUserId", "is", null),
-              e("F2.secondUserId", "is", null),
-            ]),
-
             e("username", "ilike", `${query}%`),
             e("User.id", "!=", ctx.user),
+            e("User.id", "not in", filteredIds),
           ]),
         )
         .select([
