@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Text,
   TouchableOpacity,
   View,
@@ -230,7 +231,16 @@ export function SwipeScreen() {
     } else {
       return "no-more-movies";
     }
-  }, [result.isFetching, result.isFetchingNextPage, currentMovie]);
+  }, [
+    result.isFetching,
+    showAdPermissionPrompt,
+    result.isFetchingNextPage,
+    currentMovie,
+
+    result.isFetching, result.isRefetching,
+  ]);
+
+  console.log(displayMode);
 
   return (
     <>

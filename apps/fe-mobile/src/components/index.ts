@@ -18,3 +18,4 @@ export * from "./MovieList";
 export * from "./Prompt";
 export * from "./UnableToFindMoviesPrompt";
 export * from "./InviteOptions";
+export * from "./MatchesList";
