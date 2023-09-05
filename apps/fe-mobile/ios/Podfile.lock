@@ -556,6 +556,8 @@ PODS:
     - React-Core
   - RNCClipboard (1.11.2):
     - React-Core
+  - RNCPushNotificationIOS (1.11.0):
+    - React-Core
   - RNFastImage (8.6.3):
     - React-Core
     - SDWebImage (~> 5.11.1)
@@ -683,6 +685,7 @@ DEPENDENCIES:
   - "RNAppleAuthentication (from `../../../node_modules/@invertase/react-native-apple-authentication`)"
   - "RNCAsyncStorage (from `../../../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCClipboard (from `../../../node_modules/@react-native-clipboard/clipboard`)"
+  - "RNCPushNotificationIOS (from `../../../node_modules/@react-native-community/push-notification-ios`)"
   - RNFastImage (from `../../../node_modules/react-native-fast-image`)
   - "RNFBApp (from `../../../node_modules/@react-native-firebase/app`)"
   - "RNFBMessaging (from `../../../node_modules/@react-native-firebase/messaging`)"
@@ -826,6 +829,8 @@ EXTERNAL SOURCES:
     :path: "../../../node_modules/@react-native-async-storage/async-storage"
   RNCClipboard:
     :path: "../../../node_modules/@react-native-clipboard/clipboard"
+  RNCPushNotificationIOS:
+    :path: "../../../node_modules/@react-native-community/push-notification-ios"
   RNFastImage:
     :path: "../../../node_modules/react-native-fast-image"
   RNFBApp:
@@ -929,6 +934,7 @@ SPEC CHECKSUMS:
   RNAppleAuthentication: 0571c08da8c327ae2afc0261b48b4a515b0286a6
   RNCAsyncStorage: f47fe18526970a69c34b548883e1aeceb115e3e1
   RNCClipboard: 3f0451a8100393908bea5c5c5b16f96d45f30bfc
+  RNCPushNotificationIOS: 64218f3c776c03d7408284a819b2abfda1834bc8
   RNFastImage: 5c9c9fed9c076e521b3f509fe79e790418a544e8
   RNFBApp: f0b5cf917b0b91a0ae890fbbaec0fb5d3285ea46
   RNFBMessaging: dec20e8fa230fb776b94c33384676da33c605d2e
@@ -937,7 +943,7 @@ SPEC CHECKSUMS:
   RNGoogleMobileAds: 5cac1d2d41f8c4656833f8109e50602069f0228f
   RNGoogleSignin: ccaa4a81582cf713eea562c5dd9dc1961a715fd0
   RNLocalize: dbea38dcb344bf80ff18a1757b1becf11f70cae4
-  RNPermissions: fc97de2d3ef668ccee55104ff6d7dbd15c67e36a
+  RNPermissions: f1b49dd05fa9b83993cd05a9ee115247944d8f1a
   RNPurchases: c71b659ee3e91254e18c2186e09d2c8be420d338
   RNReanimated: ee53561398b68a8b3d883c2453f85d33a4da3a56
   RNScreens: 6a8a3c6b808aa48dca1780df7b73ea524f602c63
