@@ -166,6 +166,8 @@ export function AdsOrPremiumPrompt({
       () => {
         watchedUnsub();
 
+        onProceed();
+
         adCallback.mutate();
       },
     );
@@ -176,7 +178,6 @@ export function AdsOrPremiumPrompt({
         rewarded.show();
 
         setLoading(false);
-        onProceed();
 
         loadedUnsub();
       },

@@ -3,8 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "reactNativePermissionsIOS": [
-    "AppTrackingTransparency",
-    "Contacts"
+    "AppTrackingTransparency"
   ],
   "scripts": {
     "android": "react-native run-android",

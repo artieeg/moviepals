@@ -21,16 +21,25 @@ export const matches = createTRPCRouter({
             liked: true,
           },
 
-          { projection: { movieId: 1 } },
+          { projection: { movieId: 1, created_at: 1 } },
         )
         .sort({ createdAt: -1 })
         .toArray();
 
       const movieEntryCount = new Map<number, number>();
+      const movieEntryDate = new Map<number, Date>();
 
       for (const swipe of swipes) {
         const prev = movieEntryCount.get(swipe.movieId) ?? 0;
         movieEntryCount.set(swipe.movieId, prev + 1);
+
+        const prevDate = movieEntryDate.get(swipe.movieId);
+
+        if (!prevDate) {
+          movieEntryDate.set(swipe.movieId, swipe.created_at);
+        } else if (swipe.created_at > prevDate) {
+          movieEntryDate.set(swipe.movieId, swipe.created_at);
+        }
       }
 
       const expectedEntryCount = userIds.length + 1;
@@ -39,13 +48,18 @@ export const matches = createTRPCRouter({
         .filter(([, count]) => count === expectedEntryCount)
         .map(([key]) => key);
 
-      const movies = await ctx.dbMovieSwipe.movies
+      const movieData = await ctx.dbMovieSwipe.movies
         .find({
           id: { $in: Array.from(matchedMovieIds) },
           $text: { $search: query },
         })
         .limit(10)
         .toArray();
+
+      const movies = movieData.map((movie) => ({
+        ...movie,
+        lastMatched: movieEntryDate.get(movie.id)!,
+      }));
 
       return { movies };
     }),
@@ -67,16 +81,25 @@ export const matches = createTRPCRouter({
             userId: { $in: [ctx.user, ...userIds] },
             liked: true,
           },
-          { projection: { movieId: 1 } },
+          { projection: { movieId: 1, created_at: 1 } },
         )
         .sort({ createdAt: -1 })
         .toArray();
 
       const movieEntryCount = new Map<number, number>();
+      const movieEntryDate = new Map<number, Date>();
 
       for (const swipe of swipes) {
         const prev = movieEntryCount.get(swipe.movieId) || 0;
         movieEntryCount.set(swipe.movieId, prev + 1);
+
+        const prevDate = movieEntryDate.get(swipe.movieId);
+
+        if (!prevDate) {
+          movieEntryDate.set(swipe.movieId, swipe.created_at);
+        } else if (swipe.created_at > prevDate) {
+          movieEntryDate.set(swipe.movieId, swipe.created_at);
+        }
       }
 
       const expectedEntryCount = userIds.length + 1;
@@ -85,7 +108,7 @@ export const matches = createTRPCRouter({
         .filter(([, count]) => count === expectedEntryCount)
         .map(([key]) => key);
 
-      const movies = await ctx.dbMovieSwipe.movies
+      const movieData = await ctx.dbMovieSwipe.movies
         .find({
           id: { $in: matchedMovieIds },
         })
@@ -93,9 +116,10 @@ export const matches = createTRPCRouter({
         .limit(MATCHES_PER_PAGE)
         .toArray();
 
-      logger.info({
-        returnedMovieIds: movies.map((movie) => movie.id),
-      });
+      const movies = movieData.map((movie) => ({
+        ...movie,
+        lastMatched: movieEntryDate.get(movie.id)!,
+      }));
 
       return { movies, nextCursor: cursor + 1 };
     }),
