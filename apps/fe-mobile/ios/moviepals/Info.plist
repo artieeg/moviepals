@@ -65,8 +65,6 @@
 			</dict>
 		</dict>
 	</dict>
-	<key>NSContactsUsageDescription</key>
-	<string>Get a list of people you can send an invite to</string>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>This identifier will be used to deliver personalized ads to you.</string>
 	<key>UIAppFonts</key>

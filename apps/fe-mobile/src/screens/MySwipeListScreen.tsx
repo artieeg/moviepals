@@ -16,9 +16,6 @@ export function MySwipeListScreen() {
     },
   );
 
-  //console.log(movies.data?.pages.map((p) => p.movies.map((m) => m.id)));
-  console.log(movies.data?.pages.map((p) => p.movies.length));
-
   const moviesList = useMemo(
     () => movies.data?.pages.flatMap((p) => p.movies) ?? [],
     [movies.data],
