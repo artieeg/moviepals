@@ -4,7 +4,13 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Text, useWindowDimensions, View } from "react-native";
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Text,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import EmojiSelector from "react-native-emoji-selector";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -74,6 +80,8 @@ export function WhatsYourNameScreen() {
       });
     }
 
+    Keyboard.dismiss();
+
     createNewAccount.mutate({
       name,
       username,
@@ -85,8 +93,19 @@ export function WhatsYourNameScreen() {
 
   return (
     <>
-      <SafeAreaView className="flex-1 px-8 bg-white dark:bg-neutral-1">
-        <KeyboardAwareScrollView extraHeight={16} className="flex-1">
+      <KeyboardAvoidingView
+        behavior="height"
+        className="flex-1 bg-white dark:bg-neutral-1 "
+      >
+        <SafeAreaView
+          edges={{
+            bottom: "maximum",
+            top: "maximum",
+            left: "maximum",
+            right: "maximum",
+          }}
+          className="flex-1 px-8 pb-8"
+        >
           <View className="space-y-6">
             <View className="space-y-3">
               <Text className="font-primary-bold text-neutral-1 dark:text-white pt-8 text-2xl">
@@ -116,25 +135,25 @@ export function WhatsYourNameScreen() {
                 autoCapitalize="none"
                 maxLength={32}
                 placeholder="username"
+                autoFocus
                 autoCorrect={false}
                 autoComplete="username"
                 onChangeText={setUsername}
-                autoFocus
                 value={username}
               />
             </View>
           </View>
-        </KeyboardAwareScrollView>
-        <View className="absolute right-8 bottom-8">
-          <IconButton
-            loading={createNewAccount.isLoading}
-            onPress={onSubmit}
-            variant="primary"
-          >
-            <ArrowRight width="24" height="24" color="#ffffff" />
-          </IconButton>
-        </View>
-      </SafeAreaView>
+          <View className="flex-1 justify-end items-end">
+            <IconButton
+              loading={createNewAccount.isLoading}
+              onPress={onSubmit}
+              variant="primary"
+            >
+              <ArrowRight width="24" height="24" color="#ffffff" />
+            </IconButton>
+          </View>
+        </SafeAreaView>
+      </KeyboardAvoidingView>
 
       <EmojiPickerBottomSheet
         onEmojiSelected={onEmojiSelected}

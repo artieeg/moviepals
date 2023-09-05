@@ -63,6 +63,7 @@ export function SwipeScreen() {
     {
       initialCursor: 0,
       getNextPageParam: (latestResponse) => latestResponse.cursor,
+      cacheTime: 0,
     },
   );
 

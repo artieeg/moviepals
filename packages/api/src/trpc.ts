@@ -105,6 +105,13 @@ export const createTRPCContext = async ({
 const t = initTRPC.context<typeof createTRPCContext>().create({
   transformer: superjson,
   errorFormatter({ shape, error }) {
+    if (error.code === "INTERNAL_SERVER_ERROR") {
+      logger.error({
+        error,
+        shape,
+      }, "Internal Server Error");
+    }
+
     return {
       ...shape,
       data: {

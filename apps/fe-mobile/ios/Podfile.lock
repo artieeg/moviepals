@@ -619,6 +619,8 @@ PODS:
   - RNScreens (3.23.0):
     - React-Core
     - React-RCTImage
+  - RNShare (9.4.0):
+    - React-Core
   - RNSVG (13.10.0):
     - React-Core
   - SDWebImage (5.11.1):
@@ -693,6 +695,7 @@ DEPENDENCIES:
   - RNPurchases (from `../../../node_modules/react-native-purchases`)
   - RNReanimated (from `../../../node_modules/react-native-reanimated`)
   - RNScreens (from `../../../node_modules/react-native-screens`)
+  - RNShare (from `../../../node_modules/react-native-share`)
   - RNSVG (from `../../../node_modules/react-native-svg`)
   - Yoga (from `../../../node_modules/react-native/ReactCommon/yoga`)
 
@@ -847,6 +850,8 @@ EXTERNAL SOURCES:
     :path: "../../../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../../../node_modules/react-native-screens"
+  RNShare:
+    :path: "../../../node_modules/react-native-share"
   RNSVG:
     :path: "../../../node_modules/react-native-svg"
   Yoga:
@@ -936,6 +941,7 @@ SPEC CHECKSUMS:
   RNPurchases: c71b659ee3e91254e18c2186e09d2c8be420d338
   RNReanimated: ee53561398b68a8b3d883c2453f85d33a4da3a56
   RNScreens: 6a8a3c6b808aa48dca1780df7b73ea524f602c63
+  RNShare: df09e4d08ce0b50e32e2b6b9ec0249d7fdc06960
   RNSVG: 80584470ff1ffc7994923ea135a3e5ad825546b9
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
   SDWebImageWebPCoder: 908b83b6adda48effe7667cd2b7f78c897e5111d

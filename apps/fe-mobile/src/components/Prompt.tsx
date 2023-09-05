@@ -9,16 +9,18 @@ export function Prompt({
   subtitle,
   buttons,
   icon,
+  instantlyPressable = false,
   shouldFillIcon = false,
   ...rest
 }: {
   title: string;
+  instantlyPressable?: boolean;
   icon: React.ReactNode;
   shouldFillIcon?: boolean;
   subtitle: string;
   buttons: ((ButtonProps & { title: string }) | undefined)[];
 } & ViewProps) {
-  const [pressable, setPressable] = useState(false);
+  const [pressable, setPressable] = useState(instantlyPressable);
 
   useEffect(() => {
     const t = setTimeout(() => {
