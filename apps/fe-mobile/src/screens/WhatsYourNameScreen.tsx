@@ -4,15 +4,8 @@ import React, {
   useRef,
   useState,
 } from "react";
-import {
-  Keyboard,
-  KeyboardAvoidingView,
-  Text,
-  useWindowDimensions,
-  View,
-} from "react-native";
+import { Keyboard, Platform, Text, useWindowDimensions, View } from "react-native";
 import EmojiSelector from "react-native-emoji-selector";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import BottomSheet, {
@@ -93,67 +86,64 @@ export function WhatsYourNameScreen() {
 
   return (
     <>
-      <KeyboardAvoidingView
-        behavior="height"
-        className="flex-1 bg-white dark:bg-neutral-1 "
+      <SafeAreaView
+        edges={{
+          bottom: "maximum",
+          top: "maximum",
+          left: "maximum",
+          right: "maximum",
+        }}
+        className="flex-1 bg-white dark:bg-neutral-1 px-8 pb-8"
       >
-        <SafeAreaView
-          edges={{
-            bottom: "maximum",
-            top: "maximum",
-            left: "maximum",
-            right: "maximum",
-          }}
-          className="flex-1 px-8 pb-8"
-        >
-          <View className="space-y-6">
-            <View className="space-y-3">
-              <Text className="font-primary-bold text-neutral-1 dark:text-white pt-8 text-2xl">
-                Hey, please introduce{"\n"}yourself 😄
-              </Text>
-              <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
-                Your friends will be able to find you by your username
-              </Text>
-            </View>
+        <View className="space-y-6">
+          <View className="space-y-3">
+            <Text className="font-primary-bold text-neutral-1 dark:text-white pt-8 text-2xl">
+              Hey, please introduce{"\n"}yourself 😄
+            </Text>
+            <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
+              Your friends will be able to find you by your username
+            </Text>
+          </View>
 
-            <View className="space-y-4">
-              <ListItem
-                icon={emoji}
-                onPress={onPickEmoji}
-                itemId="emoji"
-                right={undefined}
-                title="Emoji Avatar"
-                subtitle="Pick an emoji to represent you"
-              />
-              <Input
-                placeholder="your name"
-                value={name!}
-                onChangeText={onChangeName}
-              />
-              <Input
-                icon={<AtSign />}
-                autoCapitalize="none"
-                maxLength={32}
-                placeholder="username"
-                autoFocus
-                autoCorrect={false}
-                autoComplete="username"
-                onChangeText={setUsername}
-                value={username}
-              />
-            </View>
+          <View className="space-y-4">
+            <ListItem
+              icon={emoji}
+              onPress={onPickEmoji}
+              itemId="emoji"
+              right={undefined}
+              title="Emoji Avatar"
+              subtitle="Pick an emoji to represent you"
+            />
+            <Input
+              placeholder="your name"
+              value={name!}
+              onChangeText={onChangeName}
+            />
+            <Input
+              icon={<AtSign />}
+              autoCapitalize="none"
+              maxLength={32}
+              placeholder="username"
+              autoFocus
+              returnKeyType={Platform.select({ios: "join", default: "next"})}
+              autoCorrect={false}
+              autoComplete="username"
+              onSubmitEditing={onSubmit}
+              onChangeText={setUsername}
+              value={username}
+            />
           </View>
-          <View className="flex-1 justify-end items-end">
-            <IconButton
-              loading={createNewAccount.isLoading}
-              onPress={onSubmit}
-              variant="primary"
-            >
-              <ArrowRight width="24" height="24" color="#ffffff" />
-            </IconButton>
-          </View>
-        </SafeAreaView>
-      </KeyboardAvoidingView>
+        </View>
+        <View className="flex-1 justify-end items-end">
+          <IconButton
+            loading={createNewAccount.isLoading}
+            onPress={onSubmit}
+            variant="primary"
+          >
+            <ArrowRight width="24" height="24" color="#ffffff" />
+          </IconButton>
+        </View>
+      </SafeAreaView>
 
       <EmojiPickerBottomSheet
         onEmojiSelected={onEmojiSelected}

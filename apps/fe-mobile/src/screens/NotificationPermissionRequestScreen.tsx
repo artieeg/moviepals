@@ -6,7 +6,8 @@ import { api } from "~/utils/api";
 import { Button } from "~/components";
 import {
   useFCMPermission,
-  useFCMPermissionRequest,
+  useFCMPermissionRequestedMutation,
+  useFCMPermissionRequestMutation,
   useNavigation,
   useRouteParams,
 } from "~/hooks";
@@ -22,30 +23,38 @@ export function NotificationPermissionRequestScreen() {
     joinedMailingList: boolean;
   }>();
 
+  const markFCMPermisisonRequested = useFCMPermissionRequestedMutation();
+
   const permission = useFCMPermission();
-  const requestPermission = useFCMPermissionRequest({
+  const requestPermission = useFCMPermissionRequestMutation({
     onSuccess(state: any) {
       if (state === messaging.AuthorizationStatus.AUTHORIZED) {
-        allowPushNotifications.mutate();
+        allowPushNotifications.mutate({ allowPushNotifications: true });
       }
     },
   });
 
-  const allowPushNotifications = api.user.allowPushNotifications.useMutation({
+  const allowPushNotifications = api.user.togglePushNotifications.useMutation({
     onMutate() {
       navigation.navigate(NAVIGATOR_MAIN);
     },
   });
 
   function onAllow() {
+    markFCMPermisisonRequested.mutate();
+
     if (permission.data !== messaging.AuthorizationStatus.AUTHORIZED) {
       requestPermission.mutate();
     } else {
-      allowPushNotifications.mutate();
+      allowPushNotifications.mutate({ allowPushNotifications: true });
     }
   }
 
   function onSkip() {
+    markFCMPermisisonRequested.mutate();
+
+    allowPushNotifications.mutate({ allowPushNotifications: false });
+
     navigation.navigate(NAVIGATOR_MAIN);
   }
 

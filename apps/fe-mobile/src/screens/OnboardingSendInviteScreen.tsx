@@ -53,32 +53,43 @@ export function OnboardingSendInviteScreen() {
       >
         <View className="flex-1 space-y-6">
           <View className="space-y-3">
-            <Text className="font-primary-bold text-neutral-1 dark:text-white pt-8 text-2xl">
+            <Animated.Text
+              entering={FadeIn.duration(400)}
+              className="font-primary-bold text-neutral-1 dark:text-white pt-8 text-2xl"
+            >
               MoviePals is more{"\n"}fun together 🤩
-            </Text>
-            <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
-              Would you like to invite people you want to watch movies with?
-            </Text>
-            <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
+            </Animated.Text>
+            <Animated.Text
+              entering={FadeIn.duration(400).delay(200)}
+              className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base"
+            >
+              Would you like to invite people to find movies you all would like to watch?
+            </Animated.Text>
+            <Animated.Text
+              entering={FadeIn.duration(400).delay(400)}
+              className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base"
+            >
               If at least 3 people accept your invite,
               <Text className="font-primary-bold text-neutral-2 dark:text-neutral-5 text-base">
                 {" "}
                 all of you{" "}
               </Text>
               will get premium access for free!
-            </Text>
+            </Animated.Text>
           </View>
 
-          <View className="flex-1 pt-4 justify-center space-y-5">
+          <Animated.View
+            entering={FadeIn.duration(400).delay(600)}
+            className="flex-1 pt-4 mt-8 space-y-5">
             <InviteOptions
               onLinkCopied={onLinkCopied}
               linkCopied={linkCopied}
             />
-          </View>
+          </Animated.View>
 
           <View className="h-16 justify-end items-end">
             <Animated.View
-              entering={FadeIn.duration(400).delay(800)}
+              entering={FadeIn.duration(400).delay(1200)}
               exiting={FadeOut.duration(400).delay(800)}
               key={linkCopied.toString()}
               className="flex-row items-center"

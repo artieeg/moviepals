@@ -19,10 +19,7 @@ import { useDebounce } from "use-debounce";
 import { api } from "~/utils/api";
 import { Input, ListItem, Prompt } from "~/components";
 import { useNavigation } from "~/hooks";
-import {
-  SCREEN_FRIEND_REQUEST_LIST,
-  SCREEN_USER_INFO,
-} from "~/navigators/FriendsNavigator";
+import { SCREEN_FRIEND_REQUEST_LIST, SCREEN_USER_INFO } from "~/navigators/FriendsNavigator";
 import { SCREEN_INVITE } from "./InviteScreen";
 import { MainLayout } from "./layouts/MainLayout";
 
@@ -87,7 +84,7 @@ export function FriendsListScreen() {
     });
 
   const deleteConnectionRequest =
-    api.connection_requests.rejectConnectionRequest.useMutation({
+    api.connection_requests.deleteConnectionRequest.useMutation({
       onMutate({ user }) {
         ctx.user.search.setData(
           { query: debouncedQuery },
@@ -129,6 +126,10 @@ export function FriendsListScreen() {
     Linking.openURL("mailto:hey@moviepals.io");
   }
 
+  function onOpenConnectionRequests() {
+    navigation.navigate(SCREEN_FRIEND_REQUEST_LIST);
+  }
+
   return (
     <MainLayout title="People">
       <View className="flex-1 space-y-8">
@@ -143,25 +144,20 @@ export function FriendsListScreen() {
 
           {connectionRequestsCount.isSuccess &&
             connectionRequestsCount.data.count > 0 && (
-              <TouchableOpacity
-                onPress={() => navigation.navigate(SCREEN_FRIEND_REQUEST_LIST)}
-                className="flex-row justify-end"
-              >
-                <View className="flex-row items-center justify-center space-x-1">
-                  <Text className="text-brand-1 font-primary-bold text-base">
-                    {connectionRequestsCount.data?.count}{" "}
-                    {connectionRequestsCount.data?.count === 1
+              <View className="py-4">
+                <ListItem
+                  right="component"
+                  rightComponent={<NavArrowRight />}
+                  itemId="friend-requests"
+                  onPress={onOpenConnectionRequests}
+                  title="New Friend Requests"
+                  subtitle={`You have ${connectionRequestsCount.data.count} ${
+                    connectionRequestsCount.data.count === 1
                       ? "request"
-                      : "requests"}
-                  </Text>
-                  <NavArrowRight
-                    width="16"
-                    height="16"
-                    color="#6867AA"
-                    className="translate-y-[0.5px]"
-                  />
-                </View>
-              </TouchableOpacity>
+                      : "requests"
+                  }`}
+                />
+              </View>
             )}
         </View>
 
@@ -197,6 +193,33 @@ export function FriendsListScreen() {
 
           {query.length === 0 &&
             friends.isSuccess &&
+            connectionRequestsCount.isSuccess &&
+            connectionRequestsCount.data.count > 0 &&
+            friends.data.connections.length === 0 && (
+              <Animated.View
+                entering={FadeIn.duration(400)}
+                exiting={FadeOut.duration(400)}
+                className="flex-1"
+              >
+                <Prompt
+                  icon={<Text className="text-3xl">🍿</Text>}
+                  title="Somebody wants to be your friend!"
+                  subtitle="Check your friend requests and accept to start discovering movies together!"
+                  buttons={[
+                    {
+                      kind: "primary",
+                      title: "Check Requests",
+                      onPress: onOpenConnectionRequests,
+                    },
+                  ]}
+                />
+              </Animated.View>
+            )}
+
+          {query.length === 0 &&
+            friends.isSuccess &&
+            connectionRequestsCount.isSuccess &&
+            connectionRequestsCount.data.count === 0 &&
             friends.data.connections.length === 0 && (
               <Animated.View
                 entering={FadeIn.duration(400)}
@@ -205,8 +228,8 @@ export function FriendsListScreen() {
               >
                 <Prompt
                   icon={<Text className="text-3xl">👋</Text>}
-                  title="So empty here"
-                  subtitle="Try searching for your friends or send invites"
+                  title={`So empty, let's try fix that! 🤗`}
+                  subtitle="Try the search or send invites to your friends"
                   buttons={[
                     {
                       kind: "primary",
@@ -233,6 +256,7 @@ export function FriendsListScreen() {
 
           {userSearch.data &&
             user.isSuccess &&
+            !userSearch.isFetching &&
             userSearch.isSuccess &&
             userSearch.data.length > 0 && (
               <FlatList
@@ -255,6 +279,8 @@ export function FriendsListScreen() {
 
           {!userSearch.data &&
             user.isSuccess &&
+            !userSearch.isFetching &&
+            query.length <= 3 &&
             friends.isSuccess &&
             friends.data.connections.length > 0 && (
               <FlatList

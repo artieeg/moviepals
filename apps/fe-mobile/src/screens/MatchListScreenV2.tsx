@@ -15,7 +15,7 @@ import { api } from "~/utils/api";
 import { Button, Input, ListItem } from "~/components";
 import { useNavigation } from "~/hooks";
 import { MainLayout } from "./layouts/MainLayout";
-import {SCREEN_MATCHES_LIST} from "./MatchListScreen";
+import { SCREEN_MATCHES_LIST } from "./MatchListScreen";
 
 export const SCREEN_MATCH_LIST_V2 = "SCREEN_MATCH_LIST_v2";
 

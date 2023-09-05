@@ -16,15 +16,33 @@ export async function sendNotification({
   title,
   body,
   token,
+  link,
 }: {
   token: string;
   title: string;
   body: string;
+  link?: string;
 }) {
   await app.messaging().send({
-    notification: {
+    data: {
       title,
       body,
+      link,
+    },
+    android: {
+      priority: "high",
+    },
+    apns: {
+      payload: {
+        aps: {
+          contentAvailable: true,
+        },
+      },
+      headers: {
+        "apns-push-type": "background",
+        "apns-priority": "5",
+        "apns-topic": "io.moviepals",
+      },
     },
     token,
   });
@@ -35,12 +53,7 @@ export async function run() {
     "cBQo4RdCRQ-3o8zQixf3ek:APA91bEpq7hBDnumHDWrdwKFpwdgrsx9w-f8Ze4-2sJFG8kAXrztT3WyZOvuO0UfrN9hZXHoMiog7Vreu-Q58rr7aPD3OEGFeN7hxTavOVWk4KNthxtopAKmna6Ycx7nEJJIz7piy4Km";
 
   const r = await app.messaging().send({
-    notification: {
-      title: "Test Notification",
-      body: "Test Body",
-    },
-    token,
   });
 
-  console.log({r});
+  console.log({ r });
 }

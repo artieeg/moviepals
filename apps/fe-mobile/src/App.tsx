@@ -11,6 +11,7 @@ import { IconoirProvider } from "iconoir-react-native";
 import { useColorScheme } from "nativewind";
 
 import { SCREEN_FRIENDS_LIST } from "./navigators/FriendsNavigator";
+import { NAVIGATOR_FRIENDS, NAVIGATOR_MATCHES, NAVIGATOR_SWIPE } from "./navigators/MainNavigator";
 import RootNavigator, { NAVIGATOR_MAIN } from "./navigators/RootNavigator";
 import { SCREEN_PREPARE_SWIPE } from "./navigators/SwipeNavigator";
 import { SCREEN_INVITE, SCREEN_MATCH_LIST_V2 } from "./screens";
@@ -43,13 +44,13 @@ function AppContent() {
         },
         [NAVIGATOR_MAIN]: {
           screens: {
-            [SCREEN_FRIENDS_LIST]: {
+            [NAVIGATOR_FRIENDS]: {
               path: "friends",
             },
-            [SCREEN_PREPARE_SWIPE]: {
+            [NAVIGATOR_SWIPE]: {
               path: "swipe",
             },
-            [SCREEN_MATCH_LIST_V2]: {
+            [NAVIGATOR_MATCHES]: {
               path: "view-matches",
             },
           },

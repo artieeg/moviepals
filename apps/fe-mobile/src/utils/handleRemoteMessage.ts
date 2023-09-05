@@ -70,6 +70,8 @@ PushNotification.configure({
     console.error(err.message, err);
   },
 
+  requestPermissions: false,
+
   permissions: {
     alert: true,
     badge: true,

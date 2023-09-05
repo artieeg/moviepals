@@ -14,7 +14,7 @@ import Toast from "react-native-toast-message";
 import { api } from "~/utils/api";
 import { getTMDBStaticUrl } from "~/utils/uri";
 import { Button, Section, Switch } from "~/components";
-import { useFCMToken, useNavigation, usePremiumProduct, useTimezone } from "~/hooks";
+import { useFCMPermissionBackupQuery, useFCMToken, useNavigation, usePremiumProduct, useTimezone } from "~/hooks";
 import { SCREEN_SWIPE } from "~/navigators/SwipeNavigator";
 import { useFilterStore } from "~/stores";
 import { SCREEN_CAST_LIST } from "./CastListScreen";
@@ -31,6 +31,7 @@ export function PrepareSwipeScreen() {
   useTimezone();
   usePremiumProduct();
   useFCMToken()
+  useFCMPermissionBackupQuery();
 
   const navigation = useNavigation();
 

@@ -2,12 +2,35 @@ import { createId } from "@paralleldrive/cuid2";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
+import { sendNotification } from "../services";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const connection_requests = createTRPCRouter({
   postConnectionRequest: protectedProcedure
     .input(z.object({ user: z.string() }))
     .mutation(async ({ ctx, input: { user } }) => {
+      const { fcmToken, allowPushNotifications, requesterName } = await ctx.appDb
+        .transaction()
+        .execute(async (trx) => {
+          const { fcmToken, allowPushNotifications } = await trx
+            .selectFrom("User")
+            .where("id", "=", user)
+            .select(["fcmToken", "allowPushNotifications"])
+            .executeTakeFirstOrThrow(
+              () => new TRPCError({ code: "NOT_FOUND" }),
+            );
+
+          const { name: requesterName } = await trx
+            .selectFrom("User")
+            .where("id", "=", ctx.user)
+            .select(["name"])
+            .executeTakeFirstOrThrow(
+              () => new TRPCError({ code: "NOT_FOUND" }),
+            );
+
+          return { fcmToken, allowPushNotifications, requesterName };
+        });
+
       const request = await ctx.appDb
         .insertInto("ConnectionRequest")
         .values({
@@ -19,7 +42,37 @@ export const connection_requests = createTRPCRouter({
         .returningAll()
         .execute();
 
+      console.log(allowPushNotifications, fcmToken);
+      if (allowPushNotifications && fcmToken) {
+        sendNotification({
+          token: fcmToken,
+          title: "New Connection Request 🍿",
+          body: `${requesterName} wants to connect with you!`,
+          link: "moviepals://friends",
+        });
+      }
+
       return { request };
+    }),
+
+  deleteConnectionRequest: protectedProcedure
+    .input(z.object({ user: z.string() }))
+    .mutation(async ({ ctx, input: { user } }) => {
+      await ctx.appDb
+        .deleteFrom("ConnectionRequest")
+        .where((eb) =>
+          eb.or([
+            eb.and([
+              eb("firstUserId", "=", ctx.user),
+              eb("secondUserId", "=", user),
+            ]),
+            eb.and([
+              eb("firstUserId", "=", user),
+              eb("secondUserId", "=", ctx.user),
+            ]),
+          ]),
+        )
+        .execute();
     }),
 
   listConnectionRequests: protectedProcedure.query(async ({ ctx }) => {
