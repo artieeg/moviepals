@@ -51,6 +51,7 @@ export async function signOut() {
     await GoogleSignin.signOut();
   }
 
+  await AsyncStorage.removeItem("fcm-permission-requested");
   await AsyncStorage.removeItem(AS_ACCESS_TOKEN_KEY);
   authToken = undefined;
 

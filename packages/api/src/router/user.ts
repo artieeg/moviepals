@@ -226,13 +226,19 @@ export const user = createTRPCRouter({
     return { isPaid };
   }),
 
-  allowPushNotifications: protectedProcedure.mutation(async ({ ctx }) => {
-    await ctx.appDb
-      .updateTable("User")
-      .set({ allowPushNotifications: true })
-      .where("id", "=", ctx.user)
-      .execute();
-  }),
+  togglePushNotifications: protectedProcedure
+    .input(
+      z.object({
+        allowPushNotifications: z.boolean(),
+      }),
+    )
+    .mutation(async ({ ctx, input: { allowPushNotifications } }) => {
+      await ctx.appDb
+        .updateTable("User")
+        .set({ allowPushNotifications })
+        .where("id", "=", ctx.user)
+        .execute();
+    }),
 
   joinMailingList: protectedProcedure.mutation(async ({ ctx }) => {
     await ctx.appDb
@@ -328,7 +334,7 @@ export const user = createTRPCRouter({
         }
 
         if (attempts <= 0) {
-          inviteLinkSlug = generateRandomString(8)
+          inviteLinkSlug = generateRandomString(8);
         }
 
         const newUser = await ctx.appDb.transaction().execute(async (trx) => {
@@ -383,7 +389,6 @@ export const user = createTRPCRouter({
   search: protectedProcedure
     .input(z.object({ query: z.string() }))
     .query(async ({ input: { query: _query }, ctx }) => {
-
       //remove "@" from the query
       const query = _query.replaceAll("@", "");
 
@@ -459,14 +464,15 @@ async function getEmailFromGoogleToken(googleIdToken: string) {
 }
 
 function generateRandomString(length: number) {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
   const charactersLength = characters.length;
-  
+
   for (let i = 0; i < length; i++) {
     const randomIndex = Math.floor(Math.random() * charactersLength);
     result += characters.charAt(randomIndex);
   }
-  
+
   return result;
 }

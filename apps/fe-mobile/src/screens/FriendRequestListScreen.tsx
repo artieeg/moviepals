@@ -72,7 +72,7 @@ export function FriendRequestListScreen() {
   }
 
   function onRejectRequest(user: string) {
-    Alert.alert("Block user", "Are you sure you want to block this user?", [
+    Alert.alert("Block user", "Are you sure you want to block this user? This action cannot be undone", [
       {
         text: "Cancel",
         style: "cancel",

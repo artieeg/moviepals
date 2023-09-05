@@ -21,7 +21,7 @@ model User {
   timezoneOffset Int     @default(0)
   fcmToken       String?
 
-  allowPushNotifications Boolean @default(false)
+  allowPushNotifications Boolean @default(true)
   joinedMailingList      Boolean @default(false)
   emoji                  String  @default("🐵")
 

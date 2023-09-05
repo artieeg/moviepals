@@ -127,7 +127,11 @@ export const movie_feed = createTRPCRouter({
         totalMovieFeedCount,
       });
 
-      const { movies: feed, nextRemoteApiPage } = await getMoviePage({
+      const {
+        movies: feed,
+        nextRemoteApiPage,
+        noMoreMovies,
+      } = await getMoviePage({
         ctx,
         userReviewState,
         input,
@@ -168,14 +172,13 @@ export const movie_feed = createTRPCRouter({
         );
       }
 
-      //if (feed.length < MOVIES_PER_PAGE) {
-      //if (input.cursor === 0) {
-      //response.unableToFindMovies = true;
-      //} else {
-      //response.noMoreMovies = true;
-      //}
-      //} else {
-      if (
+      if (noMoreMovies) {
+        if (userReviewState.remoteApiPage === 1 && feed.length === 0) {
+          response.unableToFindMovies = true;
+        } else {
+          response.noMoreMovies = true;
+        }
+      } else if (
         !user.fullAccessPurchaseId &&
         userFeedDeliveryState &&
         Math.floor(userFeedDeliveryState.swipes / MOVIES_PER_PAGE) >
@@ -621,6 +624,7 @@ async function getMoviePage({
   return {
     movies: shuffledMovies.slice(0, responseTotalMovieCount),
     nextRemoteApiPage,
+    noMoreMovies,
   };
 }
 

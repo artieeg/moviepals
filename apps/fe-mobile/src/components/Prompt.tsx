@@ -55,10 +55,10 @@ export function Prompt({
         </View>
 
         <View className="items-center justify-center space-y-2">
-          <Text className="font-primary-bold text-xl text-neutral-1 dark:text-white">
+          <Text className="font-primary-bold text-center text-xl text-neutral-1 dark:text-white">
             {title}
           </Text>
-          <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-center text-base">
+          <Text className="font-primary-regular text-center text-neutral-2 dark:text-neutral-5 text-center text-base">
             {subtitle}
           </Text>
         </View>

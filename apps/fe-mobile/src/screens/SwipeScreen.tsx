@@ -80,7 +80,7 @@ export function SwipeScreen() {
 
   const premiumStatus = api.user.isPaid.useQuery();
 
-  const pages = useMemo(() => {
+  const movies = useMemo(() => {
     if (!result.data?.pages) {
       return [];
     }
@@ -94,7 +94,7 @@ export function SwipeScreen() {
     }
 
     if (premiumStatus.data.isPaid) {
-      if (currentMovieIdx === pages.length - 4) {
+      if (currentMovieIdx === movies.length - 4) {
         result.fetchNextPage();
       }
     }
@@ -102,7 +102,7 @@ export function SwipeScreen() {
     premiumStatus.data?.isPaid,
     premiumStatus.isSuccess,
     currentMovieIdx,
-    pages.length,
+    movies.length,
   ]);
 
   useEffect(() => {
@@ -122,13 +122,10 @@ export function SwipeScreen() {
   ]);
 
   const deck = useMemo(() => {
-    return pages.slice(currentMovieIdx, currentMovieIdx + 3);
-  }, [pages, currentMovieIdx]);
+    return movies.slice(currentMovieIdx, currentMovieIdx + 3);
+  }, [movies, currentMovieIdx]);
 
   const currentMovie = deck?.[0];
-
-  const loadingIndicator =
-    !currentMovie && (result.isFetchingNextPage || result.isFetching);
 
   const movieDetailsRef = useRef<MovieDetailsBottomSheetRef>(null);
 
@@ -209,6 +206,32 @@ export function SwipeScreen() {
     setCurrentMovieIdx((prev) => (prev > 0 ? prev - 1 : 0));
   }
 
+  const displayMode = useMemo(() => {
+    if (showAdPermissionPrompt) {
+      return "ad-permission";
+    }
+
+    if (!currentMovie) {
+      if (
+        result.isFetching ||
+        result.isFetchingNextPage ||
+        result.isRefetching
+      ) {
+        return "loading";
+      } else if (hasToWatchAd) {
+        return "ad";
+      } else if (noMoreMovies) {
+        return "no-more-movies";
+      } else if (unableToFindMovies) {
+        return "unable-to-find-movies";
+      }
+    } else if (deck.length > 0) {
+      return "movies";
+    } else {
+      return "no-more-movies";
+    }
+  }, [result.isFetching, result.isFetchingNextPage, currentMovie]);
+
   return (
     <>
       <MainLayout
@@ -229,7 +252,7 @@ export function SwipeScreen() {
         title="Swipe"
         canGoBack
       >
-        {currentMovie && !showAdPermissionPrompt && (
+        {displayMode === "movies" && (
           <Animated.View
             layout={Layout}
             entering={FadeIn}
@@ -237,56 +260,47 @@ export function SwipeScreen() {
             className="flex-1"
           >
             <View className="aspect-[2/3] translate-y-8">
-              {!loadingIndicator &&
-                !result.isRefetching &&
-                result.isSuccess &&
-                deck &&
-                deck.map((movie, idx) => (
-                  <MovieCard
-                    key={movie.id}
-                    ref={idx === 0 ? currentMovieCard : undefined}
-                    idx={idx}
-                    totalNumberOfCards={3}
-                    onSwipe={(liked: boolean) => {
-                      if (!currentMovie) {
-                        return;
-                      }
+              {deck.map((movie, idx) => (
+                <MovieCard
+                  key={movie.id}
+                  ref={idx === 0 ? currentMovieCard : undefined}
+                  idx={idx}
+                  totalNumberOfCards={3}
+                  onSwipe={(liked: boolean) => {
+                    if (!currentMovie) {
+                      return;
+                    }
 
-                      swipe.mutate({
-                        movieId: currentMovie.id,
-                        directors: filters.director
-                          ? [filters.director.id]
-                          : [],
-                        cast: filters.cast.map((c) => c.id),
-                        liked,
-                        watch_providers: filters.streamingServices.map(
-                          (s) => s.provider_id,
-                        ),
-                        genres: movie.genre_ids,
-                        watch_region: filters.country,
-                        movie_language: movie.original_language,
-                      });
+                    swipe.mutate({
+                      movieId: currentMovie.id,
+                      directors: filters.director ? [filters.director.id] : [],
+                      cast: filters.cast.map((c) => c.id),
+                      liked,
+                      watch_providers: filters.streamingServices.map(
+                        (s) => s.provider_id,
+                      ),
+                      genres: movie.genre_ids,
+                      watch_region: filters.country,
+                      movie_language: movie.original_language,
+                    });
 
-                      setCurrentMovieIdx((prev) => prev + 1);
-                    }}
-                    movie={movie}
-                  />
-                ))}
+                    setCurrentMovieIdx((prev) => prev + 1);
+                  }}
+                  movie={movie}
+                />
+              ))}
             </View>
 
-            {currentMovie && (
-              <Controls
-                onUndo={onUndo}
-                visible={!!currentMovie}
-                onDislike={onDislike}
-                onLike={onLike}
-                onOpenMovieDetails={onOpenMovieDetails}
-              />
-            )}
+            <Controls
+              onUndo={onUndo}
+              visible={!!currentMovie}
+              onDislike={onDislike}
+              onLike={onLike}
+              onOpenMovieDetails={onOpenMovieDetails}
+            />
           </Animated.View>
         )}
-
-        {!currentMovie && (result.isFetchingNextPage || result.isLoading) ? (
+        {displayMode === "loading" && (
           <Animated.View
             className="flex-1 items-center justify-center pb-8"
             entering={FadeIn}
@@ -304,45 +318,45 @@ export function SwipeScreen() {
               give us a short second 😄🐢
             </Animated.Text>
           </Animated.View>
-        ) : !currentMovie ? (
-          <>
-            {noMoreMovies && (
-              <Animated.View
-                className="flex-1 pb-8"
-                entering={FadeIn}
-                exiting={FadeOut}
-              >
-                <NoMoreMoviesPrompt onGoBack={onGoBack} />
-              </Animated.View>
-            )}
+        )}
 
-            {unableToFindMovies && (
-              <Animated.View
-                className="flex-1 pb-8"
-                entering={FadeIn}
-                exiting={FadeOut}
-              >
-                <UnableToFindMoviesPrompt onGoBack={onGoBack} />
-              </Animated.View>
-            )}
+        {displayMode === "no-more-movies" && (
+          <Animated.View
+            className="flex-1 pb-8"
+            entering={FadeIn}
+            exiting={FadeOut}
+          >
+            <NoMoreMoviesPrompt onGoBack={onGoBack} />
+          </Animated.View>
+        )}
 
-            {hasToWatchAd && (
-              <Animated.View
-                className="flex-1 pb-8"
-                entering={FadeIn}
-                exiting={FadeOut}
-              >
-                <AdsOrPremiumPrompt
-                  mode="ad"
-                  onProceed={() => {
-                    onProceedAfterPurchaseOrAd();
-                    setShowAdPermissionPrompt(false);
-                  }}
-                />
-              </Animated.View>
-            )}
-          </>
-        ) : showAdPermissionPrompt ? (
+        {displayMode === "unable-to-find-movies" && (
+          <Animated.View
+            className="flex-1 pb-8"
+            entering={FadeIn}
+            exiting={FadeOut}
+          >
+            <UnableToFindMoviesPrompt onGoBack={onGoBack} />
+          </Animated.View>
+        )}
+
+        {displayMode === "ad" && (
+          <Animated.View
+            className="flex-1 pb-8"
+            entering={FadeIn}
+            exiting={FadeOut}
+          >
+            <AdsOrPremiumPrompt
+              mode="ad"
+              onProceed={() => {
+                onProceedAfterPurchaseOrAd();
+                setShowAdPermissionPrompt(false);
+              }}
+            />
+          </Animated.View>
+        )}
+
+        {displayMode === "ad-permission" && (
           <Animated.View
             className="flex-1 pb-8"
             entering={FadeIn}
@@ -360,7 +374,7 @@ export function SwipeScreen() {
               }}
             />
           </Animated.View>
-        ) : null}
+        )}
       </MainLayout>
       <MovieDetailsBottomSheet ref={movieDetailsRef} />
     </>
@@ -397,12 +411,12 @@ function Controls({
       layout={Layout}
       className="mt-8 flex-1 flex-row items-center justify-between space-x-3"
     >
-      <IconButton variant="gray" onPress={onUndo}>
-        <Undo />
-      </IconButton>
-
       <IconButton variant="red" onPress={onDislike}>
         <Cancel color="white" />
+      </IconButton>
+
+      <IconButton variant="gray" onPress={onUndo}>
+        <Undo />
       </IconButton>
 
       <TouchableOpacity
