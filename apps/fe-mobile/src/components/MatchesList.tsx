@@ -68,8 +68,6 @@ export function MatchesList({
     });
   }, [movies]);
 
-  console.log(sections);
-
   return (
     <SectionList
       contentContainerStyle={{ paddingHorizontal: 32 }}
