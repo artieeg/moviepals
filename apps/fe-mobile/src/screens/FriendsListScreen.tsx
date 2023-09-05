@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
+  Linking,
   Text,
   TouchableOpacity,
   View,
@@ -16,12 +17,13 @@ import { useColorScheme } from "nativewind";
 import { useDebounce } from "use-debounce";
 
 import { api } from "~/utils/api";
-import { Input, ListItem } from "~/components";
+import { Input, ListItem, Prompt } from "~/components";
 import { useNavigation } from "~/hooks";
 import {
   SCREEN_FRIEND_REQUEST_LIST,
   SCREEN_USER_INFO,
 } from "~/navigators/FriendsNavigator";
+import { SCREEN_INVITE } from "./InviteScreen";
 import { MainLayout } from "./layouts/MainLayout";
 
 export function FriendsListScreen() {
@@ -48,6 +50,10 @@ export function FriendsListScreen() {
       friends.refetch();
     }, []),
   );
+
+  function onSendInvites() {
+    navigation.navigate(SCREEN_INVITE);
+  }
 
   const deleteConnection = api.connection.deleteConnection.useMutation({
     onMutate({ connectionId }) {
@@ -119,6 +125,10 @@ export function FriendsListScreen() {
     deleteConnection.mutate({ connectionId });
   }
 
+  function onNeedHelp() {
+    Linking.openURL("mailto:hey@moviepals.io");
+  }
+
   return (
     <MainLayout title="People">
       <View className="flex-1 space-y-8">
@@ -126,7 +136,7 @@ export function FriendsListScreen() {
           <Input
             onChangeText={setQuery}
             value={query}
-            placeholder="Search"
+            placeholder="Search by username"
             showClearButton
             icon={<Search />}
           />
@@ -139,66 +149,132 @@ export function FriendsListScreen() {
               >
                 <View className="flex-row items-center justify-center space-x-1">
                   <Text className="text-brand-1 font-primary-bold text-base">
-                    {connectionRequestsCount.data?.count} {
-                      connectionRequestsCount.data?.count === 1
-                        ? "request"
-                        : "requests"
-                    }
+                    {connectionRequestsCount.data?.count}{" "}
+                    {connectionRequestsCount.data?.count === 1
+                      ? "request"
+                      : "requests"}
                   </Text>
-                  <NavArrowRight width="16" height="16" color="#6867AA" className="translate-y-[0.5px]" />
+                  <NavArrowRight
+                    width="16"
+                    height="16"
+                    color="#6867AA"
+                    className="translate-y-[0.5px]"
+                  />
                 </View>
               </TouchableOpacity>
             )}
         </View>
 
         <View className="flex-1">
-          {friends.isLoading && (
-            <View className="flex-1 justify-center items-center">
+          {query.length > 3 &&
+            userSearch.isSuccess &&
+            userSearch.data.length === 0 && (
+              <Animated.View
+                entering={FadeIn.duration(400)}
+                exiting={FadeOut.duration(400)}
+                className="flex-1"
+              >
+                <Prompt
+                  icon={<Text className="text-3xl">😞</Text>}
+                  title="No results"
+                  instantlyPressable
+                  subtitle="Please check the username and try again. Still can't find them? Send us an email and we'll help!"
+                  buttons={[
+                    {
+                      kind: "primary",
+                      title: "Send Invites",
+                      onPress: onSendInvites,
+                    },
+                    {
+                      kind: "outline",
+                      title: "I need help",
+                      onPress: onNeedHelp,
+                    },
+                  ]}
+                />
+              </Animated.View>
+            )}
+
+          {query.length === 0 &&
+            friends.isSuccess &&
+            friends.data.connections.length === 0 && (
+              <Animated.View
+                entering={FadeIn.duration(400)}
+                exiting={FadeOut.duration(400)}
+                className="flex-1"
+              >
+                <Prompt
+                  icon={<Text className="text-3xl">👋</Text>}
+                  title="So empty here"
+                  subtitle="Try searching for your friends or send invites"
+                  buttons={[
+                    {
+                      kind: "primary",
+                      title: "Send Invites",
+                      onPress: onSendInvites,
+                    },
+                  ]}
+                />
+              </Animated.View>
+            )}
+
+          {(friends.isLoading || userSearch.isFetching) && (
+            <Animated.View
+              entering={FadeIn.duration(400)}
+              exiting={FadeOut.duration(400)}
+              className="flex-1 justify-center items-center"
+            >
               <ActivityIndicator
                 size="large"
                 color={colorScheme === "dark" ? "white" : "black"}
               />
-            </View>
+            </Animated.View>
           )}
 
-          {userSearch.data && user.isSuccess && friends.isSuccess && (
-            <FlatList
-              data={userSearch.data}
-              ItemSeparatorComponent={() => <View className="h-4" />}
-              renderItem={({ item }) => {
-                return (
-                  <UnknownUser
-                    userId={item.id}
-                    username={item.username}
-                    name={item.name}
-                    emoji={item.emoji}
-                    requested={item.requested}
-                    onToggleRequest={onToggleRequest}
-                  />
-                );
-              }}
-            />
-          )}
+          {userSearch.data &&
+            user.isSuccess &&
+            userSearch.isSuccess &&
+            userSearch.data.length > 0 && (
+              <FlatList
+                data={userSearch.data}
+                ItemSeparatorComponent={() => <View className="h-4" />}
+                renderItem={({ item }) => {
+                  return (
+                    <UnknownUser
+                      userId={item.id}
+                      username={item.username}
+                      name={item.name}
+                      emoji={item.emoji}
+                      requested={item.requested}
+                      onToggleRequest={onToggleRequest}
+                    />
+                  );
+                }}
+              />
+            )}
 
-          {!userSearch.data && user.isSuccess && friends.isSuccess && (
-            <FlatList
-              data={friends.data?.connections}
-              ItemSeparatorComponent={() => <View className="h-4" />}
-              renderItem={({ item }) => {
-                return (
-                  <UserConnection
-                    connectionId={item.userConnectionId}
-                    userId={item.id}
-                    username={item.username}
-                    name={item.name}
-                    emoji={item.emoji}
-                    isFollowing
-                    onRemove={onRemoveConnection}
-                  />
-                );
-              }}
-            />
-          )}
+          {!userSearch.data &&
+            user.isSuccess &&
+            friends.isSuccess &&
+            friends.data.connections.length > 0 && (
+              <FlatList
+                data={friends.data.connections}
+                ItemSeparatorComponent={() => <View className="h-4" />}
+                renderItem={({ item }) => {
+                  return (
+                    <UserConnection
+                      connectionId={item.userConnectionId}
+                      userId={item.id}
+                      username={item.username}
+                      name={item.name}
+                      emoji={item.emoji}
+                      isFollowing
+                      onRemove={onRemoveConnection}
+                    />
+                  );
+                }}
+              />
+            )}
         </View>
       </View>
     </MainLayout>

@@ -39,7 +39,7 @@ export function PrepareSwipeScreen() {
   }
 
   return (
-    <MainLayout edges={["top", "left", "right"]} title="Movies">
+    <MainLayout title="Movies">
       <ScrollView
         className="-mx-8"
         contentContainerStyle={{

@@ -5,8 +5,10 @@ import {
   TouchableOpacityProps,
   View,
 } from "react-native";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
 import { Selectable } from "./Selectable";
+import {TouchableScale} from "./TouchableScale";
 
 export const ListItem = React.memo(_ListItem, (prev, next) => {
   if (prev.right === "checkbox" && next.right === "checkbox") {
@@ -38,8 +40,8 @@ export type ListItemProps = TouchableOpacityProps & {
 
 function _ListItem(props: ListItemProps) {
   return (
-    <TouchableOpacity
-      activeOpacity={0.8}
+    <TouchableScale
+      //activeOpacity={0.8}
       onPress={() => {
         if (props.right === "checkbox" || props.right === "radio") {
           props.onToggle(props.itemId, !props.checked);
@@ -50,31 +52,41 @@ function _ListItem(props: ListItemProps) {
     >
       <View className="flex-1 flex-row items-center space-x-3">
         {props.icon && (
-          <View className="bg-neutral-2-10 h-16 w-16 items-center justify-center overflow-hidden rounded-full">
+          <Animated.View
+            key={props.title}
+            exiting={FadeOut.duration(400)}
+            entering={FadeIn.duration(400)}
+            className="bg-neutral-2-10 h-16 w-16 items-center justify-center overflow-hidden rounded-full">
             {typeof props.icon === "string" ? (
               <Text className="text-3.5xl">{props.icon}</Text>
             ) : (
               props.icon
             )}
-          </View>
+          </Animated.View>
         )}
         <View className="space-y-0.5 flex-1">
-          <Text
+          <Animated.Text
+            key={props.title}
             numberOfLines={props.subtitle ? 1 : undefined}
+            exiting={FadeOut.duration(400)}
+            entering={FadeIn.duration(400)}
             ellipsizeMode="tail"
             className="font-primary-bold text-neutral-1 dark:text-white text-xl"
           >
             {props.title}
-          </Text>
+          </Animated.Text>
 
           {props.subtitle && (
-            <Text
+            <Animated.Text
+              key={props.subtitle}
+              exiting={FadeOut.duration(400)}
+              entering={FadeIn.duration(400)}
               numberOfLines={1}
               ellipsizeMode="tail"
               className="font-primary-regular text-neutral-2 dark:text-neutral-5 flex-1 text-base"
             >
               {props.subtitle}
-            </Text>
+            </Animated.Text>
           )}
         </View>
       </View>
@@ -90,6 +102,6 @@ function _ListItem(props: ListItemProps) {
           />
         </View>
       )}
-    </TouchableOpacity>
+    </TouchableScale>
   );
 }

@@ -316,12 +316,19 @@ export const user = createTRPCRouter({
               .values({
                 slug: id,
               })
+              .returning("slug")
               .execute();
 
             inviteLinkSlug = id;
+
+            break;
           } catch (e) {
             logger.error(e);
           }
+        }
+
+        if (attempts <= 0) {
+          inviteLinkSlug = generateRandomString(8)
         }
 
         const newUser = await ctx.appDb.transaction().execute(async (trx) => {
@@ -449,4 +456,17 @@ async function getEmailFromGoogleToken(googleIdToken: string) {
   }
 
   return { email, sub };
+}
+
+function generateRandomString(length: number) {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  const charactersLength = characters.length;
+  
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * charactersLength);
+    result += characters.charAt(randomIndex);
+  }
+  
+  return result;
 }

@@ -42,6 +42,8 @@ export const SCREEN_SPLASH = "Splash";
 export const NAVIGATOR_ONBOARDING = "Onboarding";
 export const NAVIGATOR_MAIN = "Swipe";
 
+export const NAVIGATOR_ROOT = "NavigatorRoot";
+
 export default function RootNavigator() {
   return (
     <Stack.Navigator>
