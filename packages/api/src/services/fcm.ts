@@ -32,7 +32,7 @@ export async function sendNotification({
 
 export async function run() {
   const token =
-    "e5c20SYuTzWe5LeojEq-WT:APA91bECeZ3WQkvb6l0a-nAjMEu9jaVnVRgMGcR0YkMD3pleDCwrdX5ub-fqWLt-n8bgNeABgJSjbVlu7bHihHZqBcUzmZRrF5_VZ_wsiOHs2DrzQKuZs2AZ426Yy0Y2q5pAUOeA2Qrr";
+    "cBQo4RdCRQ-3o8zQixf3ek:APA91bEpq7hBDnumHDWrdwKFpwdgrsx9w-f8Ze4-2sJFG8kAXrztT3WyZOvuO0UfrN9hZXHoMiog7Vreu-Q58rr7aPD3OEGFeN7hxTavOVWk4KNthxtopAKmna6Ycx7nEJJIz7piy4Km";
 
   const r = await app.messaging().send({
     notification: {
