@@ -1,11 +1,9 @@
 import { useEffect } from "react";
 import { View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
-import Clipboard from "@react-native-clipboard/clipboard";
 
 import { useNavigation } from "~/hooks";
 import { SCREEN_CHECK_INVITE } from "./CheckInviteScreen";
-import { SCREEN_ONBOARDING_SEND_INVITE } from "./OnboardingSendInviteScreen";
 
 export const SCREEN_NICE_TO_MEET_YOU = "NiceToMeetYouScreen";
 
@@ -14,11 +12,7 @@ export function NiceToMeetYouScreen() {
 
   useEffect(() => {
     const t = setTimeout(async () => {
-      if (await Clipboard.hasURL()) {
-        navigation.navigate(SCREEN_CHECK_INVITE);
-      } else {
-        navigation.navigate(SCREEN_ONBOARDING_SEND_INVITE);
-      }
+      navigation.navigate(SCREEN_CHECK_INVITE);
     }, 1400);
 
     return () => clearTimeout(t);

@@ -31,7 +31,7 @@ export function Button({
       className={twJoin(
         "h-12 items-center justify-center rounded-lg",
         kind === "primary" && "bg-brand-1",
-        rest.disabled && "bg-neutral-4",
+        rest.disabled && "bg-neutral-4 dark:bg-neutral-2-50",
         kind === "outline" && "border-brand-1 border bg-transparent",
       )}
       {...rest}

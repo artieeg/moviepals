@@ -19,7 +19,7 @@ import { Copy, MessageText, Search } from "iconoir-react-native";
 import { useDebounce } from "use-debounce";
 
 import { api } from "~/utils/api";
-import { Button, Input, ListItem, Prompt } from "~/components";
+import { Button, Input, InviteOptions, ListItem, Prompt } from "~/components";
 import { useNavigation } from "~/hooks";
 import { SCREEN_INVITE_SUCCESS } from "./InviteSuccessScreen";
 import { MainLayout } from "./layouts/MainLayout";
@@ -178,59 +178,12 @@ export function InviteScreen() {
         </Text>
       </View>
 
-      {permission.isSuccess && permission.data === "granted" ? (
-        <>
-          {contacts.isLoading ? (
-            <View className="flex-1 items-center justify-center">
-              <ActivityIndicator size="large" color="black" />
-            </View>
-          ) : (
-            <>
-              <FlatList
-                extraData={selected.length}
-                className="-mx-8"
-                ItemSeparatorComponent={renderItemSeparator}
-                ListHeaderComponent={renderListHeader}
-                contentContainerStyle={{
-                  paddingHorizontal: 32,
-                  paddingTop: 32,
-                  paddingBottom: 128,
-                }}
-                renderItem={renderContactItem}
-                data={filteredContacts}
-              />
-
-              <View className="absolute bottom-0 left-8 right-8">
-                <Button disabled={selected.length === 0} onPress={onInvite}>
-                  Invite
-                </Button>
-              </View>
-            </>
-          )}
-        </>
-      ) : (
-        <Prompt
-          icon={<MessageText />}
-          title="Contacts Permission"
-          subtitle="We need your permission so we can fetch the list of people you can invite. This data won't be transferred or stored anywhere."
-          buttons={[
-            permission.data === "denied"
-              ? {
-                  title: "Allow Access",
-                  onPress: onRequestPermission,
-                }
-              : {
-                  title: "Open Settings",
-                  onPress: onOpenSettings,
-                },
-            {
-              kind: "outline",
-              title: "Copy the link instead",
-              onPress: onCopyLink,
-            },
-          ]}
+      <View className="mt-8">
+        <InviteOptions
+          linkCopied={linkCopied}
+          onLinkCopied={() => setLinkCopied(true)}
         />
-      )}
+      </View>
     </MainLayout>
   );
 }

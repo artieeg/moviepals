@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Text,
   TouchableOpacity,
   View,
@@ -22,6 +21,7 @@ import { Cancel, Heart, Undo } from "iconoir-react-native";
 import { useColorScheme } from "nativewind";
 
 import { api } from "~/utils/api";
+import { sendEvent } from "~/utils/plausible";
 import {
   AdsOrPremiumPrompt,
   IconButton,
@@ -135,6 +135,8 @@ export function SwipeScreen() {
 
     const url = `https://www.themoviedb.org/movie/${currentMovie.id}`;
 
+    sendEvent("movie_details_open");
+
     movieDetailsRef.current?.open(url);
   }
 
@@ -177,6 +179,8 @@ export function SwipeScreen() {
       movie_language: currentMovie.original_language,
     });
 
+    sendEvent("swipe_like");
+
     currentMovieCard.current?.swipeRight();
 
     setTimeout(() => setCurrentMovieIdx((prev) => prev + 1), 200);
@@ -199,6 +203,8 @@ export function SwipeScreen() {
     });
 
     currentMovieCard.current?.swipeLeft();
+
+    sendEvent("swipe_dislike");
 
     setTimeout(() => setCurrentMovieIdx((prev) => prev + 1), 200);
   }
@@ -237,7 +243,8 @@ export function SwipeScreen() {
     result.isFetchingNextPage,
     currentMovie,
 
-    result.isFetching, result.isRefetching,
+    result.isFetching,
+    result.isRefetching,
   ]);
 
   console.log(displayMode);
@@ -277,24 +284,11 @@ export function SwipeScreen() {
                   idx={idx}
                   totalNumberOfCards={3}
                   onSwipe={(liked: boolean) => {
-                    if (!currentMovie) {
-                      return;
+                    if (liked) {
+                      onLike();
+                    } else {
+                      onDislike();
                     }
-
-                    swipe.mutate({
-                      movieId: currentMovie.id,
-                      directors: filters.director ? [filters.director.id] : [],
-                      cast: filters.cast.map((c) => c.id),
-                      liked,
-                      watch_providers: filters.streamingServices.map(
-                        (s) => s.provider_id,
-                      ),
-                      genres: movie.genre_ids,
-                      watch_region: filters.country,
-                      movie_language: movie.original_language,
-                    });
-
-                    setCurrentMovieIdx((prev) => prev + 1);
                   }}
                   movie={movie}
                 />

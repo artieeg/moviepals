@@ -1,5 +1,8 @@
+import { useEffect } from "react";
+import { useNavigationState } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 
+import { sendPageView } from "~/utils/plausible";
 import {
   CastListScreen,
   DirectorListScreen,
