@@ -6,20 +6,25 @@ import Toast from "react-native-toast-message";
 import Clipboard from "@react-native-clipboard/clipboard";
 import {
   ClipboardCheck,
+  Mail,
   MessageText,
   PasteClipboard,
 } from "iconoir-react-native";
 
 import { api } from "~/utils/api";
+import { sendEvent } from "~/utils/plausible";
 import { ListItem } from "./ListItem";
-import {sendEvent} from "~/utils/plausible";
 
 export function InviteOptions({
   onLinkCopied,
   linkCopied,
+  onApplyInvite,
+  showActivateInvite,
 }: {
   onLinkCopied?: () => void;
   linkCopied: boolean;
+  onApplyInvite?: () => void;
+  showActivateInvite?: boolean;
 }) {
   const inviteUrl = api.invite.fetchInviteUrl.useQuery();
 
@@ -74,18 +79,21 @@ export function InviteOptions({
       <ListItem
         right={undefined}
         itemId="text-a-friend"
-        title="Send a text"
+        title="Send an invite text"
         onPress={onText}
         icon={<MessageText />}
-        subtitle="We'll open your SMS app."
+        subtitle="We'll open your SMS app"
       />
-      <View className="flex-row items-center -mx-8">
-        <View className="h-px bg-neutral-3 dark:bg-neutral-2-50 flex-1" />
-        <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base px-8">
-          or
-        </Text>
-        <View className="h-px bg-neutral-3 dark:bg-neutral-2-50 flex-1" />
-      </View>
+
+      {!showActivateInvite && (
+        <View className="flex-row items-center -mx-8">
+          <View className="h-px bg-neutral-3 dark:bg-neutral-2-50 flex-1" />
+          <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base px-8">
+            or
+          </Text>
+          <View className="h-px bg-neutral-3 dark:bg-neutral-2-50 flex-1" />
+        </View>
+      )}
 
       <ListItem
         right={undefined}
@@ -93,8 +101,29 @@ export function InviteOptions({
         onPress={onCopyInviteLink}
         title={linkCopied ? "Link copied" : "Copy my invite link"}
         icon={linkCopied ? <ClipboardCheck /> : <PasteClipboard />}
-        subtitle={linkCopied ? "Time to share it!" : "and share it"}
+        subtitle={linkCopied ? "Time to share it!" : "Share it yourself"}
       />
+
+      {showActivateInvite && (
+        <View className="flex-row items-center -mx-8">
+          <View className="h-px bg-neutral-3 dark:bg-neutral-2-50 flex-1" />
+          <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base px-8">
+            or
+          </Text>
+          <View className="h-px bg-neutral-3 dark:bg-neutral-2-50 flex-1" />
+        </View>
+      )}
+
+      {showActivateInvite && (
+        <ListItem
+          right={undefined}
+          itemId="copy-invite-link"
+          onPress={onApplyInvite}
+          title={"I received an invite"}
+          icon={<Mail />}
+          subtitle={"Apply my invite"}
+        />
+      )}
     </View>
   );
 }

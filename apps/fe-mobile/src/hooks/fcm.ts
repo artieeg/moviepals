@@ -1,5 +1,8 @@
+import { PermissionsAndroid, Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import messaging from "@react-native-firebase/messaging";
+import messaging, {
+  FirebaseMessagingTypes,
+} from "@react-native-firebase/messaging";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { api } from "~/utils/api";
@@ -13,7 +16,23 @@ export function useFCMPermissionRequestMutation({
 }) {
   return useMutation(
     async () => {
-      return messaging().requestPermission();
+      if (Platform.OS === "android") {
+        const r = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+        );
+
+        if (r === PermissionsAndroid.RESULTS.GRANTED) {
+          return "granted";
+        }
+      } else {
+        const r = await messaging().requestPermission();
+
+        if (r === messaging.AuthorizationStatus.AUTHORIZED) {
+          return "granted";
+        }
+      }
+
+      return "denied";
     },
     { onSuccess: onSuccess as any },
   );
@@ -43,21 +62,44 @@ export function useFCMPermissionBackupQuery() {
         permissionRequestedKey,
       );
 
+      console.log(
+        "permissionRequested",
+        permissionRequested,
+        permission,
+        FirebaseMessagingTypes,
+      );
+
       if (
         !permissionRequested //&&
         //permission === messaging.AuthorizationStatus.NOT_DETERMINED
       ) {
-        return messaging().requestPermission();
+        if (Platform.OS === "android") {
+          const r = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+          );
+
+          if (r === PermissionsAndroid.RESULTS.GRANTED) {
+            return "granted";
+          }
+        } else {
+          const r = await messaging().requestPermission();
+          if (r === messaging.AuthorizationStatus.AUTHORIZED) {
+            return "granted";
+          }
+        }
       } else {
-        return permission;
+        if (permission === messaging.AuthorizationStatus.AUTHORIZED) {
+          return "granted";
+        }
       }
+      return "denied";
     },
     {
       onSuccess(permission) {
-        if (permission === messaging.AuthorizationStatus.AUTHORIZED) {
+        if (permission === "granted") {
           AsyncStorage.setItem(permissionRequestedKey, "true");
 
-          qc.invalidateQueries(KEY_FCM_TOKEN);
+          qc.refetchQueries(KEY_FCM_TOKEN);
         }
       },
     },

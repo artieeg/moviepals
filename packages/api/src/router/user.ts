@@ -209,10 +209,10 @@ export const user = createTRPCRouter({
       .selectAll()
       .executeTakeFirstOrThrow(() => new TRPCError({ code: "NOT_FOUND" }));
 
-    let isPaid = false;
+    let isPaid: "paid" | "shared" | false = false;
 
     if (user.fullAccessPurchaseId) {
-      isPaid = true;
+      isPaid = "paid";
     } else {
       const sharedPremium = await ctx.appDb
         .selectFrom("SharedPremium")
@@ -220,7 +220,9 @@ export const user = createTRPCRouter({
         .select("id")
         .executeTakeFirst();
 
-      isPaid = !!sharedPremium;
+      if (sharedPremium) {
+        isPaid = "shared";
+      }
     }
 
     return { isPaid };
@@ -403,11 +405,13 @@ export const user = createTRPCRouter({
         .select(["firstUserId", "secondUserId"])
         .execute();
 
-      const filteredIds = connections.map((connection) =>
-        connection.firstUserId === ctx.user
-          ? connection.secondUserId
-          : connection.firstUserId,
-      ).filter(Boolean);
+      const filteredIds = connections
+        .map((connection) =>
+          connection.firstUserId === ctx.user
+            ? connection.secondUserId
+            : connection.firstUserId,
+        )
+        .filter(Boolean);
 
       filteredIds.push(ctx.user);
 

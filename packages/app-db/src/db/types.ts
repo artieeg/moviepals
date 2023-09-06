@@ -39,6 +39,7 @@ export type User = {
   allowPushNotifications: Generated<boolean>;
   joinedMailingList: Generated<boolean>;
   emoji: Generated<string>;
+  inviteApplied: Generated<boolean>;
   userInviteSlugId: string;
   fullAccessPurchaseId: string | null;
   createdAt: Generated<Timestamp>;

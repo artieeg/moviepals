@@ -2,6 +2,8 @@ import DeviceInfo from "react-native-device-info";
 
 let agent: string | null = null;
 
+const domain = "moviepals.io";
+
 export async function sendPageView(screen: string) {
   if (!agent) {
     agent = await DeviceInfo.getUserAgent();
@@ -16,13 +18,13 @@ export async function sendPageView(screen: string) {
     },
     body: JSON.stringify({
       name: "pageview",
-      domain: "moviepals.io",
-      url: screen ? "https://moviepals.io/" + screen : "https://moviepals.io",
+      domain: domain,
+      url: `https://${domain}`,
     }),
   });
 }
 
-export async function sendEvent(name: string, screen?: string) {
+export async function sendEvent(name: string) {
   if (!agent) {
     agent = await DeviceInfo.getUserAgent();
   }
@@ -36,8 +38,8 @@ export async function sendEvent(name: string, screen?: string) {
     },
     body: JSON.stringify({
       name,
-      domain: "moviepals.io",
-      url: screen ? "https://moviepals.io/" + screen : "https://moviepals.io",
+      domain,
+      url: `https://${domain}`,
     }),
   });
 }

@@ -1,10 +1,11 @@
 import { PropsWithChildren } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, SafeAreaViewProps } from "react-native-safe-area-context";
 import { Cancel, NavArrowLeft } from "iconoir-react-native";
 
 import { useNavigation } from "~/hooks";
+import {ViewProps} from "react-native";
 
 export function MainLayout({
   children,
@@ -14,15 +15,16 @@ export function MainLayout({
   right,
   canGoBack,
   edges,
-}: PropsWithChildren & {
+  ...rest
+}: {
   title: string;
   /** Override default "go back" behavior */
   onGoBack?: () => void;
   right?: React.ReactNode;
   canGoBack?: boolean;
   goBackCloseIcon?: boolean;
-  edges?: ("top" | "left" | "right" | "bottom")[];
-}) {
+  edges?: SafeAreaViewProps["edges"]
+} & ViewProps) {
   const navigation = useNavigation();
 
   function _onGoBack() {
@@ -37,6 +39,7 @@ export function MainLayout({
     <SafeAreaView
       edges={edges ?? ["top", "left", "right", "bottom"]}
       className="flex-1 bg-white dark:bg-neutral-1"
+      {...rest}
     >
       <View className="flex-1">
         {/* HEADER */}
