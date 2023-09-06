@@ -409,6 +409,8 @@ export const user = createTRPCRouter({
           : connection.firstUserId,
       ).filter(Boolean);
 
+      filteredIds.push(ctx.user);
+
       const users = await ctx.appDb
         .selectFrom("User")
         .leftJoin(
@@ -419,7 +421,6 @@ export const user = createTRPCRouter({
         .where((e) =>
           e.and([
             e("username", "ilike", `${query}%`),
-            e("User.id", "!=", ctx.user),
             e("User.id", "not in", filteredIds),
           ]),
         )
