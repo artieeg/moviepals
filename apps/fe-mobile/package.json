@@ -2,9 +2,6 @@
   "name": "moviepals",
   "version": "0.0.1",
   "private": true,
-  "reactNativePermissionsIOS": [
-    "AppTrackingTransparency"
-  ],
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
@@ -46,7 +43,7 @@
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-linear-gradient": "^2.8.2",
     "react-native-localize": "^3.0.2",
-    "react-native-permissions": "^3.8.4",
+    "react-native-permissions": "^3.9.0",
     "react-native-purchases": "^6.6.0",
     "react-native-push-notification": "^8.1.1",
     "react-native-reanimated": "^3.3.0",

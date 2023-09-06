@@ -407,7 +407,7 @@ export const user = createTRPCRouter({
         connection.firstUserId === ctx.user
           ? connection.secondUserId
           : connection.firstUserId,
-      );
+      ).filter(Boolean);
 
       const users = await ctx.appDb
         .selectFrom("User")
