@@ -20,7 +20,7 @@ export const invite = createTRPCRouter({
 
       const inviteLink = await ctx.appDb
         .selectFrom("UserInviteLink")
-        .innerJoin("User as U", "UserInviteLink.slug", "U.id")
+        .innerJoin("User as U", "UserInviteLink.slug", "U.userInviteSlugId")
         .where((eb) =>
           eb.and([eb("slug", "=", slug), eb("U.id", "is not", null)]),
         )

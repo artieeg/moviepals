@@ -242,12 +242,19 @@ export function MeScreen() {
                 }
               />
 
-              {paidStatus.isSuccess && paidStatus.data.isPaid && (
+              {paidStatus.isSuccess && paidStatus.data.isPaid === "paid" && (
                 <Section
                   title="Share Premium"
                   onPress={onSharePremium}
                   showArrowRight
                   subtitle="You have premium, wanna share it with other people?"
+                />
+              )}
+
+              {paidStatus.isSuccess && paidStatus.data.isPaid === "shared" && (
+                <Section
+                  title="Premium (shared)"
+                  subtitle="Someone shared their premium with you!"
                 />
               )}
 
@@ -299,7 +306,6 @@ export function MeScreen() {
                 }
                 subtitle="Start swiping from scratch"
               />
-
 
               <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
                 Need help? Email us at{" "}

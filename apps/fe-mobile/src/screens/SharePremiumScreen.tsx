@@ -5,6 +5,7 @@ import Toast from "react-native-toast-message";
 
 import { api } from "~/utils/api";
 import { Button, ListItem } from "~/components";
+import { useNavigation } from "~/hooks";
 import { MainLayout } from "./layouts/MainLayout";
 
 export const SCREEN_SHARE_PREMIUM = "SharePremiumScreen";
@@ -12,6 +13,7 @@ export const SCREEN_SHARE_PREMIUM = "SharePremiumScreen";
 export function SharePremiumScreen() {
   const user = api.user.getMyData.useQuery();
   const connections = api.connection.listConnections.useQuery();
+  const navigation = useNavigation();
   const sharedList = api.premium.getSharedList.useQuery();
   const sharePremium = api.premium.share.useMutation({
     onSuccess() {
@@ -19,7 +21,10 @@ export function SharePremiumScreen() {
         type: "success",
         text1: "You have shared your premium!",
       });
+
       sharedList.refetch();
+
+      navigation.goBack();
     },
   });
 
@@ -47,16 +52,17 @@ export function SharePremiumScreen() {
   const canShare = idsToShare.length + (sharedList.data?.length ?? 0) < 4;
 
   function onToggleShare(id: string, enabled: boolean) {
+    console.log(id, enabled, canShare);
     if (!canShare || sharedList.data?.some((u) => u.id === id)) {
       return;
     }
 
     if (enabled) {
-      setIdsToShare([...idsToShare, id]);
+      setIdsToShare((prev) => [...prev, id]);
     }
 
     if (!enabled) {
-      setIdsToShare(idsToShare.filter((item) => item !== id));
+      setIdsToShare((prev) => prev.filter((item) => item !== id));
     }
   }
 
@@ -67,7 +73,15 @@ export function SharePremiumScreen() {
   }
 
   return (
-    <MainLayout canGoBack title="friends">
+    <MainLayout
+      edges={{
+        top: "maximum",
+        bottom: "maximum",
+      }}
+      className="pb-8"
+      canGoBack
+      title="friends"
+    >
       <View className="flex-1">
         <FlatList
           data={list}
@@ -88,7 +102,7 @@ export function SharePremiumScreen() {
               <UserOption
                 hideCheckbox={!canShare}
                 shared={
-                  sharedList.data?.some((u) => u.id === item.id) ??
+                  sharedList.data?.some((u) => u.id === item.id) ||
                   idsToShare.includes(item.id)
                 }
                 userId={item.id}
@@ -103,7 +117,7 @@ export function SharePremiumScreen() {
       </View>
 
       <Button
-        disabled
+        disabled={!canShare || idsToShare.length === 0}
         onPress={onDone}
         className="absolute bottom-0 left-8 right-8"
       >

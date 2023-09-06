@@ -4,6 +4,7 @@ import Animated, { FadeIn } from "react-native-reanimated";
 
 import { useNavigation } from "~/hooks";
 import { SCREEN_CHECK_INVITE } from "./CheckInviteScreen";
+import {SCREEN_ONBOARDING_SEND_INVITE} from "./OnboardingSendInviteScreen";
 
 export const SCREEN_NICE_TO_MEET_YOU = "NiceToMeetYouScreen";
 
@@ -12,7 +13,7 @@ export function NiceToMeetYouScreen() {
 
   useEffect(() => {
     const t = setTimeout(async () => {
-      navigation.navigate(SCREEN_CHECK_INVITE);
+      navigation.navigate(SCREEN_ONBOARDING_SEND_INVITE);
     }, 1400);
 
     return () => clearTimeout(t);

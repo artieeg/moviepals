@@ -16,6 +16,8 @@ import {
 import { api } from "~/utils/api";
 import { Button, IconButton, InviteOptions, ListItem } from "~/components";
 import { useNavigation } from "~/hooks";
+import { SCREEN_CHECK_INVITE } from "./CheckInviteScreen";
+import { SCREEN_INVITE } from "./InviteScreen";
 import { SCREEN_JOIN_MAILING_LIST } from "./JoinMailingListScreen";
 
 export const SCREEN_ONBOARDING_SEND_INVITE = "OnboardingSendInviteScreen";
@@ -35,6 +37,10 @@ export function OnboardingSendInviteScreen() {
 
   function onSkip() {
     navigation.navigate(SCREEN_JOIN_MAILING_LIST);
+  }
+
+  function onApplyInvite() {
+    navigation.navigate(SCREEN_CHECK_INVITE);
   }
 
   return (
@@ -63,7 +69,8 @@ export function OnboardingSendInviteScreen() {
               entering={FadeIn.duration(400).delay(200)}
               className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base"
             >
-              Would you like to invite people to find movies you all would like to watch?
+              Would you like to invite people to find movies you all would like
+              to watch?
             </Animated.Text>
             <Animated.Text
               entering={FadeIn.duration(400).delay(400)}
@@ -80,17 +87,20 @@ export function OnboardingSendInviteScreen() {
 
           <Animated.View
             entering={FadeIn.duration(400).delay(600)}
-            className="flex-1 pt-4 mt-8 space-y-5">
+            className="flex-1 pt-4 mt-8 space-y-5"
+          >
             <InviteOptions
               onLinkCopied={onLinkCopied}
+              showActivateInvite
+              onApplyInvite={onApplyInvite}
               linkCopied={linkCopied}
             />
           </Animated.View>
 
           <View className="h-16 justify-end items-end">
             <Animated.View
-              entering={FadeIn.duration(400).delay(1200)}
-              exiting={FadeOut.duration(400).delay(800)}
+              entering={FadeIn.duration(400).delay(linkCopied ? 100 : 1200)}
+              exiting={FadeOut.duration(400).delay(100)}
               key={linkCopied.toString()}
               className="flex-row items-center"
             >

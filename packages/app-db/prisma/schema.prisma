@@ -25,6 +25,8 @@ model User {
   joinedMailingList      Boolean @default(false)
   emoji                  String  @default("🐵")
 
+  inviteApplied Boolean @default(false)
+
   userInviteLinkId String         @unique() @map("userInviteSlugId")
   userInviteLink   UserInviteLink @relation(fields: [userInviteLinkId], references: [slug])
 
