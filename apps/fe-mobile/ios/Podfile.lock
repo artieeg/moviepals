@@ -584,7 +584,7 @@ PODS:
     - React-Core
   - RNLocalize (3.0.2):
     - React-Core
-  - RNPermissions (3.8.4):
+  - RNPermissions (3.9.0):
     - React-Core
   - RNPurchases (6.6.0):
     - PurchasesHybridCommon (= 5.6.0)
@@ -943,7 +943,7 @@ SPEC CHECKSUMS:
   RNGoogleMobileAds: 5cac1d2d41f8c4656833f8109e50602069f0228f
   RNGoogleSignin: ccaa4a81582cf713eea562c5dd9dc1961a715fd0
   RNLocalize: dbea38dcb344bf80ff18a1757b1becf11f70cae4
-  RNPermissions: e9b97579430ca3d83d53b3cf9b48814f8763f6cd
+  RNPermissions: afe05fb4ce403389cf1f1089fd472e4c7e021139
   RNPurchases: c71b659ee3e91254e18c2186e09d2c8be420d338
   RNReanimated: ee53561398b68a8b3d883c2453f85d33a4da3a56
   RNScreens: 6a8a3c6b808aa48dca1780df7b73ea524f602c63
@@ -954,6 +954,6 @@ SPEC CHECKSUMS:
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   Yoga: 8796b55dba14d7004f980b54bcc9833ee45b28ce
 
-PODFILE CHECKSUM: 5b5afe02b41fa2f41d5c2427bc926240a1bd582f
+PODFILE CHECKSUM: ec5e000dc8802bf0939555100d225c625a1909cf
 
 COCOAPODS: 1.12.1
