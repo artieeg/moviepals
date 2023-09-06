@@ -1,8 +1,7 @@
 import React, { useEffect } from "react";
-import { Alert, Linking, Platform, StatusBar } from "react-native";
+import { Platform, StatusBar } from "react-native";
 import {
   SafeAreaProvider,
-  SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import Toast, { BaseToast } from "react-native-toast-message";
@@ -10,11 +9,13 @@ import { LinkingOptions, NavigationContainer } from "@react-navigation/native";
 import { IconoirProvider } from "iconoir-react-native";
 import { useColorScheme } from "nativewind";
 
-import { SCREEN_FRIENDS_LIST } from "./navigators/FriendsNavigator";
-import { NAVIGATOR_FRIENDS, NAVIGATOR_MATCHES, NAVIGATOR_SWIPE } from "./navigators/MainNavigator";
+import {
+  NAVIGATOR_FRIENDS,
+  NAVIGATOR_MATCHES,
+  NAVIGATOR_SWIPE,
+} from "./navigators/MainNavigator";
 import RootNavigator, { NAVIGATOR_MAIN } from "./navigators/RootNavigator";
-import { SCREEN_PREPARE_SWIPE } from "./navigators/SwipeNavigator";
-import { SCREEN_INVITE, SCREEN_MATCH_LIST_V2 } from "./screens";
+import { SCREEN_INVITE } from "./screens";
 import { loadAuthToken, TRPCProvider } from "./utils/api";
 
 function AppContent() {

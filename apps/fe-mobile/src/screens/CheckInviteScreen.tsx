@@ -61,8 +61,7 @@ export function CheckInviteScreen() {
             Do you have an invite?
           </Text>
           <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
-            If you don't have an invite, you can skip this step. If another
-            person has invited you via link, we can instantly connect you
+            If another person has invited you via link, we can instantly connect you
             together 🤗
           </Text>
         </Animated.View>

@@ -227,9 +227,9 @@ export function FriendsListScreen() {
                 className="flex-1"
               >
                 <Prompt
-                  icon={<Text className="text-3xl">👋</Text>}
-                  title={`So empty, let's try fix that! 🤗`}
-                  subtitle="Try the search or send invites to your friends"
+                  icon={<Text className="text-3xl">👀</Text>}
+                  title={`So empty, let's try to fix that!`}
+                  subtitle="Try the search or send invites to your friends. If you get at least 3 friends on MoviePals, you all are getting a free premium!"
                   buttons={[
                     {
                       kind: "primary",

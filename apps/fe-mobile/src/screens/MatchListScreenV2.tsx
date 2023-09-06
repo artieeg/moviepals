@@ -1,10 +1,8 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
   Text,
-  TouchableOpacity,
   View,
   ViewProps,
 } from "react-native";
@@ -12,10 +10,11 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useColorScheme } from "nativewind";
 
 import { api } from "~/utils/api";
-import { Button, Input, ListItem } from "~/components";
+import { Button, ListItem } from "~/components";
 import { useNavigation } from "~/hooks";
 import { MainLayout } from "./layouts/MainLayout";
 import { SCREEN_MATCHES_LIST } from "./MatchListScreen";
+import {sendEvent} from "~/utils/plausible";
 
 export const SCREEN_MATCH_LIST_V2 = "SCREEN_MATCH_LIST_v2";
 
@@ -30,6 +29,8 @@ export function MatchListScreenV2() {
   const navigation = useNavigation();
 
   function onFetchMatches() {
+    sendEvent("see_movie_matches")
+
     const names = selectedUsers
       .map((id) => {
         const user = friends.data?.connections.find((item) => item.id === id);
@@ -84,7 +85,7 @@ export function MatchListScreenV2() {
               ItemSeparatorComponent={() => <View className="h-4" />}
               renderItem={({ item }) => {
                 return (
-                  <UserConnection
+                  <UserMatchOption
                     selected={selectedUsers.includes(item.id)}
                     userId={item.id}
                     onToggle={(id, value) => {
@@ -117,7 +118,7 @@ export function MatchListScreenV2() {
   );
 }
 
-function UserConnection({
+function UserMatchOption({
   userId,
   name,
   username,

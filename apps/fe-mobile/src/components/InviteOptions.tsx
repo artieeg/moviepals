@@ -12,6 +12,7 @@ import {
 
 import { api } from "~/utils/api";
 import { ListItem } from "./ListItem";
+import {sendEvent} from "~/utils/plausible";
 
 export function InviteOptions({
   onLinkCopied,
@@ -28,6 +29,7 @@ export function InviteOptions({
     }
 
     console.log(inviteUrl.data.link);
+    sendEvent("send_invite_text");
 
     SendSMS.send(
       {
@@ -57,6 +59,8 @@ export function InviteOptions({
     Clipboard.setString(inviteUrl.data.link);
 
     onLinkCopied?.();
+
+    sendEvent("copy_invite_link");
 
     setTimeout(() => {
       Share.open({
