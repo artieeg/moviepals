@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Text, View } from "react-native";
+import { Alert, Text, View } from "react-native";
 import FastImage from "react-native-fast-image";
 import { Toast } from "react-native-toast-message/lib/src/Toast";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -8,6 +8,7 @@ import { useColorScheme } from "nativewind";
 import Rive from "rive-react-native";
 
 import { api, loadAuthToken } from "~/utils/api";
+import { deepLinkLockState } from "~/utils/deep-link-lock";
 import { useNavigation } from "~/hooks";
 import {
   NAVIGATOR_MAIN,
@@ -83,6 +84,11 @@ export function SplashScreen() {
 
     if (tokenStatus) {
       setTimeout(() => {
+        //For the cases when the app has been opened via push notification deep link,
+        if (deepLinkLockState.locked) {
+          return;
+        }
+
         if (tokenStatus === "available") {
           /*
         navigation.replace(NAVIGATOR_ONBOARDING, {

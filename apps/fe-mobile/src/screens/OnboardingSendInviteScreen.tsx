@@ -1,23 +1,14 @@
 import { useState } from "react";
-import { KeyboardAvoidingView, Text, View } from "react-native";
+import { KeyboardAvoidingView, Text } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Share from "react-native-share";
-import SendSMS from "react-native-sms";
-import Toast from "react-native-toast-message";
-import Clipboard from "@react-native-clipboard/clipboard";
 import {
   ArrowRight,
-  ClipboardCheck,
-  MessageText,
-  PasteClipboard,
 } from "iconoir-react-native";
 
-import { api } from "~/utils/api";
-import { Button, IconButton, InviteOptions, ListItem } from "~/components";
+import { Button, IconButton, InviteOptions } from "~/components";
 import { useNavigation } from "~/hooks";
 import { SCREEN_CHECK_INVITE } from "./CheckInviteScreen";
-import { SCREEN_INVITE } from "./InviteScreen";
 import { SCREEN_JOIN_MAILING_LIST } from "./JoinMailingListScreen";
 
 export const SCREEN_ONBOARDING_SEND_INVITE = "OnboardingSendInviteScreen";
@@ -57,8 +48,8 @@ export function OnboardingSendInviteScreen() {
         }}
         className="flex-1 px-8 pb-8"
       >
-        <View className="flex-1 space-y-6">
-          <View className="space-y-3">
+        <Animated.View className="flex-1 space-y-6">
+          <Animated.View className="space-y-3">
             <Animated.Text
               entering={FadeIn.duration(400)}
               className="font-primary-bold text-neutral-1 dark:text-white pt-8 text-2xl"
@@ -83,7 +74,7 @@ export function OnboardingSendInviteScreen() {
               </Text>
               will get premium access for free!
             </Animated.Text>
-          </View>
+          </Animated.View>
 
           <Animated.View
             entering={FadeIn.duration(400).delay(600)}
@@ -97,7 +88,7 @@ export function OnboardingSendInviteScreen() {
             />
           </Animated.View>
 
-          <View className="h-16 justify-end items-end">
+          <Animated.View className="h-16 justify-end items-end">
             <Animated.View
               entering={FadeIn.duration(400).delay(linkCopied ? 100 : 1200)}
               exiting={FadeOut.duration(400).delay(100)}
@@ -114,8 +105,8 @@ export function OnboardingSendInviteScreen() {
                 </Button>
               )}
             </Animated.View>
-          </View>
-        </View>
+          </Animated.View>
+        </Animated.View>
       </SafeAreaView>
     </KeyboardAvoidingView>
   );

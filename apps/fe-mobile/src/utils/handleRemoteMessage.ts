@@ -6,6 +6,7 @@ import PushNotification, {
 import PushNotificationIOS from "@react-native-community/push-notification-ios";
 import { FirebaseMessagingTypes } from "@react-native-firebase/messaging";
 import { z } from "zod";
+import {deepLinkLockState} from "./deep-link-lock";
 
 const zRemoteMessageDataSchema = z.object({
   title: z.string(),
@@ -58,6 +59,8 @@ export async function handleRemoteMessage(
 PushNotification.configure({
   onNotification: function (notification) {
     if (notification.data.link) {
+      deepLinkLockState.locked = true;
+
       setTimeout(() => {
         Linking.openURL(notification.data.link);
       }, 1000);
