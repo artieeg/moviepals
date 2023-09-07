@@ -22,7 +22,7 @@ export function CheckInviteScreen() {
     if (Platform.OS === "android") {
       const data = await Clipboard.getString();
 
-      return data.includes("https://moviepals.io");
+      return data.includes("moviepals.io");
     } else {
       return Clipboard.hasURL();
     }
@@ -53,15 +53,17 @@ export function CheckInviteScreen() {
       }, 400);
     },
     onError(e) {
-      setSomethingWentWrong(true);
-
       if (e.data?.code === "NOT_FOUND") {
         Toast.show({
           type: "error",
           text1: "This invite doesn't seem to exist",
           text2: "Please try to enter the code manually.",
         });
+
+        setShowManualInput(true);
       } else {
+        setSomethingWentWrong(true);
+
         Toast.show({
           type: "error",
           text1: "Failed to apply invite",
@@ -92,13 +94,13 @@ export function CheckInviteScreen() {
   async function onCheckInvite() {
     const text = await Clipboard.getString();
 
-    if (!text.includes("https://moviepals.io")) {
+    if (!text.includes("moviepals.io")) {
       setShowManualInput(true);
 
       return;
     }
 
-    const inviteUrl = text.split(" ").find((s) => s.includes("https://"));
+    const inviteUrl = text.split(" ").find((s) => s.includes("moviepals.io"));
 
     if (!inviteUrl) {
       return Toast.show({
@@ -117,6 +119,12 @@ export function CheckInviteScreen() {
 
   function onContactSupport() {
     Linking.openURL("mailto:hey@moviepals.io");
+  }
+
+  async function onPasteCode() {
+    const text = await Clipboard.getString();
+
+    setInviteCode(text.slice(-8));
   }
 
   return (
@@ -159,18 +167,26 @@ export function CheckInviteScreen() {
                   MoviePals may ask the permission to access your clipboard.
                 </Animated.Text>
               )}
-              {showManualInput && (hasUrl.isSuccess && !hasUrl.data) && (
-                <Animated.View entering={FadeIn.duration(400).delay(400)}>
-                  <Input
-                    placeholder="Enter your invite code"
-                    autoFocus
-                    icon={<Mail />}
-                    value={inviteCode}
-                    onChangeText={setInviteCode}
-                    onSubmitEditing={onSubmitInviteCode}
-                    maxLength={8}
-                    returnKeyType="done"
-                  />
+              {(showManualInput || (hasUrl.isSuccess && !hasUrl.data)) && (
+                <Animated.View className="space-y-3">
+                  <Animated.View entering={FadeIn.duration(400).delay(400)}>
+                    <Input
+                      placeholder="Enter your invite code"
+                      autoFocus
+                      icon={<Mail />}
+                      value={inviteCode}
+                      onChangeText={setInviteCode}
+                      onSubmitEditing={onSubmitInviteCode}
+                      maxLength={8}
+                      returnKeyType="done"
+                    />
+                  </Animated.View>
+
+                  <Animated.View entering={FadeIn.duration(400).delay(400)}>
+                    <Button kind="text" onPress={onPasteCode}>
+                      Paste from Clipboard
+                    </Button>
+                  </Animated.View>
                 </Animated.View>
               )}
             </Animated.View>
