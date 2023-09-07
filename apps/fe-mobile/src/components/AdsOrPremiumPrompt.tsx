@@ -23,6 +23,7 @@ import {
 } from "~/hooks";
 import { SCREEN_THANK_YOU } from "~/screens";
 import { Prompt } from "./Prompt";
+import {sendEvent} from "~/utils/plausible";
 
 export function AdsOrPremiumPrompt({
   onProceed,
@@ -63,6 +64,7 @@ export function AdsOrPremiumPrompt({
   }
 
   async function onUpdateGDPRConsent() {
+    sendEvent("allow_ads")
     const consentInfo = await AdsConsent.requestInfoUpdate();
 
     if (
@@ -85,6 +87,9 @@ export function AdsOrPremiumPrompt({
 
     canServeAds.refetch();
     ad.refetch();
+    setTimeout(() => {
+      onWatchRewardedAd();
+    }, 400);
   }
 
   const [isRestoringPurchases, setIsRestoringPurchases] = useState(false);
@@ -148,6 +153,8 @@ export function AdsOrPremiumPrompt({
   const [loading, setLoading] = useState(false);
 
   async function onWatchRewardedAd() {
+    sendEvent("watch_ad")
+
     setLoading(true);
 
     const ad = Platform.select({
@@ -196,6 +203,10 @@ export function AdsOrPremiumPrompt({
     });
   }
 
+  const config = api.movie_feed.getMovieFeedConfig.useQuery();
+
+  if (!config.isSuccess) return null;
+
   return (
     <Prompt
       icon={<BrightStar />}
@@ -205,9 +216,7 @@ export function AdsOrPremiumPrompt({
       }
       subtitle={
         mode === "ad"
-          ? canServeAds.data === true
-            ? "Swipe-oops, you've hit the daily limit! 🙅 Wait until tomorrow, or watch a short ad and get +40 swipes. You can also buy premium for unlimited access (... and share it with up to 4 people 🙌)"
-            : "Swipe-oops, you've hit the daily limit! 🙅 Wait until tomorrow, or buy premium for an unlimited access (you can share it with up to 4 people 🙌).\n\nYou can also watch a short ad to get +40 swipes, but you need to configure your GDPR consent"
+          ? config.data.text
           : "MoviePals depends on occassional ads. They are like the popcorn to our movie marathon  – helps us keep the reels spinning.\n\nWe need your permission for a better ad experience. You can always do that later from the settings!\n\nYou can also get premium for an unlimited ad-free experience and share it with up to 4 people 🙌"
       }
       buttons={[
@@ -234,7 +243,7 @@ export function AdsOrPremiumPrompt({
               }
             : {
                 kind: "outline",
-                title: `Update GDPR Consent`,
+                title: `Allow ads`,
                 onPress: onUpdateGDPRConsent,
               }
           : {

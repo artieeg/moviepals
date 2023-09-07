@@ -3,7 +3,7 @@ import { encode } from "querystring";
 import axios from "axios";
 import { z } from "zod";
 
-import { UserFeedDeliveryCache } from "./user-feed-delivery-cache";
+import { WatchedAdCountCache } from "./watched-ads-count-cache";
 
 export const admobSchema = z
   .object({
@@ -16,16 +16,16 @@ export const admobSchema = z
 
 export async function verifyRewardedAdCallback({
   data,
-  userFeedDeliveryCache,
+  watchedAdCountCache,
 }: {
   data: unknown;
-  userFeedDeliveryCache: UserFeedDeliveryCache;
+  watchedAdCountCache: WatchedAdCountCache;
 }) {
   const payload = admobSchema.parse(data);
 
   await verifySignature(payload);
 
-  await userFeedDeliveryCache.incAdWatched(payload.user_id);
+  await watchedAdCountCache.incWatchedAdsCount(payload.user_id);
 }
 
 async function verifySignature(payload: z.infer<typeof admobSchema>) {

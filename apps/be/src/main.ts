@@ -13,8 +13,9 @@ import {
   handleFullAccessPurchase,
   LatestFeedResponseCache,
   RemoteApiResponseCache,
-  UserFeedDeliveryCache,
+  SwipeCountCache,
   verifyRewardedAdCallback,
+  WatchedAdCountCache,
 } from "@moviepals/api";
 import { logger } from "@moviepals/api/src/logger";
 import { appDb, connectAppDb } from "@moviepals/db";
@@ -32,13 +33,20 @@ const revenueCatSchema = z
   .passthrough();
 
 export async function main() {
-  const redis = new Redis(env.USER_DELIVERY_CACHE_REDIS_URL, {
-    lazyConnect: true,
-    family: 6,
-    reconnectOnError: () => true,
-    retryStrategy: () => 100,
-    keepAlive: 1,
-  });
+  const redis = new Redis(
+    env.USER_DELIVERY_CACHE_REDIS_URL,
+    process.env.NODE_ENV === "development"
+      ? {
+        lazyConnect: true,
+      }
+      : {
+          lazyConnect: true,
+          family: 6,
+          reconnectOnError: () => true,
+          retryStrategy: () => 100,
+          keepAlive: 1,
+        },
+  );
 
   redis.on("error", (err) => {
     logger.error("Redis cache error", err);
@@ -68,10 +76,9 @@ export async function main() {
   }, 400);
 
   const remoteApiResponseCache = new RemoteApiResponseCache(redis);
-
   const latestFeedResponseCache = new LatestFeedResponseCache(redis);
-
-  const userFeedDeliveryCache = new UserFeedDeliveryCache(redis);
+  const watchedAdCountCache = new WatchedAdCountCache(redis);
+  const swipeCountCache = new SwipeCountCache(redis);
 
   server.get("/health", async () => {
     if (redis.status !== "ready") {
@@ -106,8 +113,9 @@ export async function main() {
           authorization,
           ip: ip as string,
           appDb,
+          swipeCountCache,
           dbMovieSwipe,
-          userFeedDeliveryCache,
+          watchedAdCountCache,
           latestFeedResponseCache,
           remoteApiResponseCache,
         });
@@ -144,7 +152,7 @@ export async function main() {
     try {
       await verifyRewardedAdCallback({
         data: msg.query,
-        userFeedDeliveryCache,
+        watchedAdCountCache,
       });
 
       reply.status(200).send();

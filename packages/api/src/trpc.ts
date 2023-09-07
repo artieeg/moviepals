@@ -17,7 +17,8 @@ import { logger } from "./logger";
 import {
   LatestFeedResponseCache,
   RemoteApiResponseCache,
-  UserFeedDeliveryCache,
+  SwipeCountCache,
+  WatchedAdCountCache,
 } from "./services";
 import { env } from "./utils/env";
 import { verifyToken } from "./utils/jwt";
@@ -36,9 +37,10 @@ interface CreateContextOptions {
   ip: string;
   appDb: AppDb;
   dbMovieSwipe: DbMovieSwipe;
-  userFeedDeliveryCache: UserFeedDeliveryCache;
+  watchedAdCountCache: WatchedAdCountCache;
   latestFeedResponseCache: LatestFeedResponseCache;
   remoteApiResponseCache: RemoteApiResponseCache;
+  swipeCountCache: SwipeCountCache;
 }
 
 export interface Context extends CreateContextOptions {}
@@ -68,18 +70,20 @@ export const createTRPCContext = async ({
   ip,
   appDb,
   dbMovieSwipe,
-  userFeedDeliveryCache,
+  watchedAdCountCache,
   latestFeedResponseCache,
   remoteApiResponseCache,
+  swipeCountCache,
 }: {
   authorization?: string;
 
   ip: string;
   appDb: AppDb;
   dbMovieSwipe: DbMovieSwipe;
-  userFeedDeliveryCache: UserFeedDeliveryCache;
+  watchedAdCountCache: WatchedAdCountCache;
   latestFeedResponseCache: LatestFeedResponseCache;
   remoteApiResponseCache: RemoteApiResponseCache;
+  swipeCountCache: SwipeCountCache;
 }) => {
   const token = authorization?.split(" ")[1];
 
@@ -87,7 +91,8 @@ export const createTRPCContext = async ({
 
   return createInnerTRPCContext({
     user: claims?.user ?? null,
-    userFeedDeliveryCache,
+    watchedAdCountCache,
+    swipeCountCache,
     appDb,
     dbMovieSwipe,
     remoteApiResponseCache,
@@ -106,10 +111,13 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
   transformer: superjson,
   errorFormatter({ shape, error }) {
     if (error.code === "INTERNAL_SERVER_ERROR") {
-      logger.error({
-        error,
-        shape,
-      }, "Internal Server Error");
+      logger.error(
+        {
+          error,
+          shape,
+        },
+        "Internal Server Error",
+      );
     }
 
     return {

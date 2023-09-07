@@ -59,8 +59,8 @@ export const swipe = createTRPCRouter({
         .toArray();
 
       logger.info({
-        count: movies.length
-      })
+        count: movies.length,
+      });
 
       return { movies, nextCursor: cursor + 1 };
     }),
@@ -104,7 +104,7 @@ export const swipe = createTRPCRouter({
           movie_language,
         },
       }) => {
-        await ctx.userFeedDeliveryCache.incSwipes(ctx.user);
+        await ctx.swipeCountCache.incSwipeCount(ctx.user);
 
         await ctx.dbMovieSwipe.swipes.updateOne(
           {

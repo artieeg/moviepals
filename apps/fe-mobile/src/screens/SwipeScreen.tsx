@@ -112,9 +112,9 @@ export function SwipeScreen() {
       !adConsentPromptStatus.data?.shown &&
       !premiumStatus.data?.isPaid
     ) {
-      setShowAdPermissionPrompt(true);
+      //setShowAdPermissionPrompt(true);
 
-      AsyncStorage.setItem("ad-consent", "true");
+      //AsyncStorage.setItem("ad-consent", "true");
     }
   }, [
     currentMovieIdx,

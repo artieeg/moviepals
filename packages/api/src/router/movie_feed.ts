@@ -14,13 +14,15 @@ import { SwipeFilterParams } from "@moviepals/dbmovieswipe/src/swipes";
 
 import { logger } from "../logger";
 import { getMovies, GetMoviesParams } from "../services";
-import { Context, createTRPCRouter, protectedProcedure } from "../trpc";
+import { Context, createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
 /** Number of movies that we return to the client */
 const MOVIES_PER_PAGE = 30;
 
 /** Max number of movies that we mix in from friend swipes */
 const MIX_IN_MOVIES_COUNT = 15;
+
+const AD_FREE_MOVIES_PAGE = 10;
 
 const getMovieFeedInput = z.object({
   start_year: z.number().min(1960).max(2019).optional(),
@@ -37,6 +39,12 @@ const getMovieFeedInput = z.object({
 type GetMovieFeedInput = z.infer<typeof getMovieFeedInput>;
 
 export const movie_feed = createTRPCRouter({
+  getMovieFeedConfig: publicProcedure.query(() => {
+    return {
+      text: "MoviePals depends on occassional ads. They are like the popcorn to our movie marathon  – helps us keep the reels spinning.\n\nPlease watch a short ad and get infinite swipes for the day! You can also buy premium for unlimited access (... and share it with up to 4 people 🙌)",
+    }
+  }),
+
   getMovieFeed: protectedProcedure
     .input(getMovieFeedInput)
     .query(async ({ ctx, input }) => {
@@ -67,12 +75,14 @@ export const movie_feed = createTRPCRouter({
 
       const [
         { user, connections },
-        userFeedDeliveryState,
+        watchedAdsCount,
+        swipeCount,
         userReviewState,
         previouslySwipedMovieIds,
       ] = await Promise.all([
         userAndConnectionsPromise,
-        ctx.userFeedDeliveryCache.getDeliveryState(ctx.user),
+        ctx.watchedAdCountCache.getWatchedAdsCount(ctx.user),
+        ctx.swipeCountCache.getSwipeCount(ctx.user),
         getOrCreateReviewState(ctx.user, input, ctx),
         getPreviouslySwipedMovieIds(ctx.user),
       ]);
@@ -85,7 +95,8 @@ export const movie_feed = createTRPCRouter({
         {
           user,
           friendUserIds,
-          userFeedDeliveryState,
+          watchedAdsCount,
+          swipeCount,
           userReviewState,
           previouslySwipedMovieIds,
         },
@@ -97,12 +108,7 @@ export const movie_feed = createTRPCRouter({
         ctx,
       );
 
-      if (
-        !user.fullAccessPurchaseId &&
-        userFeedDeliveryState &&
-        Math.floor(userFeedDeliveryState.swipes / MOVIES_PER_PAGE) >
-          userFeedDeliveryState.ads_watched
-      ) {
+      if (!user.fullAccessPurchaseId && watchedAdsCount) {
         logger.info({ user }, "User has to watch an ad");
 
         return {
@@ -112,20 +118,18 @@ export const movie_feed = createTRPCRouter({
         };
       }
 
-      logger.info(
-        { user, input, userFeedDeliveryState },
-        "Fetching movie feed for user",
-      );
-
-      const totalMovieFeedCount = userFeedDeliveryState
-        ? MOVIES_PER_PAGE - (userFeedDeliveryState.swipes % MOVIES_PER_PAGE)
-        : MOVIES_PER_PAGE;
-
       logger.info({
-        user,
-        userFeedDeliveryState,
-        totalMovieFeedCount,
-      });
+        swipeCount,
+        watchedAdsCount,
+        AD_FREE_MOVIES_PAGE,
+      })
+
+      const responseTotalMovieCount =
+        !user.fullAccessPurchaseId && watchedAdsCount === 0
+          ? swipeCount >= AD_FREE_MOVIES_PAGE
+            ? 0
+            : AD_FREE_MOVIES_PAGE
+          : MOVIES_PER_PAGE;
 
       const {
         movies: feed,
@@ -139,8 +143,7 @@ export const movie_feed = createTRPCRouter({
         fetchRandomSwipes,
         fetchMoviesDataFromLocalDb,
         fetchMoviesFromRemoteApi,
-        responseTotalMovieCount: totalMovieFeedCount,
-        //responseTotalMovieCount: MOVIES_PER_PAGE,
+        responseTotalMovieCount,
         previouslySwipedMovieIds,
         recentlyServedMovies,
         responseMovieFromFriendCount: MIX_IN_MOVIES_COUNT,
@@ -159,13 +162,12 @@ export const movie_feed = createTRPCRouter({
 
       if (
         feed.length < MOVIES_PER_PAGE &&
-        feed.length !== totalMovieFeedCount
+        feed.length !== responseTotalMovieCount
       ) {
         logger.warn(
           {
-            userFeedDeliveryState,
             MOVIES_PER_PAGE,
-            totalMovieFeedCount,
+            totalMovieFeedCount: responseTotalMovieCount,
             feed,
           },
           "Served less movies than expected",
@@ -178,24 +180,18 @@ export const movie_feed = createTRPCRouter({
         } else {
           response.noMoreMovies = true;
         }
-      } else if (
-        !user.fullAccessPurchaseId &&
-        userFeedDeliveryState &&
-        Math.floor(userFeedDeliveryState.swipes / MOVIES_PER_PAGE) >
-          userFeedDeliveryState.ads_watched
-      ) {
+      } else if (!user.fullAccessPurchaseId && watchedAdsCount === 0) {
         logger.info(
           {
             user,
-            userFeedDeliveryState,
             MOVIES_PER_PAGE,
-            totalMovieFeedCount,
+            watchedAdsCount,
+            totalMovieFeedCount: responseTotalMovieCount,
           },
           "User has to watch an ad",
         );
         response.hasToWatchAd = true;
       }
-      //}
 
       //Count the response if it's fully successful
       if (!response.noMoreMovies && !response.unableToFindMovies) {
@@ -244,7 +240,7 @@ async function fetchMoviesFromRemoteApi(
       {
         params,
         qs,
-        cached,
+        cached: cached.length,
       },
       "Returning cached api response",
     );
