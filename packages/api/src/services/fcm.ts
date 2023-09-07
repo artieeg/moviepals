@@ -24,6 +24,10 @@ export async function sendNotification({
   link?: string;
 }) {
   await app.messaging().send({
+    notification: {
+      title,
+      body,
+    },
     data: {
       title,
       body,
@@ -35,13 +39,14 @@ export async function sendNotification({
     apns: {
       payload: {
         aps: {
-          contentAvailable: true,
+          //contentAvailable: true,
+          contentAvailable: 1,
         },
       },
       headers: {
         "apns-push-type": "background",
         "apns-priority": "5",
-        "apns-topic": "io.moviepals",
+        //"apns-topic": "io.moviepals",
       },
     },
     token,

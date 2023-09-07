@@ -13,7 +13,7 @@ import {
   NAVIGATOR_ONBOARDING,
 } from "~/navigators/RootNavigator";
 import { SCREEN_CHECK_INVITE } from "./CheckInviteScreen";
-import {SCREEN_ONBOARDING_SEND_INVITE} from "./OnboardingSendInviteScreen";
+import { SCREEN_ONBOARDING_SEND_INVITE } from "./OnboardingSendInviteScreen";
 
 function useTheme() {
   const { colorScheme, setColorScheme } = useColorScheme();
@@ -82,16 +82,18 @@ export function SplashScreen() {
     }
 
     if (animationFinished && tokenStatus) {
-      if (tokenStatus === "available") {
-        /*
+      setTimeout(() => {
+        if (tokenStatus === "available") {
+          /*
         navigation.replace(NAVIGATOR_ONBOARDING, {
           screen: SCREEN_ONBOARDING_SEND_INVITE,
         });
          * */
-        navigation.replace(NAVIGATOR_MAIN);
-      } else {
-        navigation.replace(NAVIGATOR_ONBOARDING);
-      }
+          navigation.replace(NAVIGATOR_MAIN);
+        } else {
+          navigation.replace(NAVIGATOR_ONBOARDING);
+        }
+      }, 3000);
     }
   }, [animationFinished, tokenStatus, userData.isError, userData.isLoading]);
 

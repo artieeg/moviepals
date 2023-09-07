@@ -159,7 +159,7 @@ export function CheckInviteScreen() {
                   MoviePals may ask the permission to access your clipboard.
                 </Animated.Text>
               )}
-              {hasUrl.isSuccess && !hasUrl.data && (
+              {showManualInput && (hasUrl.isSuccess && !hasUrl.data) && (
                 <Animated.View entering={FadeIn.duration(400).delay(400)}>
                   <Input
                     placeholder="Enter your invite code"
