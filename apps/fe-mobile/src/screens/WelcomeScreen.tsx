@@ -1,9 +1,11 @@
 import React from "react";
 import { Alert, Linking, Pressable, Text, View } from "react-native";
+import FastImage from "react-native-fast-image";
 import { SafeAreaView } from "react-native-safe-area-context";
 import appleAuth from "@invertase/react-native-apple-authentication";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import { FlashList } from "@shopify/flash-list";
 import { AppleMac, GoogleCircle } from "iconoir-react-native";
 import Rive from "rive-react-native";
 
@@ -114,14 +116,22 @@ export function WelcomeScreen() {
             </Text>
             <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
               We got thousands of movies for you and your friends to choose
-              from, just create an account and let’s roll 🚀
+              from, create an account and let’s roll! 🚀
             </Text>
           </View>
 
+          {/*
           <Rive
             style={{ width: 300, height: 300 }}
             resourceName="welcome_screen_graphics"
           />
+          */}
+          <View className="max-h-[300px] overflow-hidden rounded-4xl">
+            <FastImage
+              source={require("../../assets/pngs/watching-movie-art.png")}
+              className="w-full aspect-square"
+            />
+          </View>
 
           <View className="space-y-6">
             <View className="space-y-3 flex-row justify-between items-center">

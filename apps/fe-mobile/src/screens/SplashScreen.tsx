@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Text, View } from "react-native";
+import FastImage from "react-native-fast-image";
 import { Toast } from "react-native-toast-message/lib/src/Toast";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useQuery } from "@tanstack/react-query";
@@ -34,7 +35,6 @@ export function SplashScreen() {
   const [tokenStatus, setTokenStatus] = useState<
     "available" | "not-available"
   >();
-  const [animationFinished, setAnimationFinished] = useState(false);
 
   //Prefetch stuff if possible
   api.user.isPaid.useQuery(undefined, {
@@ -81,7 +81,7 @@ export function SplashScreen() {
       }
     }
 
-    if (animationFinished && tokenStatus) {
+    if (tokenStatus) {
       setTimeout(() => {
         if (tokenStatus === "available") {
           /*
@@ -93,24 +93,18 @@ export function SplashScreen() {
         } else {
           navigation.replace(NAVIGATOR_ONBOARDING);
         }
-      }, 3000);
+      }, 1000);
     }
-  }, [animationFinished, tokenStatus, userData.isError, userData.isLoading]);
+  }, [tokenStatus, userData.isError, userData.isLoading]);
 
   return (
     <View className="flex-1 items-center justify-center bg-white dark:bg-neutral-1">
       <View className="items-center justify-center space-y-2">
-        <View className="h-32 w-32">
-          {theme.isSuccess && (
-            <Rive
-              onPause={() => {
-                setAnimationFinished(true);
-              }}
-              resourceName={"moviepals"}
-            />
-          )}
-        </View>
-        <Text className="font-primary-bold text-neutral-1 dark:text-white text-lg">
+        <FastImage
+          className="h-36 w-36 rounded-3xl"
+          source={require("../../assets/pngs/logo.png")}
+        />
+        <Text className="font-primary-bold text-neutral-1 dark:text-white text-xl">
           MoviePals
         </Text>
       </View>
