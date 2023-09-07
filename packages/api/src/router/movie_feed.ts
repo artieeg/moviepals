@@ -14,7 +14,12 @@ import { SwipeFilterParams } from "@moviepals/dbmovieswipe/src/swipes";
 
 import { logger } from "../logger";
 import { getMovies, GetMoviesParams } from "../services";
-import { Context, createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import {
+  Context,
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "../trpc";
 
 /** Number of movies that we return to the client */
 const MOVIES_PER_PAGE = 30;
@@ -42,7 +47,7 @@ export const movie_feed = createTRPCRouter({
   getMovieFeedConfig: publicProcedure.query(() => {
     return {
       text: "MoviePals depends on occassional ads. They are like the popcorn to our movie marathon  – helps us keep the reels spinning.\n\nPlease watch a short ad and get infinite swipes for the day! You can also buy premium for unlimited access (... and share it with up to 4 people 🙌)",
-    }
+    };
   }),
 
   getMovieFeed: protectedProcedure
@@ -108,7 +113,8 @@ export const movie_feed = createTRPCRouter({
         ctx,
       );
 
-      if (!user.fullAccessPurchaseId && watchedAdsCount) {
+      /*
+      if (!user.fullAccessPurchaseId && watchedAdsCount === 0) {
         logger.info({ user }, "User has to watch an ad");
 
         return {
@@ -117,16 +123,17 @@ export const movie_feed = createTRPCRouter({
           cursor: input.cursor + 1,
         };
       }
+       * */
 
       logger.info({
         swipeCount,
         watchedAdsCount,
         AD_FREE_MOVIES_PAGE,
-      })
+      });
 
       const responseTotalMovieCount =
         !user.fullAccessPurchaseId && watchedAdsCount === 0
-          ? swipeCount >= AD_FREE_MOVIES_PAGE
+          ? (swipeCount ?? 0) >= AD_FREE_MOVIES_PAGE
             ? 0
             : AD_FREE_MOVIES_PAGE
           : MOVIES_PER_PAGE;
