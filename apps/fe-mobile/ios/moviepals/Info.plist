@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>moviepals</string>
+	<string>MoviePals</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -65,8 +65,6 @@
 			</dict>
 		</dict>
 	</dict>
-	<key>NSContactsUsageDescription</key>
-	<string>Send your invite link to select contacts via Messages</string>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>This identifier will be used to deliver personalized ads to you.</string>
 	<key>UIAppFonts</key>

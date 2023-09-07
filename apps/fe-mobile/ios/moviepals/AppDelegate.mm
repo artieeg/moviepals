@@ -2,7 +2,6 @@
 #import <Firebase.h>
 #import "RNFBMessagingModule.h"
 
-#import <CodePush/CodePush.h>
 
 #import <UserNotifications/UserNotifications.h>
 #import <RNCPushNotificationIOS.h>
