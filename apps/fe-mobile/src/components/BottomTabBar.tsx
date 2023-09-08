@@ -42,7 +42,7 @@ export function BottomTabBar(props: BottomTabBarProps) {
       style={{
         paddingBottom: bottom ? bottom : 12,
       }}
-      className="flex-row justify-between bg-white dark:bg-neutral-1 px-4"
+      className="flex-row justify-between bg-[#F5F2EC] dark:bg-neutral-1 px-4"
     >
       <Pressable
         onPress={() => navigation.navigate(NAVIGATOR_SWIPE)}
