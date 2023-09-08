@@ -44,9 +44,9 @@ export function PlatformButtons() {
         </>
       ) : (
         <>
-          <Button onPress={onGetIOS}>Get on Android</Button>
+          <Button onPress={onGetAndroid}>Get on Android</Button>
 
-          <Button outline className="mt-2" onPress={onGetAndroid}>
+          <Button outline className="mt-2" onPress={onGetIOS}>
             Get on IOS
           </Button>
         </>
