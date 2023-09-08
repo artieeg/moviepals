@@ -39,15 +39,17 @@ export async function sendNotification({
     apns: {
       payload: {
         aps: {
-          //contentAvailable: true,
-          contentAvailable: 1,
+          contentAvailable: true,
+          //contentAvailable: 1,
         },
       },
+      /*
       headers: {
         "apns-push-type": "background",
-        "apns-priority": "5",
-        //"apns-topic": "io.moviepals",
+        "apns-priority": "10",
+        "apns-topic": "io.moviepals",
       },
+       * */
     },
     token,
   });
@@ -57,8 +59,7 @@ export async function run() {
   const token =
     "cBQo4RdCRQ-3o8zQixf3ek:APA91bEpq7hBDnumHDWrdwKFpwdgrsx9w-f8Ze4-2sJFG8kAXrztT3WyZOvuO0UfrN9hZXHoMiog7Vreu-Q58rr7aPD3OEGFeN7hxTavOVWk4KNthxtopAKmna6Ycx7nEJJIz7piy4Km";
 
-  const r = await app.messaging().send({
-  });
+  const r = await app.messaging().send({});
 
   console.log({ r });
 }
