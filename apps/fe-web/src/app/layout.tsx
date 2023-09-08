@@ -30,13 +30,15 @@ export default function RootLayout({
         className={[
           montserrat.variable,
           poppins.variable,
-          "bg-white dark:bg-neutral-1",
+          "bg-white dark:bg-neutral-1 flex flex-col",
         ].join(" ")}
       >
-        <div className="flex justify-center py-8">
-          <Logo />
+        <div className="sm:max-w-[440px] sm:self-center">
+          <div className="flex justify-center py-8 ">
+            <Logo />
+          </div>
+          {children}
         </div>
-        {children}
       </body>
     </html>
   );
