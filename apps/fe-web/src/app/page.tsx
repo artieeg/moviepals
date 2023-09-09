@@ -9,7 +9,7 @@ export default async function Home({ params }: { params: any }) {
     <div className="flex flex-col">
       <div className="flex flex-col px-8">
         <h1 className="font-primary text-neutral-1 dark:text-white text-2xl">
-          Join MoviePals 🍿
+          Hey, join MoviePals! 👋🍿
         </h1>
 
         <p className="font-secondary mt-2 text-neutral-2 dark:text-neutral-5 text-base">
