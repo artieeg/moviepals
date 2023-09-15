@@ -3,7 +3,6 @@ import { z } from "zod";
 
 import { Movie, movieSchema } from "@moviepals/dbmovieswipe";
 
-import { logger } from "../logger";
 import { env } from "../utils/env";
 import { cachify } from "./cache";
 
@@ -48,7 +47,7 @@ export type GetMoviesParams = {
   "primary_release_date.gte": string | undefined;
   "primary_release_date.lte": string | undefined;
   with_watch_providers: string;
-  watch_region: string;
+  watch_region: string | undefined;
   with_genres: string;
   with_cast: string;
   with_people: string;

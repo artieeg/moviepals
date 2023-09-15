@@ -1,7 +1,6 @@
 import { encode } from "querystring";
 import { createId } from "@paralleldrive/cuid2";
 import { TRPCError } from "@trpc/server";
-import { z } from "zod";
 
 import {
   dbMovieSwipe,
@@ -11,6 +10,7 @@ import {
   Swipe,
 } from "@moviepals/dbmovieswipe";
 import { SwipeFilterParams } from "@moviepals/dbmovieswipe/src/swipes";
+import { movieFeedFilter, MovieFeedFilter } from "@moviepals/filters";
 
 import { logger } from "../logger";
 import { getMovies, GetMoviesParams } from "../services";
@@ -29,20 +29,6 @@ const MIX_IN_MOVIES_COUNT = 15;
 
 const AD_FREE_MOVIES_PAGE = 10;
 
-const getMovieFeedInput = z.object({
-  start_year: z.number().min(1960).max(2019).optional(),
-  end_year: z.number().min(1960).max(2019).optional(),
-  region: z.string(),
-  watchProviderIds: z.array(z.number()),
-  genres: z.array(z.number()),
-  directors: z.array(z.number()),
-  cast: z.array(z.number()),
-  cursor: z.number().default(0),
-  quick_match_mode: z.boolean(),
-});
-
-type GetMovieFeedInput = z.infer<typeof getMovieFeedInput>;
-
 export const movie_feed = createTRPCRouter({
   getMovieFeedConfig: publicProcedure.query(() => {
     return {
@@ -51,7 +37,7 @@ export const movie_feed = createTRPCRouter({
   }),
 
   getMovieFeed: protectedProcedure
-    .input(getMovieFeedInput)
+    .input(movieFeedFilter)
     .query(async ({ ctx, input }) => {
       const userAndConnectionsPromise = ctx.appDb
         .transaction()
@@ -337,7 +323,7 @@ async function fetchRandomSwipes(
 
 async function getOrCreateReviewState(
   user: string,
-  input: GetMovieFeedInput,
+  input: MovieFeedFilter,
   ctx: Context,
 ) {
   const { watchProviderIds, genres, directors, cast, start_year, end_year } =
@@ -402,7 +388,7 @@ async function getMoviePage({
   responseMovieFromFriendCount,
 }: {
   ctx: Context;
-  input: GetMovieFeedInput;
+  input: MovieFeedFilter;
 
   userReviewState: ReviewState;
   friendUserIds: string[];

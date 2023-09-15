@@ -106,4 +106,4 @@ export const genres: Genre[] = [
     name: "western",
     emoji: "🤠",
   },
-];
+]
