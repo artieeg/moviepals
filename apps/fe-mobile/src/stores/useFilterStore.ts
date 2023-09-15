@@ -4,26 +4,18 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
 import { Person, StreamingService } from "@moviepals/api";
+import { MovieBaseFilter } from "@moviepals/filters";
 
-export interface FilterStore {
+export type FilterStore = {
   country: string;
 
   timeframeId?: string;
-  startYear?: number;
-  endYear?: number;
 
   quickMatchMode: boolean;
 
   /** Contains a list of selected streaming services */
   streamingServices: StreamingService[];
 
-  /** Contains a list of selected genres */
-  genres: number[];
-
-  /** Contains a list of selected cast members */
-  cast: Person[];
-
-  /** Contains a list of selected directors */
   director?: Person;
 
   toggleDirector: (person: Person) => void;
@@ -32,7 +24,7 @@ export interface FilterStore {
   toggleCast: (person: Person) => void;
 
   reset(): void;
-}
+} & MovieBaseFilter;
 
 export const useFilterStore = create<FilterStore>()(
   persist(
@@ -41,6 +33,7 @@ export const useFilterStore = create<FilterStore>()(
       quickMatchMode: true,
       streamingServices: [],
       genres: [],
+      directors: [],
       cast: [],
       reset() {
         set(
@@ -48,16 +41,18 @@ export const useFilterStore = create<FilterStore>()(
             state.streamingServices = [];
             state.genres = [];
             state.cast = [];
-            state.director = undefined;
+            state.directors = [];
           }),
         );
       },
       toggleDirector(person) {
         set(
           produce<FilterStore>((state) => {
-            if (state.director?.id === person.id) {
+            if (state.directors.includes(person.id)) {
+              state.directors = [];
               state.director = undefined;
             } else {
+              state.directors = [person.id];
               state.director = person;
             }
           }),
@@ -92,11 +87,10 @@ export const useFilterStore = create<FilterStore>()(
       toggleCast: (person: Person) => {
         set(
           produce<FilterStore>((state) => {
-            const index = state.cast.findIndex((c) => c.id === person.id);
-            if (index === -1) {
-              state.cast.push(person);
+            if (state.cast.includes(person.id)) {
+              state.cast = state.cast.filter((id) => id !== person.id);
             } else {
-              state.cast.splice(index, 1);
+              state.cast.push(person.id);
             }
           }),
         );

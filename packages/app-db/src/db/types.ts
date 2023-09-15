@@ -28,6 +28,11 @@ export type SharedPremium = {
   userId: string | null;
   purchaseId: string | null;
 };
+export type UnlockedCategory = {
+  categoryId: string;
+  userId: string;
+  createdAt: Generated<Timestamp>;
+};
 export type User = {
   id: string;
   name: string;
@@ -53,6 +58,7 @@ export type DB = {
   Friend: Connection;
   FullAccessPurchase: FullAccessPurchase;
   SharedPremium: SharedPremium;
+  UnlockedCategory: UnlockedCategory;
   User: User;
   UserInviteLink: UserInviteLink;
 };
