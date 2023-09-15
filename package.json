@@ -33,6 +33,7 @@
     "packages/movie-swipe-db",
     "packages/app-db",
     "packages/api",
+    "packages/movie-filters",
     "packages/config/*"
   ]
 }
