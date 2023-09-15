@@ -217,6 +217,14 @@ export function MovieCollectionList() {
       //TODO: show modal
     } else {
       useFilterStore.setState({
+        streamingServices: [],
+        start_year: undefined,
+        end_year: undefined,
+        genres: [],
+        cast: [],
+        directors: [],
+        director: undefined,
+        castData: [],
         ...collection.filters,
       });
 
@@ -249,9 +257,11 @@ export function MovieCollectionList() {
         ],
       );
     } else {
+      useFilterStore.getState().reset();
+
       useFilterStore.setState({
         custom_filters: true,
-      })
+      });
 
       navigation.navigate(SCREEN_PREPARE_SWIPE);
     }
@@ -259,6 +269,7 @@ export function MovieCollectionList() {
 
   return (
     <TabLayout
+      edges={{ bottom: "off" }}
       borderTweenerValue={tweener}
       subtitle="Select a collection and find movies to
 watch together with your friends"
