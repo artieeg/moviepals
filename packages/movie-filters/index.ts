@@ -7,6 +7,8 @@ const baseFilter = {
   cast: z.array(z.number()),
   directors: z.array(z.number()),
   region: z.string().optional(),
+  order_by: z.enum(["vote_average.desc"]).default("vote_average.desc"),
+  min_vote_count: z.number().default(300),
 };
 
 export const movieFeedFilter = z

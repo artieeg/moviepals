@@ -33,6 +33,8 @@ export const useFilterStore = create<FilterStore>()(
       quickMatchMode: true,
       streamingServices: [],
       genres: [],
+      order_by: "vote_average.desc",
+      min_vote_count: 300,
       directors: [],
       cast: [],
       reset() {

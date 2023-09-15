@@ -10,7 +10,6 @@ export type MovieCollection = {
   image: string;
 
   free?: boolean;
-  recommended?: boolean;
 };
 
 export type MovieCollectionGroup = {
@@ -22,11 +21,22 @@ export type MovieCollectionGroup = {
 
 export const collections: MovieCollectionGroup[] = [
   {
-    id: "new-releases",
-    title: "New Releases",
-    description: "Movies that came out this year",
-
+    id: "recommended",
+    title: "Recommended",
+    description: "These should bring a lot of fun to your movie night 🍿",
     collections: [
+      {
+        id: "best-of-all-time",
+        title: "Best of All Time",
+        image: "https://moviepals.io/images/collections/20th-century-horror.png",
+        description: "Enjoy the classics!",
+        free: true,
+
+        filters: createFilters({
+          order_by: "vote_average.desc",
+          min_vote_count: 300,
+        }),
+      },
       {
         id: "fresh-flicks",
         title: "Fresh Flicks",
