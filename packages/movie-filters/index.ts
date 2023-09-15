@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 const baseFilter = {
+  collection_id: z.string().default("best-of-all-time"),
   start_year: z.number().min(1960).max(2023).optional(),
   end_year: z.number().min(1960).max(2023).optional(),
   genres: z.array(z.number()),

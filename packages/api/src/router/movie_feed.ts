@@ -50,6 +50,17 @@ export const movie_feed = createTRPCRouter({
               () => new TRPCError({ code: "NOT_FOUND" }),
             );
 
+          const unlockedCollection = await trx
+            .selectFrom("UnlockedCategory")
+            .where((eb) =>
+              eb.and([
+                eb("categoryId", "=", input.collection_id),
+                eb("userId", "=", ctx.user),
+              ]),
+            )
+            .select("categoryId")
+            .executeTakeFirst();
+
           const connections = await trx
             .selectFrom("Friend")
             .where((eb) =>
@@ -61,11 +72,11 @@ export const movie_feed = createTRPCRouter({
             .selectAll()
             .execute();
 
-          return { user, connections };
+          return { user, unlockedCollection, connections };
         });
 
       const [
-        { user, connections },
+        { user, connections, unlockedCollection },
         watchedAdsCount,
         swipeCount,
         userReviewState,
@@ -77,6 +88,18 @@ export const movie_feed = createTRPCRouter({
         getOrCreateReviewState(ctx.user, input, ctx),
         getPreviouslySwipedMovieIds(ctx.user),
       ]);
+
+      if (
+        input.cast.length > 0 ||
+        input.directors.length > 0 ||
+        input.genres.length > 0
+      ) {
+        if (!unlockedCollection || input.collection_id !== "best-of-all-time") {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+          });
+        }
+      }
 
       const friendUserIds = connections.map((c) =>
         c.firstUserId === ctx.user ? c.secondUserId : c.firstUserId,
