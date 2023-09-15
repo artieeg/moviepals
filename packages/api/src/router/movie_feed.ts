@@ -87,6 +87,7 @@ export const movie_feed = createTRPCRouter({
         getPreviouslySwipedMovieIds(ctx.user),
       ]);
 
+      /*
       if (
         input.cast.length > 0 ||
         input.directors.length > 0 ||
@@ -110,6 +111,7 @@ export const movie_feed = createTRPCRouter({
           });
         }
       }
+       * */
 
       const friendUserIds = connections.map((c) =>
         c.firstUserId === ctx.user ? c.secondUserId : c.firstUserId,
