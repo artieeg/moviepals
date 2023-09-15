@@ -9,18 +9,25 @@ import {
   ViewProps,
 } from "react-native";
 import FastImage from "react-native-fast-image";
+import Animated, { useAnimatedScrollHandler } from "react-native-reanimated";
 import Toast from "react-native-toast-message";
 
 import { api } from "~/utils/api";
 import { getTMDBStaticUrl } from "~/utils/uri";
 import { Button, Section, Switch } from "~/components";
-import { useFCMPermissionBackupQuery, useFCMToken, useNavigation, usePremiumProduct, useTimezone } from "~/hooks";
+import {
+  useFCMPermissionBackupQuery,
+  useFCMToken,
+  useNavigation,
+  usePremiumProduct,
+  useTimezone,
+} from "~/hooks";
 import { SCREEN_SWIPE } from "~/navigators/SwipeNavigator";
 import { useFilterStore } from "~/stores";
 import { SCREEN_CAST_LIST } from "./CastListScreen";
 import { SCREEN_DIRECTOR_LIST } from "./DirectorListScreen";
 import { SCREEN_GENRE_FILTER } from "./GenreFilterScreen";
-import { MainLayout } from "./layouts/MainLayout";
+import { MainLayout, useMainLayoutScrollHandler } from "./layouts/MainLayout";
 import { SCREEN_STREAMING_SERVICE_LIST } from "./StreamingServiceListScreen";
 import {
   SCREEN_TIMEFRAME_INPUT,
@@ -30,7 +37,7 @@ import {
 export function PrepareSwipeScreen() {
   useTimezone();
   usePremiumProduct();
-  useFCMToken()
+  useFCMToken();
   useFCMPermissionBackupQuery();
 
   const navigation = useNavigation();
@@ -39,9 +46,12 @@ export function PrepareSwipeScreen() {
     navigation.navigate(SCREEN_SWIPE);
   }
 
+  const { handler, tweener } = useMainLayoutScrollHandler();
+
   return (
-    <MainLayout title="Movies">
-      <ScrollView
+    <MainLayout borderTweenerValue={tweener} title="Movies">
+      <Animated.ScrollView
+        onScroll={handler}
         className="-mx-8"
         contentContainerStyle={{
           paddingHorizontal: 32,
@@ -61,7 +71,7 @@ export function PrepareSwipeScreen() {
           <ResetFilters />
           <ResetSwipes />
         </View>
-      </ScrollView>
+      </Animated.ScrollView>
 
       <Button
         onPress={onStartSwiping}

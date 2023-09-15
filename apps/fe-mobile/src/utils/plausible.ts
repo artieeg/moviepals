@@ -5,6 +5,8 @@ let agent: string | null = null;
 const domain = "moviepals.io";
 
 export async function sendPageView(screen: string) {
+  if (__DEV__) return;
+
   if (!agent) {
     agent = await DeviceInfo.getUserAgent();
   }
@@ -25,6 +27,8 @@ export async function sendPageView(screen: string) {
 }
 
 export async function sendEvent(name: string) {
+  if (__DEV__) return;
+
   if (!agent) {
     agent = await DeviceInfo.getUserAgent();
   }

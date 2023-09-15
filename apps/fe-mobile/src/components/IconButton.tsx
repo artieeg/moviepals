@@ -52,9 +52,9 @@ export function IconButton({
         className={twMerge(
           "h-16 w-16 items-center justify-center rounded-full",
           variant === "primary" && "bg-brand-1",
-          variant === "gray" && "bg-neutral-2-10",
+          variant === "gray" && "bg-neutral-2-20 dark:bg-neutral-2-20",
           variant === "red" && "bg-red-1",
-          variant === "outline" && "border-neutral-3 border",
+          //variant === "outline" && "border-neutral-3 border",
         )}
       >
         {loading ? (

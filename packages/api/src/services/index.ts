@@ -7,3 +7,5 @@ export * from "./latest-feed-response-cache";
 export * from "./fcm";
 export * from "./remote-api-response-cache";
 export * from "./swipe-count-cache";
+export * from "./notification-stats-cache";
+export * from "./friend";

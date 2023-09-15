@@ -68,14 +68,14 @@ export default async function Home({ params }: { params: any }) {
         </a>
 
         <a
-          href="/privacy"
+          href="/privacy-policy"
           className="text-neutral-2 underline dark:text-neutral-5"
         >
           Privacy Policy
         </a>
 
         <a
-          href="/terms"
+          href="/terms-of-service"
           className="text-neutral-2 underline dark:text-neutral-5"
         >
           Terms of Service

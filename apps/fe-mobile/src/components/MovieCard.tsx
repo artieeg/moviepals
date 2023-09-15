@@ -62,6 +62,7 @@ export const MovieCard = React.forwardRef<
   const { width } = useWindowDimensions();
   const tx = useSharedValue(0);
   const ty = useSharedValue(0);
+  const cardScale = useSharedValue(1);
 
   useImperativeHandle(ref, () => ({
     swipeRight() {
@@ -76,8 +77,11 @@ export const MovieCard = React.forwardRef<
     GestureEvent<PanGestureHandlerEventPayload>,
     { vx: number; vy: number }
   >({
-    onStart() {},
+    onStart() {
+    },
     onActive(event, ctx) {
+      cardScale.value = withSpring(Math.min(1 + Math.abs(event.translationX) / width / 4, 1.10));
+
       tx.value = event.translationX;
       ty.value = event.translationY;
 
@@ -86,11 +90,12 @@ export const MovieCard = React.forwardRef<
     },
     onEnd(_, ctx) {
       if (tx.value > width / 8 || tx.value < -width / 8) {
-        tx.value = withSpring(tx.value + 3 * ctx.vx);
-        ty.value = withSpring(ty.value + 3 * ctx.vy);
+        tx.value = withSpring(3 * ctx.vx);
+        ty.value = withSpring(3 * ctx.vy);
 
         runOnJS(onSwipe)(tx.value > 0);
       } else {
+        cardScale.value = withSpring(1);
         tx.value = withSpring(0);
         ty.value = withSpring(0);
       }
@@ -100,6 +105,9 @@ export const MovieCard = React.forwardRef<
   const style = useAnimatedStyle(() => {
     return {
       transform: [
+        {
+          scale: cardScale.value,
+        },
         {
           translateX: tx.value,
         },
@@ -121,7 +129,7 @@ export const MovieCard = React.forwardRef<
       <View className="flex-1">
         <PanGestureHandler onGestureEvent={handler}>
           <Animated.View style={style} className="aspect-[2/3]">
-            <View className="rounded-4xl flex-1 overflow-hidden">
+            <View className="rounded-4xl border-2 border-neutral-1 dark:border-neutral-2 flex-1 overflow-hidden">
               <FastImage
                 resizeMode="cover"
                 className="flex-1 bg-white dark:bg-neutral-1"
@@ -165,7 +173,7 @@ export const MovieCard = React.forwardRef<
                     </View>
                   </View>
 
-                  {movie.likedByFriends && (
+                  {/*movie.likedByFriends && (
                     <View className="flex-row items-center justify-between">
                       <Text className="font-primary-bold text-base text-white">
                         liked by friends
@@ -180,7 +188,7 @@ export const MovieCard = React.forwardRef<
                         </Text>
                       </TouchableOpacity>
                     </View>
-                  )}
+                  )*/}
                 </View>
               </View>
             </View>

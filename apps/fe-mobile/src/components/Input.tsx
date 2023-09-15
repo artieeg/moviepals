@@ -20,7 +20,7 @@ export function Input({
   return (
     <View
       style={style}
-      className="bg-neutral-2-10 h-12 flex-row space-x-2 rounded-full px-4"
+      className="bg-neutral-2-10 dark:bg-neutral-2-20 h-12 flex-row space-x-2 rounded-full px-4"
     >
       {icon && (
         <View className="items-center justify-center ">
@@ -38,7 +38,7 @@ export function Input({
       )}
       <TextInput
         className="font-primary-bold h-full flex-1 text-base text-neutral-1 dark:text-white"
-        placeholderTextColor="#71707B"
+        placeholderTextColor="#71706A"
         {...rest}
       />
       {showClearButton && rest.value && (

@@ -9,6 +9,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useColorScheme } from "nativewind";
 
+import { PRIMARY_COLOR, WHITE_COLOR } from "~/utils/consts";
 import { AnimatedTouchableOpacity } from "./AnimatedTouchableOpacity";
 
 function useThemedColors() {
@@ -16,15 +17,15 @@ function useThemedColors() {
 
   if (colorScheme === "light") {
     return {
-      borderColor: ["#C7C5DA", "#6356E4"],
-      backgroundColor: ["#E0E0E0", "#6867AA"],
-      circleColor: ["#FFFFFF", "#FFFFFF"],
+      borderColor: ["#C7C5DA", PRIMARY_COLOR],
+      backgroundColor: ["#E0E0E0", PRIMARY_COLOR],
+      circleColor: [WHITE_COLOR, WHITE_COLOR],
     };
   } else {
     return {
-      borderColor: ["#52525b", "#6356E4"],
-      backgroundColor: ["#27272a", "#6867AA"],
-      circleColor: ["#9CA3AF", "#FFFFFF"],
+      borderColor: ["#52525b", PRIMARY_COLOR],
+      backgroundColor: ["#27272a", PRIMARY_COLOR],
+      circleColor: ["#9CA3AF", WHITE_COLOR],
     };
   }
 }

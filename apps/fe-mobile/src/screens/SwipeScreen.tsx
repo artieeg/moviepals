@@ -30,6 +30,7 @@ import {
   MovieDetailsBottomSheet,
   MovieDetailsBottomSheetRef,
   NoMoreMoviesPrompt,
+  TouchableScale,
   UnableToFindMoviesPrompt,
 } from "~/components";
 import { useFilterStore } from "~/stores";
@@ -113,7 +114,6 @@ export function SwipeScreen() {
       !premiumStatus.data?.isPaid
     ) {
       //setShowAdPermissionPrompt(true);
-
       //AsyncStorage.setItem("ad-consent", "true");
     }
   }, [
@@ -415,22 +415,22 @@ function Controls({
       layout={Layout}
       className="mt-8 flex-1 flex-row items-center justify-between space-x-3"
     >
-      <IconButton variant="red" onPress={onDislike}>
-        <Cancel color="white" />
+      <IconButton variant="gray" onPress={onDislike}>
+        <Cancel />
       </IconButton>
 
       <IconButton variant="gray" onPress={onUndo}>
         <Undo />
       </IconButton>
 
-      <TouchableOpacity
+      <TouchableScale
         onPress={onOpenMovieDetails}
-        className="bg-neutral-2-10 h-16 flex-1 items-center justify-center rounded-full"
+        className="bg-neutral-2-20 h-16 flex-1 items-center justify-center rounded-full"
       >
         <Text className="font-primary-bold text-neutral-1 dark:text-white">
-          details
+          Details
         </Text>
-      </TouchableOpacity>
+      </TouchableScale>
 
       <IconButton variant="primary" onPress={onLike}>
         <Heart fill="white" color="white" />
