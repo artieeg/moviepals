@@ -30,7 +30,7 @@ export const collections: MovieCollectionGroup[] = [
       {
         id: "fresh-flicks",
         title: "Fresh Flicks",
-        image: "blob:https://clipdrop.co/3439052f-fca9-4a71-af7f-4aa1e05214b3",
+        image: "https://moviepals.io/images/collections/20th-century-horror.png",
         description: "Movies that came out this year",
 
         filters: createFilters({
@@ -46,7 +46,7 @@ export const collections: MovieCollectionGroup[] = [
     collections: [
       {
         id: "old-school-scary",
-        image: "blob:https://clipdrop.co/3439052f-fca9-4a71-af7f-4aa1e05214b3",
+        image: "https://moviepals.io/images/collections/20th-century-horror.png",
         title: "Old School Scary",
         description: "Horror classics from the 60s, 70s, and 80s",
 
@@ -58,7 +58,7 @@ export const collections: MovieCollectionGroup[] = [
       },
       {
         id: "offbeat-80ies",
-        image: "blob:https://clipdrop.co/3439052f-fca9-4a71-af7f-4aa1e05214b3",
+        image: "https://moviepals.io/images/collections/20th-century-horror.png",
         title: "Offbeat 80ies",
         description: "Movies to have a good laugh to",
 
