@@ -28,8 +28,7 @@ export const collections: MovieCollectionGroup[] = [
       {
         id: "best-of-all-time",
         title: "Best of All Time",
-        image:
-          "https://moviepals.io/images/collections/best-of-all-times.jpeg",
+        image: "https://moviepals.io/images/collections/best-of-all-time.jpeg",
         description: "Enjoy the classics!",
         free: true,
 
@@ -54,8 +53,7 @@ export const collections: MovieCollectionGroup[] = [
       {
         id: "fresh-flicks",
         title: "Fresh Flicks",
-        image:
-          "https://moviepals.io/images/collections/new-flicks.jpeg",
+        image: "https://moviepals.io/images/collections/new-flicks.jpeg",
         description: "Movies that came out this year",
 
         filters: createFilters({
@@ -69,7 +67,8 @@ export const collections: MovieCollectionGroup[] = [
   {
     id: "worlds-best-directors",
     title: "World's Best Directors",
-    description: "Movies that came out this year",
+    description:
+      "There are a lot, and we’re not even close to having everyone on it! 😅 ",
     collections: [
       {
         id: "tarantino",
@@ -141,33 +140,75 @@ export const collections: MovieCollectionGroup[] = [
 
   {
     id: "best-of-genre",
-    title: "Best of Genre",
-    description: "Movies that came out this year",
+    title: "Genre's Best",
+    description: "The best of the best in each genre.",
     collections: [
       {
-        id: "horror",
-        image:
-          "https://moviepals.io/images/collections/20th-century-horror.png",
-        title: "Old School Scary",
-        description: "Horror classics from the 60s, 70s, and 80s",
+        id: "adventure",
+        image: "https://moviepals.io/images/collections/adventure.jpeg",
+        title: "Adventure",
+        description: "Thrilling expeditions and daring quests!",
 
         filters: createFilters({
-          genres: [27],
-          start_year: 1960,
-          end_year: 1989,
+          genres: [12],
         }),
       },
       {
-        id: "offbeat-80ies",
-        image:
-          "https://moviepals.io/images/collections/20th-century-horror.png",
-        title: "Offbeat 80ies",
-        description: "Movies to have a good laugh to",
-
+        id: "crime",
+        image: "https://moviepals.io/images/collections/crime.jpeg",
+        title: "Crime",
+        description: "Intriguing mysteries and thrilling heists",
         filters: createFilters({
-          genres: [35],
-          start_year: 1980,
-          end_year: 1989,
+          genres: [80],
+        }),
+      },
+      {
+        id: "documentary",
+        image: "https://moviepals.io/images/collections/documentary.jpeg",
+        title: "Documentary",
+        description: "Fascinating stories from the real world",
+        filters: createFilters({
+          genres: [99],
+        }),
+      },
+
+      {
+        id: "fantasy",
+        image: "https://moviepals.io/images/collections/fantasy.jpeg",
+        title: "Fantasy",
+        description: "Imaginative worlds and magical adventures",
+        filters: createFilters({
+          genres: [14],
+        }),
+      },
+
+      {
+        id: "horror",
+        image: "https://moviepals.io/images/collections/horror.jpeg",
+        title: "Horror",
+        description: "Heart-pounding terror from the dark side",
+        filters: createFilters({
+          genres: [27],
+        }),
+      },
+
+      {
+        id: "romance",
+        image: "https://moviepals.io/images/collections/romance.jpeg",
+        title: "Romance",
+        description: "Passionate affairs and tender romances",
+        filters: createFilters({
+          genres: [10749],
+        }),
+      },
+
+      {
+        id: "sci-fi",
+        image: "https://moviepals.io/images/collections/science-fiction.jpeg",
+        title: "Science Fiction",
+        description: "Visions of tomorrow and beyond",
+        filters: createFilters({
+          genres: [878],
         }),
       },
     ],
@@ -177,6 +218,10 @@ export const collections: MovieCollectionGroup[] = [
 function createFilters(params: Partial<MovieBaseFilter>): MovieBaseFilter {
   return {
     genres: [],
+    custom_filters: false,
+    order_by: "vote_average.desc",
+    min_vote_count: 300,
+    collection_id: "best-of-all-time",
     directors: [],
     cast: [],
     ...params,

@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { produce } from "immer";
-import { create } from "zustand";
+import { create, SetState } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
 import { Person, StreamingService } from "@moviepals/api";
@@ -25,11 +25,15 @@ export type FilterStore = {
   toggleCast: (person: Person) => void;
 
   reset(): void;
+  set: (state: Partial<FilterStore>) => void;
 } & MovieBaseFilter;
 
 export const useFilterStore = create<FilterStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
+      set: (data) => {
+        set(data);
+      },
       country: "US",
       quickMatchMode: true,
       streamingServices: [],
@@ -48,6 +52,10 @@ export const useFilterStore = create<FilterStore>()(
             state.genres = [];
             state.cast = [];
             state.directors = [];
+            state.start_year = undefined;
+            state.end_year = undefined;
+            state.director = undefined;
+            state.castData = [];
           }),
         );
       },
@@ -95,9 +103,7 @@ export const useFilterStore = create<FilterStore>()(
           produce<FilterStore>((state) => {
             if (state.cast.includes(person.id)) {
               state.cast = state.cast.filter((id) => id !== person.id);
-              state.castData = state.castData.filter(
-                (p) => p.id !== person.id,
-              );
+              state.castData = state.castData.filter((p) => p.id !== person.id);
             } else {
               state.cast.push(person.id);
               state.castData.push(person);

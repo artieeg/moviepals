@@ -131,7 +131,7 @@ export function FriendsListScreen() {
   }
 
   return (
-    <MainLayout title="People">
+    <MainLayout edges={["top"]} title="People">
       <View className="flex-1 space-y-8">
         <View className="space-y-2">
           <Input
@@ -161,14 +161,14 @@ export function FriendsListScreen() {
             )}
         </View>
 
-        <View className="flex-1">
+        <View className="flex-1 pb-8">
           {query.length > 3 &&
             userSearch.isSuccess &&
             userSearch.data.length === 0 && (
               <Animated.View
                 entering={FadeIn.duration(400)}
                 exiting={FadeOut.duration(400)}
-                className="flex-1"
+                className="flex-1 "
               >
                 <Prompt
                   icon={<Text className="text-3xl">😞</Text>}

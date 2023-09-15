@@ -10,11 +10,11 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useColorScheme } from "nativewind";
 
 import { api } from "~/utils/api";
+import { sendEvent } from "~/utils/plausible";
 import { Button, ListItem } from "~/components";
 import { useNavigation } from "~/hooks";
 import { MainLayout } from "./layouts/MainLayout";
 import { SCREEN_MATCHES_LIST } from "./MatchListScreen";
-import {sendEvent} from "~/utils/plausible";
 
 export const SCREEN_MATCH_LIST_V2 = "SCREEN_MATCH_LIST_v2";
 
@@ -29,7 +29,7 @@ export function MatchListScreenV2() {
   const navigation = useNavigation();
 
   function onFetchMatches() {
-    sendEvent("see_movie_matches")
+    sendEvent("see_movie_matches");
 
     const names = selectedUsers
       .map((id) => {
@@ -57,7 +57,7 @@ export function MatchListScreenV2() {
   );
 
   return (
-    <MainLayout title="Matches">
+    <MainLayout edges={["top"]} title="Matches">
       <View className="flex-1 space-y-8">
         <View className="space-y-3">
           <Text className="font-primary-bold text-neutral-1 dark:text-white text-2xl">
@@ -110,7 +110,7 @@ export function MatchListScreenV2() {
       <Button
         disabled={selectedUsers.length === 0}
         onPress={onFetchMatches}
-        className="absolute bottom-0 left-8 right-8"
+        className="absolute bottom-8 left-8 right-8"
       >
         See movie matches 🍿
       </Button>

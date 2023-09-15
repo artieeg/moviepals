@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { ActivityIndicator, Alert, Text, View, ViewProps } from "react-native";
+import { ActivityIndicator, Text, View, ViewProps } from "react-native";
 import Animated, {
   FadeIn,
   FadeOut,
@@ -41,7 +41,7 @@ export function SwipeScreen() {
       genres: filters.genres,
       watchProviderIds: filters.streamingServices.map((s) => s.provider_id),
       cast: filters.cast,
-      directors: filters.director ? [filters.director.id] : [],
+      directors: filters.directors,
       region: filters.country,
       quick_match_mode: filters.quickMatchMode,
     },

@@ -34,7 +34,11 @@ export const collections = createTRPCRouter({
       ...group,
       collections: group.collections.map((collection) => ({
         ...collection,
-        locked: user.fullAccessPurchaseId
+        locked: collectionsData
+          .flatMap((c) => c.collections)
+          .find((c) => c.id === collection.id)?.free
+          ? false
+          : user.fullAccessPurchaseId
           ? false
           : unlockedCollections
           ? !unlockedCollections.some((i) => i.categoryId === collection.id)

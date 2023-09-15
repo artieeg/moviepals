@@ -65,16 +65,16 @@ export function TimeframeInputScreen() {
   function onClear() {
     useFilterStore.setState({
       timeframeId: undefined,
-      startYear: undefined,
-      endYear: undefined,
+      start_year: undefined,
+      end_year: undefined,
     });
   }
 
   function onSelect(id: string, start: number, end: number) {
     useFilterStore.setState({
       timeframeId: id,
-      startYear: start,
-      endYear: end,
+      start_year: start,
+      end_year: end,
     });
   }
 

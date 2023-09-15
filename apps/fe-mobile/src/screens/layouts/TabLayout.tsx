@@ -35,6 +35,7 @@ export function TabLayout({
   goBackCloseIcon,
   borderTweenerValue,
   subtitle,
+  edges,
   onGoBack,
   right,
   canGoBack,
@@ -43,6 +44,7 @@ export function TabLayout({
   title: string;
   subtitle: string;
   onGoBack?: () => void;
+  edges?: SafeAreaViewProps["edges"];
   borderTweenerValue?: SharedValue<number>;
   right?: React.ReactNode;
   canGoBack?: boolean;
@@ -69,6 +71,7 @@ export function TabLayout({
         bottom: "maximum",
         left: "maximum",
         right: "maximum",
+        ...edges,
       }}
       className="flex-1 bg-white dark:bg-neutral-1 pt-3"
       {...rest}
