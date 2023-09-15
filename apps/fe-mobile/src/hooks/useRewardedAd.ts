@@ -21,9 +21,6 @@ export function useRewardedAd() {
   const adCallback = api.ad_impression.adImpression.useMutation();
 
   return useQuery(["rewarded-ad", user.data?.id, consent.data], async () => {
-    console.log("consent", consent.data)
-
-
     return new Promise<RewardedAd>((resolve) => {
       const rewarded = RewardedAd.createForAdRequest(ad, {
         serverSideVerificationOptions: {

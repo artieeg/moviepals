@@ -3,6 +3,7 @@ import { encode } from "querystring";
 import axios from "axios";
 import { z } from "zod";
 
+import { logger } from "../logger";
 import { WatchedAdCountCache } from "./watched-ads-count-cache";
 
 export const admobSchema = z
@@ -58,6 +59,8 @@ async function verifySignature(payload: z.infer<typeof admobSchema>) {
   );
 
   const verified = verifier.verify(key.pem, Buffer.from(signature, "base64"));
+
+  console.log("verified", verified);
 
   if (!verified) {
     throw new Error("Not verified");

@@ -19,7 +19,7 @@ export function CastListScreen() {
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebounce(search, 300);
 
-  const enabledCast = useFilterStore((state) => state.cast);
+  const enabledCast = useFilterStore((state) => state.castData);
 
   const navigation = useNavigation();
 

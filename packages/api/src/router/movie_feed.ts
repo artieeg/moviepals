@@ -22,10 +22,10 @@ import {
 } from "../trpc";
 
 /** Number of movies that we return to the client */
-const MOVIES_PER_PAGE = 5;
+const MOVIES_PER_PAGE = 40;
 
 /** Max number of movies that we mix in from friend swipes */
-const MIX_IN_MOVIES_COUNT = 15;
+const MIX_IN_MOVIES_COUNT = 20;
 
 export const movie_feed = createTRPCRouter({
   getMovieFeedConfig: publicProcedure.query(() => {
@@ -92,9 +92,21 @@ export const movie_feed = createTRPCRouter({
         input.directors.length > 0 ||
         input.genres.length > 0
       ) {
-        if (!unlockedCollection || input.collection_id !== "best-of-all-time") {
+        if (
+          !unlockedCollection ||
+          input.collection_id !== "best-of-all-time" ||
+          input.custom_filters
+        ) {
           throw new TRPCError({
             code: "FORBIDDEN",
+            message: "This is not available currently",
+          });
+        }
+
+        if (input.custom_filters && !user.fullAccessPurchaseId) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "This is not available currently",
           });
         }
       }
