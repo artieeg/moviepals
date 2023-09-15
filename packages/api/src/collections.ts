@@ -28,7 +28,8 @@ export const collections: MovieCollectionGroup[] = [
       {
         id: "best-of-all-time",
         title: "Best of All Time",
-        image: "https://moviepals.io/images/collections/20th-century-horror.png",
+        image:
+          "https://moviepals.io/images/collections/20th-century-horror.png",
         description: "Enjoy the classics!",
         free: true,
 
@@ -40,42 +41,12 @@ export const collections: MovieCollectionGroup[] = [
       {
         id: "fresh-flicks",
         title: "Fresh Flicks",
-        image: "https://moviepals.io/images/collections/20th-century-horror.png",
+        image:
+          "https://moviepals.io/images/collections/20th-century-horror.png",
         description: "Movies that came out this year",
 
         filters: createFilters({
           start_year: 2023,
-        }),
-      },
-    ],
-  },
-  {
-    id: "best-of-genre",
-    title: "Best of Genre",
-    description: "Movies that came out this year",
-    collections: [
-      {
-        id: "old-school-scary",
-        image: "https://moviepals.io/images/collections/20th-century-horror.png",
-        title: "Old School Scary",
-        description: "Horror classics from the 60s, 70s, and 80s",
-
-        filters: createFilters({
-          genres: [27],
-          start_year: 1960,
-          end_year: 1989,
-        }),
-      },
-      {
-        id: "offbeat-80ies",
-        image: "https://moviepals.io/images/collections/20th-century-horror.png",
-        title: "Offbeat 80ies",
-        description: "Movies to have a good laugh to",
-
-        filters: createFilters({
-          genres: [35],
-          start_year: 1980,
-          end_year: 1989,
         }),
       },
     ],
@@ -89,7 +60,40 @@ export const collections: MovieCollectionGroup[] = [
     collections: [
       {
         id: "tarantino",
-        image: "https://moviepals.io/images/collections/20th-century-horror.png",
+        image:
+          "https://moviepals.io/images/collections/tarantino.jpeg",
+        title: "Quentin Tarantino",
+        description: "Tune in to the mind-bending world of Tarantino",
+
+        filters: createFilters({
+          directors: [138],
+        }),
+      },
+    ],
+  },
+
+  {
+    id: "best-of-genre",
+    title: "Best of Genre",
+    description: "Movies that came out this year",
+    collections: [
+      {
+        id: "old-school-scary",
+        image:
+          "https://moviepals.io/images/collections/20th-century-horror.png",
+        title: "Old School Scary",
+        description: "Horror classics from the 60s, 70s, and 80s",
+
+        filters: createFilters({
+          genres: [27],
+          start_year: 1960,
+          end_year: 1989,
+        }),
+      },
+      {
+        id: "offbeat-80ies",
+        image:
+          "https://moviepals.io/images/collections/20th-century-horror.png",
         title: "Offbeat 80ies",
         description: "Movies to have a good laugh to",
 
