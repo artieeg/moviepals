@@ -1,11 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import {
-  ActivityIndicator,
-  Text,
-  TouchableOpacity,
-  View,
-  ViewProps,
-} from "react-native";
+import { ActivityIndicator, Alert, Text, View, ViewProps } from "react-native";
 import Animated, {
   FadeIn,
   FadeOut,
@@ -14,16 +8,13 @@ import Animated, {
   useDerivedValue,
   withTiming,
 } from "react-native-reanimated";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
-import { useQuery } from "@tanstack/react-query";
 import { Cancel, Heart, Undo } from "iconoir-react-native";
 import { useColorScheme } from "nativewind";
 
 import { api } from "~/utils/api";
 import { sendEvent } from "~/utils/plausible";
 import {
-  AdsOrPremiumPrompt,
   IconButton,
   MovieCard,
   MovieCardRef,
@@ -36,14 +27,6 @@ import {
 import { useFilterStore } from "~/stores";
 import { MainLayout } from "./layouts/MainLayout";
 
-function useAdConsentPromptStatus() {
-  return useQuery(["ad-consent"], async () => {
-    const value = await AsyncStorage.getItem("ad-consent");
-
-    return { shown: Boolean(value) };
-  });
-}
-
 export function SwipeScreen() {
   const filters = useFilterStore((state) => state);
 
@@ -53,11 +36,11 @@ export function SwipeScreen() {
 
   const result = api.movie_feed.getMovieFeed.useInfiniteQuery(
     {
-      start_year: filters.startYear,
-      end_year: filters.endYear,
+      start_year: filters.start_year,
+      end_year: filters.end_year,
       genres: filters.genres,
       watchProviderIds: filters.streamingServices.map((s) => s.provider_id),
-      cast: filters.cast.map((c) => c.id),
+      cast: filters.cast,
       directors: filters.director ? [filters.director.id] : [],
       region: filters.country,
       quick_match_mode: filters.quickMatchMode,
@@ -70,13 +53,8 @@ export function SwipeScreen() {
   );
 
   const [currentMovieIdx, setCurrentMovieIdx] = useState(0);
-  const [showAdPermissionPrompt, setShowAdPermissionPrompt] = useState(false);
-
-  const adConsentPromptStatus = useAdConsentPromptStatus();
-
   const latestPage = result.data?.pages[result.data.pages.length - 1];
 
-  const hasToWatchAd = latestPage?.hasToWatchAd;
   const noMoreMovies = latestPage?.noMoreMovies;
   const unableToFindMovies = latestPage?.unableToFindMovies;
 
@@ -107,21 +85,6 @@ export function SwipeScreen() {
     movies.length,
   ]);
 
-  useEffect(() => {
-    if (
-      currentMovieIdx === 3 &&
-      !adConsentPromptStatus.data?.shown &&
-      !premiumStatus.data?.isPaid
-    ) {
-      //setShowAdPermissionPrompt(true);
-      //AsyncStorage.setItem("ad-consent", "true");
-    }
-  }, [
-    currentMovieIdx,
-    adConsentPromptStatus.data?.shown,
-    !premiumStatus.data?.isPaid,
-  ]);
-
   const deck = useMemo(() => {
     return movies.slice(currentMovieIdx, currentMovieIdx + 3);
   }, [movies, currentMovieIdx]);
@@ -149,19 +112,13 @@ export function SwipeScreen() {
   }
 
   useEffect(() => {
-    if (currentMovieIdx > 0 && !currentMovie && !premiumStatus.data?.isPaid) {
+    if (currentMovieIdx > 0 && currentMovieIdx > deck.length - 4) {
+      Alert.alert("Fetching new stuff");
+      //if (currentMovieIdx > 0 && !currentMovie && !premiumStatus.data?.isPaid) {
       //TODO
       result.fetchNextPage();
     }
   }, [currentMovieIdx, currentMovie, premiumStatus.data?.isPaid]);
-
-  function onProceedAfterPurchaseOrAd() {
-    setTimeout(async () => {
-      await result.fetchNextPage();
-
-      //setCurrentMovieIdx(0);
-    }, 1000);
-  }
 
   function onLike() {
     if (!currentMovie) {
@@ -170,7 +127,7 @@ export function SwipeScreen() {
 
     swipe.mutate({
       movieId: currentMovie.id,
-      cast: filters.cast.map((c) => c.id),
+      cast: filters.cast,
       liked: true,
       directors: filters.director ? [filters.director.id] : [],
       watch_providers: filters.streamingServices.map((s) => s.provider_id),
@@ -194,7 +151,7 @@ export function SwipeScreen() {
     swipe.mutate({
       movieId: currentMovie.id,
       directors: filters.director ? [filters.director.id] : [],
-      cast: filters.cast.map((c) => c.id),
+      cast: filters.cast,
       liked: false,
       watch_providers: filters.streamingServices.map((s) => s.provider_id),
       genres: currentMovie.genre_ids,
@@ -214,10 +171,6 @@ export function SwipeScreen() {
   }
 
   const displayMode = useMemo(() => {
-    if (showAdPermissionPrompt) {
-      return "ad-permission";
-    }
-
     if (!currentMovie) {
       if (
         result.isFetching ||
@@ -225,8 +178,6 @@ export function SwipeScreen() {
         result.isRefetching
       ) {
         return "loading";
-      } else if (hasToWatchAd) {
-        return "ad";
       } else if (noMoreMovies) {
         return "no-more-movies";
       } else if (unableToFindMovies) {
@@ -239,10 +190,8 @@ export function SwipeScreen() {
     }
   }, [
     result.isFetching,
-    showAdPermissionPrompt,
     result.isFetchingNextPage,
     currentMovie,
-
     result.isFetching,
     result.isRefetching,
   ]);
@@ -251,24 +200,7 @@ export function SwipeScreen() {
 
   return (
     <>
-      <MainLayout
-        right={
-          showAdPermissionPrompt && (
-            <TouchableOpacity
-              onPress={() => {
-                setShowAdPermissionPrompt(false);
-              }}
-            >
-              <Text className="font-primary-bold text-base text-brand-1">
-                skip
-              </Text>
-            </TouchableOpacity>
-          )
-        }
-        goBackCloseIcon
-        title="Swipe"
-        canGoBack
-      >
+      <MainLayout goBackCloseIcon title="Swipe" canGoBack>
         {displayMode === "movies" && (
           <Animated.View
             layout={Layout}
@@ -341,42 +273,6 @@ export function SwipeScreen() {
             exiting={FadeOut}
           >
             <UnableToFindMoviesPrompt onGoBack={onGoBack} />
-          </Animated.View>
-        )}
-
-        {displayMode === "ad" && (
-          <Animated.View
-            className="flex-1 pb-8"
-            entering={FadeIn}
-            exiting={FadeOut}
-          >
-            <AdsOrPremiumPrompt
-              mode="ad"
-              onProceed={() => {
-                onProceedAfterPurchaseOrAd();
-                setShowAdPermissionPrompt(false);
-              }}
-            />
-          </Animated.View>
-        )}
-
-        {displayMode === "ad-permission" && (
-          <Animated.View
-            className="flex-1 pb-8"
-            entering={FadeIn}
-            exiting={FadeOut}
-          >
-            <AdsOrPremiumPrompt
-              mode="ad-permission"
-              onSkip={() => {
-                setShowAdPermissionPrompt(false);
-              }}
-              onProceed={() => {
-                onProceedAfterPurchaseOrAd();
-
-                setShowAdPermissionPrompt(false);
-              }}
-            />
           </Animated.View>
         )}
       </MainLayout>

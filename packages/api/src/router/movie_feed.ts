@@ -22,12 +22,10 @@ import {
 } from "../trpc";
 
 /** Number of movies that we return to the client */
-const MOVIES_PER_PAGE = 30;
+const MOVIES_PER_PAGE = 5;
 
 /** Max number of movies that we mix in from friend swipes */
 const MIX_IN_MOVIES_COUNT = 15;
-
-const AD_FREE_MOVIES_PAGE = 10;
 
 export const movie_feed = createTRPCRouter({
   getMovieFeedConfig: publicProcedure.query(() => {
@@ -122,30 +120,12 @@ export const movie_feed = createTRPCRouter({
         ctx,
       );
 
-      /*
-      if (!user.fullAccessPurchaseId && watchedAdsCount === 0) {
-        logger.info({ user }, "User has to watch an ad");
-
-        return {
-          hasToWatchAd: true,
-          feed: [],
-          cursor: input.cursor + 1,
-        };
-      }
-       * */
-
       logger.info({
         swipeCount,
         watchedAdsCount,
-        AD_FREE_MOVIES_PAGE,
       });
 
-      const responseTotalMovieCount =
-        !user.fullAccessPurchaseId && watchedAdsCount === 0
-          ? (swipeCount ?? 0) >= AD_FREE_MOVIES_PAGE
-            ? 0
-            : AD_FREE_MOVIES_PAGE
-          : MOVIES_PER_PAGE;
+      const responseTotalMovieCount = MOVIES_PER_PAGE;
 
       const {
         movies: feed,
@@ -167,7 +147,6 @@ export const movie_feed = createTRPCRouter({
 
       let response: {
         feed: Movie[];
-        hasToWatchAd?: boolean;
         unableToFindMovies?: boolean;
         noMoreMovies?: boolean;
         cursor: number;
@@ -196,17 +175,6 @@ export const movie_feed = createTRPCRouter({
         } else {
           response.noMoreMovies = true;
         }
-      } else if (!user.fullAccessPurchaseId && watchedAdsCount === 0) {
-        logger.info(
-          {
-            user,
-            MOVIES_PER_PAGE,
-            watchedAdsCount,
-            totalMovieFeedCount: responseTotalMovieCount,
-          },
-          "User has to watch an ad",
-        );
-        response.hasToWatchAd = true;
       }
 
       //Count the response if it's fully successful
