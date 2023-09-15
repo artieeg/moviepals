@@ -145,7 +145,7 @@ export const collections: MovieCollectionGroup[] = [
     description: "Movies that came out this year",
     collections: [
       {
-        id: "old-school-scary",
+        id: "horror",
         image:
           "https://moviepals.io/images/collections/20th-century-horror.png",
         title: "Old School Scary",
