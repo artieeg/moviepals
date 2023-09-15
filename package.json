@@ -29,11 +29,11 @@
   },
   "packageManager": "yarn@1.22.19",
   "workspaces": [
+    "packages/movie-filters",
     "apps/*",
     "packages/movie-swipe-db",
     "packages/app-db",
     "packages/api",
-    "packages/movie-filters",
     "packages/config/*"
   ]
 }
