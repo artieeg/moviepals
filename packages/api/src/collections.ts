@@ -29,7 +29,7 @@ export const collections: MovieCollectionGroup[] = [
         id: "best-of-all-time",
         title: "Best of All Time",
         image:
-          "https://moviepals.io/images/collections/20th-century-horror.png",
+          "https://moviepals.io/images/collections/best-of-all-times.jpeg",
         description: "Enjoy the classics!",
         free: true,
 
@@ -39,10 +39,23 @@ export const collections: MovieCollectionGroup[] = [
         }),
       },
       {
+        id: "old-school-scary",
+        image:
+          "https://moviepals.io/images/collections/20th-century-horror.png",
+        title: "Old School Scary",
+        description: "Horror classics from the 60s, 70s, and 80s",
+
+        filters: createFilters({
+          genres: [27],
+          start_year: 1960,
+          end_year: 1989,
+        }),
+      },
+      {
         id: "fresh-flicks",
         title: "Fresh Flicks",
         image:
-          "https://moviepals.io/images/collections/20th-century-horror.png",
+          "https://moviepals.io/images/collections/new-flicks.jpeg",
         description: "Movies that came out this year",
 
         filters: createFilters({
@@ -60,13 +73,67 @@ export const collections: MovieCollectionGroup[] = [
     collections: [
       {
         id: "tarantino",
-        image:
-          "https://moviepals.io/images/collections/tarantino.jpeg",
-        title: "Quentin Tarantino",
+        image: "https://moviepals.io/images/collections/tarantino.jpeg",
+        title: "Tarantino's Thrills",
         description: "Tune in to the mind-bending world of Tarantino",
 
         filters: createFilters({
           directors: [138],
+        }),
+      },
+
+      {
+        id: "scorsese",
+        image: "https://moviepals.io/images/collections/scorsese.jpeg",
+        title: "Scorsese's Saga",
+        description: "Martin's remarkable stories.",
+
+        filters: createFilters({
+          directors: [1032],
+        }),
+      },
+
+      {
+        id: "wes-anderson",
+        image: "https://moviepals.io/images/collections/wes-anderson.jpeg",
+        title: "Wes Anderson",
+        description: "Wes's quirky tales.",
+
+        filters: createFilters({
+          directors: [5655],
+        }),
+      },
+
+      {
+        id: "lynch",
+        image: "https://moviepals.io/images/collections/lynch.jpeg",
+        title: "David Lynch",
+        description: "David's surreal mysteries.",
+
+        filters: createFilters({
+          directors: [5602],
+        }),
+      },
+
+      {
+        id: "spielberg",
+        image: "https://moviepals.io/images/collections/steven-spielberg.jpeg",
+        title: "Steven Spielberg",
+        description: "Steven's grand adventures.",
+
+        filters: createFilters({
+          directors: [488],
+        }),
+      },
+
+      {
+        id: "terrence-malick",
+        image: "https://moviepals.io/images/collections/terrence-malick.jpeg",
+        title: "Terrence Malick",
+        description: "Terrence's visual verse.",
+
+        filters: createFilters({
+          directors: [30715],
         }),
       },
     ],
