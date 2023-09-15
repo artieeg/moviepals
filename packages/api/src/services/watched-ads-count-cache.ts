@@ -11,6 +11,16 @@ export class WatchedAdCountCache {
     return `viewed_ads:${user}`;
   }
 
+  async decWatchedAdsCount(userId: string) {
+    const state = await this.getWatchedAdsCount(userId);
+
+    if (state > 0) {
+      await this.setWatchedAdsCount(userId, state - 1, false);
+    } else {
+      await this.setWatchedAdsCount(userId, 0, true);
+    }
+  }
+
   async incWatchedAdsCount(userId: string) {
     const state = await this.getWatchedAdsCount(userId);
 

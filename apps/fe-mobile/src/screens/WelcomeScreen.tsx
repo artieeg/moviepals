@@ -7,6 +7,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { FlashList } from "@shopify/flash-list";
 import { AppleMac, GoogleCircle } from "iconoir-react-native";
+import { useColorScheme } from "nativewind";
 import Rive from "rive-react-native";
 
 import { api, setAuthToken } from "~/utils/api";
@@ -106,8 +107,10 @@ export function WelcomeScreen() {
     }
   }
 
+  const { colorScheme } = useColorScheme();
+
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-neutral-1-6">
+    <SafeAreaView className="flex-1 bg-white dark:bg-neutral-1">
       <View className="flex-1 px-8">
         <View className="justify-between flex-1 py-8">
           <View className="space-y-3">
@@ -115,7 +118,8 @@ export function WelcomeScreen() {
               Welcome to{"\n"}MoviePals 👋
             </Text>
             <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
-              Discover dozens of movies that you and your friends want to watch together!
+              Discover dozens of movies that you and your friends want to watch
+              together!
             </Text>
           </View>
 

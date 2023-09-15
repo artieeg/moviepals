@@ -39,6 +39,17 @@ model User {
   connectionRequestFirstUser  ConnectionRequest[] @relation("connection_request_first_user")
   connectionRequestSecondUser ConnectionRequest[] @relation("connection_request_second_user")
   SharedPremium               SharedPremium[]
+  UnlockedCategory            UnlockedCategory[]
+}
+
+model UnlockedCategory {
+  categoryId String @id
+  userId     String
+  User       User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([categoryId, userId])
 }
 
 model UserInviteLink {

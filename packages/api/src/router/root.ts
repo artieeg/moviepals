@@ -1,6 +1,7 @@
 import { createTRPCRouter } from "../trpc";
 import { ad_impression } from "./ad_impression_fallback";
 import { cast } from "./cast";
+import { collections } from "./collections";
 import { connection } from "./connection";
 import { connection_requests } from "./connection_requests";
 import { director } from "./director";
@@ -27,6 +28,7 @@ export const appRouter = createTRPCRouter({
   matches,
   invite,
   director,
+  collections,
 });
 
 // export type definition of API

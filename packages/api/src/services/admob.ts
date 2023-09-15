@@ -39,17 +39,12 @@ async function verifySignature(payload: z.infer<typeof admobSchema>) {
     (key: { keyId: string }) => Number(key.keyId) === Number(key_id),
   );
 
-  console.log(keys.data);
-
   if (!key) {
     throw new Error("Key not found");
   }
 
-  console.log(key);
-
   const verifier = createVerify("RSA-SHA256");
 
-  console.log("verifier created");
   verifier.update(
     encode({
       ad_network: rest.ad_network,
@@ -63,8 +58,6 @@ async function verifySignature(payload: z.infer<typeof admobSchema>) {
   );
 
   const verified = verifier.verify(key.pem, Buffer.from(signature, "base64"));
-
-  console.log({ verified });
 
   if (!verified) {
     throw new Error("Not verified");

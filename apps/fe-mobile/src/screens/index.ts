@@ -25,3 +25,4 @@ export * from "./TimeframeInputScreen";
 export * from "./MatchListScreenV2";
 export * from "./OnboardingSendInviteScreen";
 export * from "./NiceToMeetYouScreen";
+export * from "./MovieCollectionListScreen";
