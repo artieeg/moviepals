@@ -18,6 +18,7 @@ const config: Config = {
         "neutral-1": "#0E0C10",
         "neutral-2": "#71707B",
         "neutral-2-10": "rgba(113, 112, 123, 0.10)",
+        "neutral-2-20": "rgba(113, 112, 123, 0.20)",
         "neutral-2-50": "rgba(113, 112, 123, 0.50)", 
         "neutral-3": "#D4D4D4",
         "neutral-4": "#C7C5DA",

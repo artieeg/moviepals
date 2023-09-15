@@ -41,7 +41,7 @@ export function Prompt({
         }}
         className="flex-1 space-y-4"
       >
-        <View className="bg-brand-1-10 h-20 w-20 items-center justify-center rounded-2xl">
+        <View className="bg-neutral-2-10 h-20 w-20 items-center justify-center rounded-2xl">
           <IconoirProvider
             iconProps={{
               color: "#6867AA",

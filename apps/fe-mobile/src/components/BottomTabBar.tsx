@@ -2,14 +2,20 @@ import React from "react";
 import { Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
-import { CinemaOld, Group, MediaVideoList, PeopleTag } from "iconoir-react-native";
+import {
+  CinemaOld,
+  Group,
+  IconoirProvider,
+  MediaVideoList,
+  PeopleTag,
+} from "iconoir-react-native";
 import { useColorScheme } from "nativewind";
 import { twJoin } from "tailwind-merge";
 
 import { useNavigation } from "~/hooks";
 import {
-  NAVIGATOR_MATCHES,
   NAVIGATOR_FRIENDS,
+  NAVIGATOR_MATCHES,
   NAVIGATOR_ME,
   NAVIGATOR_SWIPE,
 } from "~/navigators/MainNavigator";
@@ -37,96 +43,91 @@ export function BottomTabBar(props: BottomTabBarProps) {
 
   const { bottom } = useSafeAreaInsets();
 
+  const { colorScheme } = useColorScheme();
+
   return (
-    <View
-      style={{
-        paddingBottom: bottom ? bottom : 12,
+    <IconoirProvider
+      iconProps={{
+        width: 32,
+        height: 32,
+        strokeWidth: 2,
+        color: colorScheme === "dark" ? "#FFFFFF" : "#0E0C10",
       }}
-      className="flex-row justify-between bg-[#F5F2EC] dark:bg-neutral-1 px-4"
     >
-      <Pressable
-        onPress={() => navigation.navigate(NAVIGATOR_SWIPE)}
-        className="flex-1 items-center justify-center space-y-1 pt-4"
+      <View
+        style={{
+          paddingBottom: bottom ? bottom : 12,
+        }}
+        className="flex-row justify-between bg-white dark:bg-neutral-1 px-4 border-t border-neutral-4 dark:border-neutral-2-50"
       >
-        <CinemaOld
-          width="24"
-          height="24"
-          color={isSwipeNavigator ? selected : unselected}
-        />
-        <Text
-          className={twJoin(
-            "font-primary-bold",
-            isSwipeNavigator
-              ? "text-neutral-1 dark:text-white"
-              : "text-neutral-2 dark:text-neutral-5",
-          )}
+        <Pressable
+          onPress={() => navigation.navigate(NAVIGATOR_SWIPE)}
+          className="flex-1 items-center justify-center space-y-1 pt-4"
         >
-          movies
-        </Text>
-      </Pressable>
+          <CinemaOld color={isSwipeNavigator ? selected : unselected} />
+          <Text
+            className={twJoin(
+              "font-primary-bold",
+              isSwipeNavigator
+                ? "text-neutral-1 dark:text-white"
+                : "text-neutral-2 dark:text-neutral-5",
+            )}
+          >
+            movies
+          </Text>
+        </Pressable>
 
-      <Pressable
-        onPress={() => navigation.navigate(NAVIGATOR_FRIENDS)}
-        className="flex-1 items-center justify-center space-y-1 pt-4"
-      >
-        <Group
-          width="24"
-          height="24"
-          color={isFriendsNavigator ? selected : unselected}
-        />
-        <Text
-          className={twJoin(
-            "font-primary-bold",
-            isFriendsNavigator
-              ? "text-neutral-1 dark:text-white"
-              : "text-neutral-2 dark:text-neutral-5",
-          )}
+        <Pressable
+          onPress={() => navigation.navigate(NAVIGATOR_FRIENDS)}
+          className="flex-1 items-center justify-center space-y-1 pt-4"
         >
-          people
-        </Text>
-      </Pressable>
+          <Group color={isFriendsNavigator ? selected : unselected} />
+          <Text
+            className={twJoin(
+              "font-primary-bold",
+              isFriendsNavigator
+                ? "text-neutral-1 dark:text-white"
+                : "text-neutral-2 dark:text-neutral-5",
+            )}
+          >
+            people
+          </Text>
+        </Pressable>
 
-      <Pressable
-        onPress={() => navigation.navigate(NAVIGATOR_MATCHES)}
-        className="flex-1 items-center justify-center space-y-1 pt-4"
-      >
-        <MediaVideoList
-          color={isMatchesNavigator ? selected : unselected}
-          width="24"
-          height="24"
-        />
-        <Text
-          className={twJoin(
-            "font-primary-bold",
-            isMatchesNavigator
-              ? "text-neutral-1 dark:text-white"
-              : "text-neutral-2 dark:text-neutral-5",
-          )}
+        <Pressable
+          onPress={() => navigation.navigate(NAVIGATOR_MATCHES)}
+          className="flex-1 items-center justify-center space-y-1 pt-4"
         >
-          matches
-        </Text>
-      </Pressable>
+          <MediaVideoList color={isMatchesNavigator ? selected : unselected} />
+          <Text
+            className={twJoin(
+              "font-primary-bold",
+              isMatchesNavigator
+                ? "text-neutral-1 dark:text-white"
+                : "text-neutral-2 dark:text-neutral-5",
+            )}
+          >
+            matches
+          </Text>
+        </Pressable>
 
-      <Pressable
-        onPress={() => navigation.navigate(NAVIGATOR_ME)}
-        className="flex-1 items-center justify-center space-y-1 pt-4"
-      >
-        <PeopleTag
-          color={isMeNavigator ? selected : unselected}
-          width="24"
-          height="24"
-        />
-        <Text
-          className={twJoin(
-            "font-primary-bold",
-            isMeNavigator
-              ? "text-neutral-1 dark:text-white"
-              : "text-neutral-2 dark:text-neutral-5",
-          )}
+        <Pressable
+          onPress={() => navigation.navigate(NAVIGATOR_ME)}
+          className="flex-1 items-center justify-center space-y-1 pt-4"
         >
-          me
-        </Text>
-      </Pressable>
-    </View>
+          <PeopleTag color={isMeNavigator ? selected : unselected} />
+          <Text
+            className={twJoin(
+              "font-primary-bold",
+              isMeNavigator
+                ? "text-neutral-1 dark:text-white"
+                : "text-neutral-2 dark:text-neutral-5",
+            )}
+          >
+            me
+          </Text>
+        </Pressable>
+      </View>
+    </IconoirProvider>
   );
 }

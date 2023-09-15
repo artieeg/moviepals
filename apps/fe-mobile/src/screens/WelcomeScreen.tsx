@@ -107,7 +107,7 @@ export function WelcomeScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-neutral-1">
+    <SafeAreaView className="flex-1 bg-white dark:bg-neutral-1-6">
       <View className="flex-1 px-8">
         <View className="justify-between flex-1 py-8">
           <View className="space-y-3">
@@ -115,17 +115,10 @@ export function WelcomeScreen() {
               Welcome to{"\n"}MoviePals 👋
             </Text>
             <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
-              We got thousands of movies for you and your friends to choose
-              from, create an account and let’s roll! 🚀
+              Discover dozens of movies that you and your friends want to watch together!
             </Text>
           </View>
 
-          {/*
-          <Rive
-            style={{ width: 300, height: 300 }}
-            resourceName="welcome_screen_graphics"
-          />
-          */}
           <View className="max-h-[300px] overflow-hidden rounded-4xl">
             <FastImage
               source={require("../../assets/pngs/watching-movie-art.png")}
@@ -134,7 +127,7 @@ export function WelcomeScreen() {
           </View>
 
           <View className="space-y-6">
-            <View className="space-y-3 flex-row justify-between items-center">
+            <View className="flex-row justify-between items-center">
               <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
                 Sign in with
               </Text>
@@ -142,7 +135,7 @@ export function WelcomeScreen() {
                 <IconButton
                   onPress={onSignInWithGoogle}
                   loading={googleSignInInProgress}
-                  variant="outline"
+                  variant="gray"
                 >
                   <GoogleCircle />
                 </IconButton>
@@ -150,7 +143,7 @@ export function WelcomeScreen() {
                 <IconButton
                   onPress={onSignInWithApple}
                   loading={appleSignInInProgress}
-                  variant="outline"
+                  variant="gray"
                 >
                   <AppleMac />
                 </IconButton>

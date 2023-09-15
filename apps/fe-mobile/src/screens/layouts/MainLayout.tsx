@@ -1,16 +1,39 @@
 import { PropsWithChildren } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import { SafeAreaView, SafeAreaViewProps } from "react-native-safe-area-context";
+import { Text, TouchableOpacity, View, ViewProps } from "react-native";
+import Animated, {
+  FadeIn,
+  FadeOut,
+  interpolateColor,
+  SharedValue,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+} from "react-native-reanimated";
+import {
+  SafeAreaView,
+  SafeAreaViewProps,
+} from "react-native-safe-area-context";
 import { Cancel, NavArrowLeft } from "iconoir-react-native";
 
 import { useNavigation } from "~/hooks";
-import {ViewProps} from "react-native";
+
+export function useMainLayoutScrollHandler() {
+  const tweener = useSharedValue(0);
+
+  const handler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      tweener.value = event.contentOffset.y / 20;
+    },
+  });
+
+  return { tweener, handler };
+}
 
 export function MainLayout({
   children,
   title,
   goBackCloseIcon,
+  borderTweenerValue,
   onGoBack,
   right,
   canGoBack,
@@ -20,10 +43,11 @@ export function MainLayout({
   title: string;
   /** Override default "go back" behavior */
   onGoBack?: () => void;
+  borderTweenerValue?: SharedValue<number>;
   right?: React.ReactNode;
   canGoBack?: boolean;
   goBackCloseIcon?: boolean;
-  edges?: SafeAreaViewProps["edges"]
+  edges?: SafeAreaViewProps["edges"];
 } & ViewProps) {
   const navigation = useNavigation();
 
@@ -34,6 +58,10 @@ export function MainLayout({
       navigation.goBack();
     }
   }
+
+  const borderStyle = useAnimatedStyle(() => ({
+    opacity: borderTweenerValue ? borderTweenerValue.value : 0,
+  }));
 
   return (
     <SafeAreaView
@@ -64,7 +92,10 @@ export function MainLayout({
               {right}
             </Animated.View>
           )}
+
+          {/* Border */}
         </View>
+        <Animated.View style={borderStyle} className="h-px bg-neutral-4 dark:bg-neutral-2-50" />
 
         {/* CONTENT */}
         <View className="flex-1 px-8">{children}</View>

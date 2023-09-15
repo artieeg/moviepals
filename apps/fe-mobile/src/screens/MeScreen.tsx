@@ -11,6 +11,7 @@ import {
   View,
 } from "react-native";
 import Purchases, { PurchasesError } from "react-native-purchases";
+import Animated from "react-native-reanimated";
 import Toast from "react-native-toast-message";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
@@ -20,7 +21,7 @@ import { api, signOut } from "~/utils/api";
 import { Section, Switch, UserAvatar } from "~/components";
 import { useNavigation, usePremiumProduct } from "~/hooks";
 import { SCREEN_INVITE } from "./InviteScreen";
-import { MainLayout } from "./layouts/MainLayout";
+import { MainLayout, useMainLayoutScrollHandler } from "./layouts/MainLayout";
 import { SCREEN_MY_SWIPE_LIST } from "./MySwipeListScreen";
 import { SCREEN_SHARE_PREMIUM } from "./SharePremiumScreen";
 import { SCREEN_THANK_YOU } from "./ThankYouScreen";
@@ -182,9 +183,17 @@ export function MeScreen() {
     navigation.navigate(SCREEN_USER_SETTINGS);
   }
 
+  const { handler, tweener } = useMainLayoutScrollHandler();
+
   return (
-    <MainLayout edges={["top", "left", "right"]} canGoBack title="Me">
-      <ScrollView
+    <MainLayout
+      borderTweenerValue={tweener}
+      edges={["top", "left", "right"]}
+      canGoBack
+      title="Me"
+    >
+      <Animated.ScrollView
+        onScroll={handler}
         className="-mx-8"
         contentContainerStyle={{ paddingHorizontal: 32, paddingBottom: 128 }}
       >
@@ -369,7 +378,7 @@ export function MeScreen() {
             </View>
           </View>
         )}
-      </ScrollView>
+      </Animated.ScrollView>
     </MainLayout>
   );
 }
