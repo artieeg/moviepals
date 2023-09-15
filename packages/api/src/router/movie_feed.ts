@@ -326,8 +326,16 @@ async function getOrCreateReviewState(
   input: MovieFeedFilter,
   ctx: Context,
 ) {
-  const { watchProviderIds, genres, directors, cast, start_year, end_year } =
-    input;
+  const {
+    watchProviderIds,
+    genres,
+    directors,
+    cast,
+    start_year,
+    end_year,
+    order_by,
+    min_vote_count,
+  } = input;
 
   const reviewState = await ctx.dbMovieSwipe.reviewState.findOne({
     userId: user,
@@ -351,6 +359,8 @@ async function getOrCreateReviewState(
       watch_providers: watchProviderIds,
       cast,
       start_year,
+      order_by,
+      min_vote_count,
       end_year,
       directors,
       genre_ids: genres,
@@ -377,6 +387,8 @@ async function getMoviePage({
     watchProviderIds,
     start_year,
     end_year,
+    order_by,
+    min_vote_count,
   },
   ctx,
   fetchRandomSwipes,
@@ -516,6 +528,8 @@ async function getMoviePage({
   const params: Omit<GetMoviesParams, "page"> = {
     "primary_release_date.gte": start_year ? `${start_year}-01-01` : undefined,
     "primary_release_date.lte": end_year ? `${end_year}-12-31` : undefined,
+    sort_by: order_by,
+    "vote_count.gte": min_vote_count,
     with_watch_providers: watchProviderIds.join("|"),
     watch_region: region,
     with_genres: genres.join(","),

@@ -30,12 +30,22 @@ export const collections = createTRPCRouter({
         return { unlockedCollections, user };
       });
 
-    const groups: MovieCollectionGroup[] = [];
+    const groups = collectionsData.map((group) => ({
+      ...group,
+      collections: group.collections.map((collection) => ({
+        ...collection,
+        locked: user.fullAccessPurchaseId
+          ? false
+          : unlockedCollections
+          ? !unlockedCollections.some((i) => i.categoryId === collection.id)
+          : true,
+      })),
+    }));
 
     //Users on free plans should have a separate group for available collections
     //These collections will will be duplicated
     if (!user.fullAccessPurchaseId) {
-      groups.push({
+      groups.splice(0, 0, {
         id: "available",
         title: "Available Collections",
         description:
@@ -53,19 +63,7 @@ export const collections = createTRPCRouter({
       });
     }
 
-    return {
-      groups: collectionsData.map((group) => ({
-        ...group,
-        collections: group.collections.map((collection) => ({
-          ...collection,
-          locked: user.fullAccessPurchaseId
-            ? false
-            : unlockedCollections
-            ? !unlockedCollections.some((i) => i.categoryId === collection.id)
-            : true,
-        })),
-      })),
-    };
+    return { groups };
   }),
 
   unlockCollection: protectedProcedure

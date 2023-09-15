@@ -17,6 +17,18 @@ import { Cancel, NavArrowLeft } from "iconoir-react-native";
 
 import { useNavigation } from "~/hooks";
 
+export function useTabLayoutScrollHandler() {
+  const tweener = useSharedValue(0);
+
+  const handler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      tweener.value = event.contentOffset.y / 20;
+    },
+  });
+
+  return { tweener, handler };
+}
+
 export function TabLayout({
   children,
   title,
@@ -63,7 +75,7 @@ export function TabLayout({
     >
       <View className="flex-1 px-8">
         {/* HEADER */}
-        <View className="space-y-2">
+        <View className="space-y-2 pb-4">
           <Text className="font-primary-bold text-2xl text-neutral-1 dark:text-white">
             {title}
           </Text>
@@ -73,7 +85,7 @@ export function TabLayout({
         </View>
         <Animated.View
           style={borderStyle}
-          className="h-px bg-neutral-4 dark:bg-neutral-2-50"
+          className="h-px -mx-8 bg-neutral-4 dark:bg-neutral-2-50"
         />
 
         {/* CONTENT */}

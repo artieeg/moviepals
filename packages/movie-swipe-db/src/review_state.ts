@@ -15,6 +15,8 @@ const reviewStateSchema = z
     genre_ids: z.array(z.number()),
     watch_providers: z.array(z.number()),
     cast: z.array(z.number()),
+    order_by: z.string(),
+    min_vote_count: z.number(),
   })
   .strip();
 

@@ -46,6 +46,8 @@ const streamingServicesResponseSchema = z.object({
 export type GetMoviesParams = {
   "primary_release_date.gte": string | undefined;
   "primary_release_date.lte": string | undefined;
+  "sort_by": string;
+  "vote_count.gte": number;
   with_watch_providers: string;
   watch_region: string | undefined;
   with_genres: string;
