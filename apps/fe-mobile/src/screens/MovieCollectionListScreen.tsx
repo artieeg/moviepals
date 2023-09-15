@@ -200,11 +200,11 @@ function UpgradeSection({
 }) {
   return (
     <View className="space-y-3" {...rest}>
-      <Button onPress={onInvitePeople} kind="outline">
-        Invite Friends
-      </Button>
       <Button onPress={onPurchasePremium} isLoading={isPurchasingPremium}>
         Upgrade to Pro
+      </Button>
+      <Button onPress={onInvitePeople} kind="outline">
+        Invite Friends
       </Button>
       <Button
         onPress={onRestorePurchases}
