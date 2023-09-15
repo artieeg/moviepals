@@ -1,11 +1,10 @@
 import React, { useMemo } from "react";
-import { SectionList, Text } from "react-native";
+import { SectionList, Text, View, ViewProps } from "react-native";
 import FastImage from "react-native-fast-image";
-
-import { MovieCollectionGroup } from "@moviepals/api/src/collections";
+import { Lock } from "iconoir-react-native";
 
 import { api, RouterOutputs } from "~/utils/api";
-import { TouchableScale } from "~/components";
+import { Button, TouchableScale } from "~/components";
 import { TabLayout } from "./layouts/TabLayout";
 
 export const SCREEN_MOVIE_COLLECTION_LIST_SCREEN = "MovieCollectionListScreen";
@@ -33,7 +32,8 @@ export function MovieCollectionList() {
       if (group === "UPGRADE_PROMPT") {
         return {
           id: "UPGRADE_PROMPT",
-          title: "Upgrade to Premium",
+          title: "Unlock All",
+          description: "Get access to all collections",
           data: [],
         };
       }
@@ -55,14 +55,27 @@ watch together with your friends"
     >
       <SectionList
         className="-mx-8"
+        contentInset={{ top: 32 }}
         sections={sections}
+        stickySectionHeadersEnabled={false}
+        renderSectionFooter={() => <View className="h-8" />}
         renderSectionHeader={({ section }) => (
-          <Text className="font-primary-bold text-neutral-1 dark:text-white text-xl">
-            {section.title}
-          </Text>
+          <View className="space-y-2 mb-3">
+            <Text className="font-primary-bold text-neutral-1 dark:text-white text-xl">
+              {section.title}
+            </Text>
+            <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
+              {section.description}
+            </Text>
+
+            {section.id === "UPGRADE_PROMPT" && (
+              <UpgradeSection className="mt-3" />
+            )}
+          </View>
         )}
+        ItemSeparatorComponent={() => <View className="h-3" />}
         renderItem={({ item, section }) =>
-          item.id === "UPGRADE_PROMPT" ? null : (
+          section.id === "UPGRADE_PROMPT" ? null : (
             <MovieCollection
               onPress={() => {}}
               key={`${section.id}_${item.id}`}
@@ -75,6 +88,15 @@ watch together with your friends"
         }
       />
     </TabLayout>
+  );
+}
+
+function UpgradeSection({ ...rest }: ViewProps) {
+  return (
+    <View className="space-y-3" {...rest}>
+      <Button kind="outline">Invite Friends</Button>
+      <Button>Upgrade to Pro</Button>
+    </View>
   );
 }
 
@@ -92,12 +114,27 @@ function MovieCollection({
   onPress: () => void;
 }) {
   return (
-    <TouchableScale>
-      <FastImage
-        className="h-[74px] w-[74px] rounded-xl"
-        resizeMode="cover"
-        source={{ uri: image }}
-      />
+    <TouchableScale className="flex-row space-x-4">
+      <View className="h-[74px] w-[74px]">
+        <FastImage
+          className="rounded-xl h-full w-full"
+          resizeMode="cover"
+          source={{ uri: image }}
+        />
+
+        <View className="absolute left-0 top-0 bottom-0 right-0 bg-[#0000004D] items-center justify-center">
+          <Lock />
+        </View>
+      </View>
+
+      <View className="space-y-1 flex-1">
+        <Text className="font-primary-bold text-neutral-1 dark:text-white text-xl">
+          {title}
+        </Text>
+        <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
+          {description}
+        </Text>
+      </View>
     </TouchableScale>
   );
 }
