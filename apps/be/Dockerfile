@@ -10,6 +10,7 @@ COPY package.json yarn.lock ./
 #Copy package.json files from each package into the container
 COPY apps/be/package.json ./apps/be/
 COPY packages/api/package.json ./packages/api/
+COPY packages/movie-filters/package.json ./packages/movie-filters/
 COPY packages/app-db/package.json ./packages/app-db/
 COPY packages/movie-swipe-db/package.json ./packages/movie-swipe-db/
 COPY packages/config/ ./packages/config/
