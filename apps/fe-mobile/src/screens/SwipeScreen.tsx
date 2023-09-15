@@ -111,14 +111,16 @@ export function SwipeScreen() {
     navigation.goBack();
   }
 
+  //Fetch next page when user approaches the end of the deck
   useEffect(() => {
-    if (currentMovieIdx > 0 && currentMovieIdx > deck.length - 4) {
-      Alert.alert("Fetching new stuff");
-      //if (currentMovieIdx > 0 && !currentMovie && !premiumStatus.data?.isPaid) {
-      //TODO
+    if (
+      currentMovieIdx > 0 &&
+      currentMovieIdx > deck.length - 5 &&
+      !noMoreMovies
+    ) {
       result.fetchNextPage();
     }
-  }, [currentMovieIdx, currentMovie, premiumStatus.data?.isPaid]);
+  }, [currentMovieIdx, currentMovie, premiumStatus.data?.isPaid, noMoreMovies]);
 
   function onLike() {
     if (!currentMovie) {

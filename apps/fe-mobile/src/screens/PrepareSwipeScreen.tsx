@@ -48,7 +48,7 @@ export function PrepareSwipeScreen() {
   const { handler, tweener } = useMainLayoutScrollHandler();
 
   return (
-    <MainLayout borderTweenerValue={tweener} title="Movies">
+    <MainLayout canGoBack borderTweenerValue={tweener} title="Movies">
       <Animated.ScrollView
         onScroll={handler}
         className="-mx-8"

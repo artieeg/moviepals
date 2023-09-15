@@ -17,6 +17,7 @@ export type FilterStore = {
   streamingServices: StreamingService[];
 
   director?: Person;
+  castData: Person[];
 
   toggleDirector: (person: Person) => void;
   toggleStreamingService: (service: StreamingService) => void;
@@ -32,6 +33,9 @@ export const useFilterStore = create<FilterStore>()(
       country: "US",
       quickMatchMode: true,
       streamingServices: [],
+      castData: [],
+      custom_filters: false,
+      collection_id: "best-of-all-time",
       genres: [],
       order_by: "vote_average.desc",
       min_vote_count: 300,
@@ -91,8 +95,12 @@ export const useFilterStore = create<FilterStore>()(
           produce<FilterStore>((state) => {
             if (state.cast.includes(person.id)) {
               state.cast = state.cast.filter((id) => id !== person.id);
+              state.castData = state.castData.filter(
+                (p) => p.id !== person.id,
+              );
             } else {
               state.cast.push(person.id);
+              state.castData.push(person);
             }
           }),
         );

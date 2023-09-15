@@ -1,16 +1,34 @@
 import React, { useMemo } from "react";
-import { Alert, SectionList, Text, View, ViewProps } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  Platform,
+  SectionList,
+  Text,
+  View,
+  ViewProps,
+} from "react-native";
 import FastImage from "react-native-fast-image";
+import {
+  AdsConsent,
+  AdsConsentStatus,
+  RewardedAd,
+  RewardedAdEventType,
+} from "react-native-google-mobile-ads";
+import { check, PERMISSIONS, request, RESULTS } from "react-native-permissions";
 import Purchases from "react-native-purchases";
 import Animated from "react-native-reanimated";
-import { Lock } from "iconoir-react-native";
-
-import { MovieBaseFilter } from "@moviepals/filters";
+import { Filter, Lock } from "iconoir-react-native";
+import { useColorScheme } from "nativewind";
 
 import { api, RouterOutputs } from "~/utils/api";
+import { env } from "~/utils/env";
 import { Button, TouchableScale } from "~/components";
 import { useNavigation, usePremiumProduct } from "~/hooks";
-import { SCREEN_SWIPE } from "~/navigators/SwipeNavigator";
+import {
+  SCREEN_PREPARE_SWIPE,
+  SCREEN_SWIPE,
+} from "~/navigators/SwipeNavigator";
 import { useFilterStore } from "~/stores";
 import { SCREEN_INVITE } from "./InviteScreen";
 import { TabLayout, useTabLayoutScrollHandler } from "./layouts/TabLayout";
@@ -26,6 +44,11 @@ type SectionData =
   | "UPGRADE_PROMPT";
 
 const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
+
+const ad = Platform.select({
+  ios: env.REWARDED_AD_IOS,
+  default: env.REWARDED_AD_ANDROID,
+});
 
 export function MovieCollectionList() {
   const isPaid = api.user.isPaid.useQuery();
@@ -62,6 +85,7 @@ export function MovieCollectionList() {
   }, [collectionData.data?.groups, collectionData.isSuccess]);
 
   const premium = usePremiumProduct();
+  const user = api.user.getMyData.useQuery();
 
   const [isRestoringPurchases, setRestoringPurchases] = React.useState(false);
   const [isPurchasingPremium, setPurchasingPremium] = React.useState(false);
@@ -119,8 +143,77 @@ export function MovieCollectionList() {
     }
   }
 
+  const unlockCollection = api.collections.unlockCollection.useMutation({
+    onSuccess() {
+      collectionData.refetch();
+    },
+  });
+
+  const [loadingAdFor, setLoadingAdFor] = React.useState<string | null>(null);
+
+  async function onWatchRewardedAd(collectionId: string) {
+    setLoadingAdFor(collectionId);
+    const consentInfo = await AdsConsent.requestInfoUpdate();
+
+    if (
+      consentInfo.isConsentFormAvailable &&
+      consentInfo.status === AdsConsentStatus.REQUIRED
+    ) {
+      await AdsConsent.showForm();
+
+      const { storeAndAccessInformationOnDevice } =
+        await AdsConsent.getUserChoices();
+
+      if (!storeAndAccessInformationOnDevice) {
+        Alert.alert(
+          "Unable to show a rewarded ad",
+          "We're unable to show rewarded ads without your consent. Please consider updating your response or purchasing premium",
+        );
+
+        setLoadingAdFor(null);
+
+        return;
+      }
+    }
+
+    const result = await check(PERMISSIONS.IOS.APP_TRACKING_TRANSPARENCY);
+
+    if (result === RESULTS.DENIED) {
+      await request(PERMISSIONS.IOS.APP_TRACKING_TRANSPARENCY);
+    }
+
+    const rewarded = RewardedAd.createForAdRequest(ad, {
+      serverSideVerificationOptions: {
+        userId: user.data?.id,
+      },
+    });
+
+    const watchedUnsub = rewarded.addAdEventListener(
+      RewardedAdEventType.EARNED_REWARD,
+      () => {
+        watchedUnsub();
+
+        unlockCollection.mutate({ collectionId });
+      },
+    );
+
+    const loadedUnsub = rewarded.addAdEventListener(
+      RewardedAdEventType.LOADED,
+      () => {
+        console.log("loaded");
+        loadedUnsub();
+        setLoadingAdFor(null);
+
+        rewarded.show();
+      },
+    );
+
+    rewarded.load();
+  }
+
   const onCollectionPress = (collection: Collection) => {
     if (collection.locked) {
+      onWatchRewardedAd(collection.id);
       //TODO: show modal
     } else {
       useFilterStore.setState({
@@ -133,6 +226,37 @@ export function MovieCollectionList() {
 
   const { handler, tweener } = useTabLayoutScrollHandler();
 
+  function onOpenCustomFilters() {
+    if (!isPaid.isSuccess) {
+      return;
+    }
+
+    if (!isPaid.data.isPaid) {
+      Alert.alert(
+        "Premium Feature",
+        "Hey, this is a premium feature! Upgrade to unlock it.",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+          {
+            text: "Upgrade",
+            onPress: () => {
+              onPurchasePremium();
+            },
+          },
+        ],
+      );
+    } else {
+      useFilterStore.setState({
+        custom_filters: true,
+      })
+
+      navigation.navigate(SCREEN_PREPARE_SWIPE);
+    }
+  }
+
   return (
     <TabLayout
       borderTweenerValue={tweener}
@@ -142,11 +266,18 @@ watch together with your friends"
     >
       <AnimatedSectionList
         className="-mx-8"
+        showsVerticalScrollIndicator={false}
         contentInset={{ top: 16 }}
         sections={sections}
         stickySectionHeadersEnabled={false}
         onScroll={handler}
-        renderSectionFooter={() => <View className="h-8" />}
+        renderSectionFooter={({ section }: any) => (
+          <View className="pb-8">
+            {section.id === "recommended" && (
+              <CustomFilters onPress={onOpenCustomFilters} className="mt-3" />
+            )}
+          </View>
+        )}
         renderSectionHeader={({ section }: any) => (
           <View className="space-y-1 mb-3">
             <Text className="font-primary-bold text-neutral-1 dark:text-white text-xl">
@@ -173,6 +304,7 @@ watch together with your friends"
         renderItem={({ item, section }: any) =>
           section.id === "UPGRADE_PROMPT" ? null : (
             <MovieCollection
+              isLoading={loadingAdFor === item.id}
               onPress={onCollectionPress}
               key={`${section.id}_${item.id}`}
               collection={item}
@@ -217,13 +349,37 @@ function UpgradeSection({
   );
 }
 
+function CustomFilters({
+  onPress,
+  ...rest
+}: { onPress: () => void } & ViewProps) {
+  return (
+    <TouchableScale className="flex-row space-x-4" onPress={onPress} {...rest}>
+      <View className="h-[74px] rounded-xl w-[74px] bg-neutral-2-10 justify-center items-center">
+        <Filter />
+      </View>
+
+      <View className="space-y-1 flex-1">
+        <Text className="font-primary-bold text-neutral-1 dark:text-white text-xl">
+          Custom Collection
+        </Text>
+        <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
+          Filter by genres, cast, directors & more
+        </Text>
+      </View>
+    </TouchableScale>
+  );
+}
+
 const MovieCollection = React.memo(_MovieCollection);
 
 function _MovieCollection({
   collection,
   onPress,
+  isLoading,
 }: {
   collection: Collection;
+  isLoading: boolean;
   onPress: (collection: Collection) => void;
 }) {
   const { image, title, description, locked } = collection;
@@ -233,7 +389,7 @@ function _MovieCollection({
       className="flex-row space-x-4"
       onPress={() => onPress(collection)}
     >
-      <View className="h-[74px] w-[74px]">
+      <View className="h-[74px] w-[74px] rounded-xl overflow-hidden">
         <FastImage
           className="rounded-xl h-full w-full"
           resizeMode="cover"
@@ -242,7 +398,7 @@ function _MovieCollection({
 
         {locked && (
           <View className="absolute left-0 top-0 bottom-0 right-0 bg-[#0000004D] items-center justify-center">
-            <Lock />
+            {isLoading ? <ActivityIndicator color="white" /> : <Lock />}
           </View>
         )}
       </View>
