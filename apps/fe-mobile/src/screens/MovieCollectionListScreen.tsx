@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -19,6 +19,7 @@ import {
 import { check, PERMISSIONS, request, RESULTS } from "react-native-permissions";
 import Purchases from "react-native-purchases";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import { useFocusEffect } from "@react-navigation/native";
 import { Filter, Lock, NavArrowDown } from "iconoir-react-native";
 import { useColorScheme } from "nativewind";
 
@@ -63,6 +64,13 @@ export function MovieCollectionList() {
 
   const isPaid = api.user.isPaid.useQuery();
   const collectionData = api.collections.getCollectionList.useQuery();
+
+  useFocusEffect(
+    useCallback(() => {
+      isPaid.refetch();
+      collectionData.refetch();
+    }, []),
+  );
 
   const { colorScheme } = useColorScheme();
 
