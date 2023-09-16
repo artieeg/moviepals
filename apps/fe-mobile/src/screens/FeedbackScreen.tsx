@@ -40,7 +40,7 @@ export function FeedbackScreen() {
   }
 
   return (
-    <MainLayout title="Share Feedback">
+    <MainLayout canGoBack title="Share Feedback">
       <View className="space-y-2 pb-4">
         <Text className="font-primary-bold text-2xl text-neutral-1 dark:text-white">
           How are you feeling about MoviePals? 🤔

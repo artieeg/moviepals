@@ -15,7 +15,7 @@ import {
   NAVIGATOR_SWIPE,
 } from "./navigators/MainNavigator";
 import RootNavigator, { NAVIGATOR_MAIN } from "./navigators/RootNavigator";
-import { SCREEN_INVITE } from "./screens";
+import { SCREEN_FEEDBACK, SCREEN_INVITE } from "./screens";
 import { loadAuthToken, TRPCProvider } from "./utils/api";
 
 function AppContent() {
@@ -42,6 +42,9 @@ function AppContent() {
       screens: {
         [SCREEN_INVITE]: {
           path: "invite",
+        },
+        [SCREEN_FEEDBACK]: {
+          path: "feedback",
         },
         [NAVIGATOR_MAIN]: {
           screens: {
