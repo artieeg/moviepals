@@ -9,6 +9,7 @@ export type MovieCollection = {
 
   image: string;
 
+  newlyAdded?: boolean;
   free?: boolean;
 };
 
@@ -43,6 +44,7 @@ export const collections: MovieCollectionGroup[] = [
           "https://moviepals.io/images/collections/20th-century-horror.png",
         title: "Old School Scary",
         description: "Horror classics from the 60s, 70s, and 80s",
+        newlyAdded: true,
 
         filters: createFilters({
           genres: [27],

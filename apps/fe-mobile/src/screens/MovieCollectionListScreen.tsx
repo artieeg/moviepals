@@ -24,7 +24,12 @@ import { useColorScheme } from "nativewind";
 import { api, RouterOutputs } from "~/utils/api";
 import { env } from "~/utils/env";
 import { Button, TouchableScale } from "~/components";
-import { useNavigation, usePremiumProduct } from "~/hooks";
+import {
+  useFCMPermissionBackupQuery,
+  useFCMToken,
+  useNavigation,
+  usePremiumProduct,
+} from "~/hooks";
 import {
   SCREEN_PREPARE_SWIPE,
   SCREEN_SWIPE,
@@ -51,6 +56,9 @@ const ad = Platform.select({
 });
 
 export function MovieCollectionList() {
+  useFCMToken();
+  useFCMPermissionBackupQuery();
+
   const isPaid = api.user.isPaid.useQuery();
   const collectionData = api.collections.getCollectionList.useQuery();
 
@@ -393,14 +401,14 @@ function _MovieCollection({
   isLoading: boolean;
   onPress: (collection: Collection) => void;
 }) {
-  const { image, title, description, locked } = collection;
+  const { image, title, description, locked, newlyAdded } = collection;
 
   return (
     <TouchableScale
       className="flex-row space-x-4"
       onPress={() => onPress(collection)}
     >
-      <View className="h-[74px] w-[74px] rounded-xl overflow-hidden">
+      <View className="h-[74px] w-[74px] ">
         <FastImage
           className="rounded-xl h-full w-full"
           resizeMode="cover"
@@ -408,10 +416,20 @@ function _MovieCollection({
         />
 
         {locked && (
-          <View className="absolute left-0 top-0 bottom-0 right-0 bg-[#0000004D] items-center justify-center">
-            {isLoading ? <ActivityIndicator color="white" /> : <Lock />}
+          <View className="absolute rounded-xl left-0 top-0 bottom-0 right-0 bg-[#0000004D] items-center justify-center">
+            {isLoading ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Lock color="white" />
+            )}
           </View>
         )}
+
+        {newlyAdded && (
+        <View className="bg-brand-1 absolute self-center -top-3 rounded-full px-2 py-1">
+          <Text className="text-white font-primary-bold text-xs">New</Text>
+        </View>
+      )}
       </View>
 
       <View className="space-y-1 flex-1">
