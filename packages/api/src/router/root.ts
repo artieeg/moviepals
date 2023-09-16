@@ -5,6 +5,7 @@ import { collections } from "./collections";
 import { connection } from "./connection";
 import { connection_requests } from "./connection_requests";
 import { director } from "./director";
+import {feedback} from "./feedback";
 import { genres } from "./genres";
 import { invite } from "./invite";
 import { matches } from "./matches";
@@ -18,6 +19,7 @@ export const appRouter = createTRPCRouter({
   user,
   cast,
   streaming_service,
+  feedback,
   premium,
   genres,
   ad_impression,
