@@ -40,6 +40,7 @@ model User {
   connectionRequestSecondUser ConnectionRequest[] @relation("connection_request_second_user")
   SharedPremium               SharedPremium[]
   UnlockedCategory            UnlockedCategory[]
+  Feedback                    Feedback[]
 }
 
 model UnlockedCategory {
@@ -50,6 +51,16 @@ model UnlockedCategory {
   createdAt DateTime @default(now())
 
   @@unique([categoryId, userId])
+}
+
+model Feedback {
+  id String @id @default(cuid())
+
+  message String
+  rating  Int
+
+  userId String
+  User   User   @relation(fields: [userId], references: [id])
 }
 
 model UserInviteLink {

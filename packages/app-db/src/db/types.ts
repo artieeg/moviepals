@@ -17,6 +17,12 @@ export type ConnectionRequest = {
   rejected: Generated<boolean>;
   createdAt: Generated<Timestamp>;
 };
+export type Feedback = {
+  id: string;
+  message: string;
+  rating: number;
+  userId: string;
+};
 export type FullAccessPurchase = {
   id: string;
   source: string;
@@ -55,6 +61,7 @@ export type UserInviteLink = {
 };
 export type DB = {
   ConnectionRequest: ConnectionRequest;
+  Feedback: Feedback;
   Friend: Connection;
   FullAccessPurchase: FullAccessPurchase;
   SharedPremium: SharedPremium;
