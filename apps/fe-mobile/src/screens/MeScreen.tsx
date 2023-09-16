@@ -20,6 +20,7 @@ import { useColorScheme } from "nativewind";
 import { api, signOut } from "~/utils/api";
 import { Section, Switch, UserAvatar } from "~/components";
 import { useNavigation, usePremiumProduct } from "~/hooks";
+import { SCREEN_FEEDBACK } from "./FeedbackScreen";
 import { SCREEN_INVITE } from "./InviteScreen";
 import { MainLayout, useMainLayoutScrollHandler } from "./layouts/MainLayout";
 import { SCREEN_MY_SWIPE_LIST } from "./MySwipeListScreen";
@@ -183,6 +184,10 @@ export function MeScreen() {
     navigation.navigate(SCREEN_USER_SETTINGS);
   }
 
+  function onShareFeedback() {
+    navigation.navigate(SCREEN_FEEDBACK);
+  }
+
   const { handler, tweener } = useMainLayoutScrollHandler();
 
   return (
@@ -219,6 +224,13 @@ export function MeScreen() {
             </TouchableOpacity>
 
             <View className="space-y-6">
+              <Section
+                title="Share Feedback"
+                onPress={onShareFeedback}
+                showArrowRight
+                subtitle="Share your feedback"
+              />
+
               <Section
                 title="My Swipes"
                 onPress={onViewSwipes}

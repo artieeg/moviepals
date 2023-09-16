@@ -26,3 +26,4 @@ export * from "./MatchListScreenV2";
 export * from "./OnboardingSendInviteScreen";
 export * from "./NiceToMeetYouScreen";
 export * from "./MovieCollectionListScreen";
+export * from "./FeedbackScreen";

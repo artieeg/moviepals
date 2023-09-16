@@ -3,6 +3,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import {
   CastListScreen,
   DirectorListScreen,
+  FeedbackScreen,
   GenreFilterScreen,
   InviteScreen,
   InviteSuccessScreen,
@@ -10,6 +11,7 @@ import {
   MySwipeListScreen,
   SCREEN_CAST_LIST,
   SCREEN_DIRECTOR_LIST,
+  SCREEN_FEEDBACK,
   SCREEN_GENRE_FILTER,
   SCREEN_INVITE,
   SCREEN_INVITE_SUCCESS,
@@ -81,6 +83,12 @@ export default function RootNavigator() {
         options={options}
         name={SCREEN_DIRECTOR_LIST}
         component={DirectorListScreen}
+      />
+
+      <Stack.Screen
+        options={options}
+        name={SCREEN_FEEDBACK}
+        component={FeedbackScreen}
       />
 
       <Stack.Screen
