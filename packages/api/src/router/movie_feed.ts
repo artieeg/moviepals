@@ -22,10 +22,13 @@ import {
 } from "../trpc";
 
 /** Number of movies that we return to the client */
-const MOVIES_PER_PAGE = 40;
+//const MOVIES_PER_PAGE = 40;
 
 /** Max number of movies that we mix in from friend swipes */
-const MIX_IN_MOVIES_COUNT = 20;
+//const MIX_IN_MOVIES_COUNT = 20;
+
+const MOVIES_PER_PAGE = 5;
+const MIX_IN_MOVIES_COUNT = 2;
 
 export const movie_feed = createTRPCRouter({
   getMovieFeedConfig: publicProcedure.query(() => {
@@ -72,6 +75,7 @@ export const movie_feed = createTRPCRouter({
 
           return { user, unlockedCollection, connections };
         });
+
 
       const [
         { user, connections, unlockedCollection },

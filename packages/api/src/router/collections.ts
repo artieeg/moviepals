@@ -52,6 +52,7 @@ export const collections = createTRPCRouter({
       groups.splice(0, 0, {
         id: "available",
         title: "Available Collections",
+        expandByDefault: true,
         description:
           "Unlock more collections by watching ads, inviting friends or upgrading",
         collections: collectionsData

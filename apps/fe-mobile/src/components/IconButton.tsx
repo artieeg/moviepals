@@ -62,7 +62,7 @@ export function IconButton({
             <ActivityIndicator
               size="small"
               color={
-                variant === "outline"
+                variant === "outline" || variant === "gray"
                   ? colorScheme === "dark"
                     ? "white"
                     : "black"

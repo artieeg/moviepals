@@ -20,7 +20,7 @@ export const appDb = new Kysely<DB>({
   dialect,
   log(event) {
     if (event.level === "query") {
-      console.log(event.query.sql);
+      //console.log(event.query.sql);
     }
   },
 });
