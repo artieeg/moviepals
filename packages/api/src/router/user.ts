@@ -76,6 +76,11 @@ export const user = createTRPCRouter({
 
   deleteMyAccount: protectedProcedure.mutation(async ({ ctx }) => {
     await ctx.appDb
+      .deleteFrom("UnlockedCategory")
+      .where("userId", "=", ctx.user)
+      .execute();
+
+    await ctx.appDb
       .deleteFrom("ConnectionRequest")
       .where((eb) =>
         eb.or([
