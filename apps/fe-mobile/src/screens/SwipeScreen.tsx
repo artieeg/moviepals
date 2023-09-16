@@ -49,6 +49,7 @@ export function SwipeScreen() {
       initialCursor: 0,
       getNextPageParam: (latestResponse) => latestResponse.cursor,
       cacheTime: 0,
+      keepPreviousData: true,
     },
   );
 
@@ -176,7 +177,7 @@ export function SwipeScreen() {
     if (!currentMovie) {
       if (
         result.isFetching ||
-        result.isFetchingNextPage ||
+        //result.isFetchingNextPage ||
         result.isRefetching
       ) {
         return "loading";
@@ -204,57 +205,55 @@ export function SwipeScreen() {
     <>
       <MainLayout goBackCloseIcon title="Swipe" canGoBack>
         {displayMode === "movies" && (
-          <Animated.View
-            layout={Layout}
-            entering={FadeIn}
-            exiting={FadeOut}
-            className="flex-1"
-          >
-            <View className="aspect-[2/3] translate-y-8">
-              {deck.map((movie, idx) => (
-                <MovieCard
-                  key={movie.id}
-                  ref={idx === 0 ? currentMovieCard : undefined}
-                  idx={idx}
-                  totalNumberOfCards={3}
-                  onSwipe={(liked: boolean) => {
-                    if (liked) {
-                      onLike();
-                    } else {
-                      onDislike();
-                    }
-                  }}
-                  movie={movie}
-                />
-              ))}
-            </View>
-
-            <Controls
-              onUndo={onUndo}
-              visible={!!currentMovie}
-              onDislike={onDislike}
-              onLike={onLike}
-              onOpenMovieDetails={onOpenMovieDetails}
-            />
-          </Animated.View>
-        )}
-        {displayMode === "loading" && (
-          <Animated.View
-            className="flex-1 items-center justify-center pb-8"
-            entering={FadeIn}
-            exiting={FadeOut}
-          >
-            <ActivityIndicator
-              size="large"
-              color={colorScheme === "dark" ? "white" : "black"}
-            />
-
-            <Animated.Text
-              entering={FadeIn.delay(300)}
-              className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-center text-base"
+          <View className="flex-1">
+            <Animated.View
+              className="flex-1"
+              layout={Layout}
+              entering={FadeIn}
+              exiting={FadeOut}
             >
-              give us a short second 😄🐢
-            </Animated.Text>
+              <View className="aspect-[2/3] translate-y-8">
+                {deck.map((movie, idx) => (
+                  <MovieCard
+                    key={movie.id}
+                    ref={idx === 0 ? currentMovieCard : undefined}
+                    idx={idx}
+                    totalNumberOfCards={3}
+                    onSwipe={(liked: boolean) => {
+                      if (liked) {
+                        onLike();
+                      } else {
+                        onDislike();
+                      }
+                    }}
+                    movie={movie}
+                  />
+                ))}
+              </View>
+
+              <Controls
+                onUndo={onUndo}
+                visible={!!currentMovie}
+                onDislike={onDislike}
+                onLike={onLike}
+                onOpenMovieDetails={onOpenMovieDetails}
+              />
+            </Animated.View>
+          </View>
+        )}
+
+        {displayMode === "loading" && (
+          <Animated.View entering={FadeIn} exiting={FadeOut} className="flex-1 items-center justify-center pb-8">
+            <View >
+              <ActivityIndicator
+                size="large"
+                color={colorScheme === "dark" ? "white" : "black"}
+              />
+
+              <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-center text-base">
+                give us a short second 😄🐢
+              </Text>
+            </View>
           </Animated.View>
         )}
 

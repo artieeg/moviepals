@@ -5,6 +5,7 @@ import {
   Platform,
   SectionList,
   Text,
+  TouchableOpacity,
   View,
   ViewProps,
 } from "react-native";
@@ -17,13 +18,14 @@ import {
 } from "react-native-google-mobile-ads";
 import { check, PERMISSIONS, request, RESULTS } from "react-native-permissions";
 import Purchases from "react-native-purchases";
-import Animated from "react-native-reanimated";
-import { Filter, Lock } from "iconoir-react-native";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import { Filter, Lock, NavArrowDown } from "iconoir-react-native";
 import { useColorScheme } from "nativewind";
 
 import { api, RouterOutputs } from "~/utils/api";
 import { env } from "~/utils/env";
-import { Button, TouchableScale } from "~/components";
+import { sendEvent } from "~/utils/plausible";
+import { Button, LoadingIndicator, TouchableScale } from "~/components";
 import {
   useFCMPermissionBackupQuery,
   useFCMToken,
@@ -62,12 +64,18 @@ export function MovieCollectionList() {
   const isPaid = api.user.isPaid.useQuery();
   const collectionData = api.collections.getCollectionList.useQuery();
 
+  const { colorScheme } = useColorScheme();
+
+  const [expandedCollections, setExpandedCollections] = React.useState<
+    string[]
+  >([]);
+
   const sections = useMemo(() => {
     if (!collectionData.isSuccess || !isPaid.isSuccess) {
       return [];
     }
 
-    let items: SectionData[] = collectionData.data.groups;
+    let items: SectionData[] = [...collectionData.data.groups];
 
     if (!isPaid.data.isPaid) {
       items.splice(2, 0, "UPGRADE_PROMPT");
@@ -78,6 +86,7 @@ export function MovieCollectionList() {
         return {
           id: "UPGRADE_PROMPT",
           title: "Unlock All",
+          expandByDefault: true,
           description: "Get access to all collections",
           data: [],
         };
@@ -87,10 +96,22 @@ export function MovieCollectionList() {
         id: group.id,
         title: group.title,
         description: group.description,
-        data: group.collections,
+        expandByDefault: group.expandByDefault,
+        expanded:
+          group.expandByDefault || expandedCollections.includes(group.id),
+        data: group.expandByDefault
+          ? group.collections
+          : expandedCollections.includes(group.id)
+          ? group.collections
+          : group.collections.slice(0, 4),
       };
     });
-  }, [collectionData.data?.groups, collectionData.isSuccess]);
+  }, [
+    collectionData.data?.groups,
+    collectionData.isSuccess,
+    expandedCollections,
+    isPaid.data?.isPaid,
+  ]);
 
   const premium = usePremiumProduct();
   const user = api.user.getMyData.useQuery();
@@ -221,6 +242,8 @@ export function MovieCollectionList() {
 
   const onCollectionPress = (collection: Collection) => {
     if (collection.locked) {
+      sendEvent("unlock_collection");
+
       onWatchRewardedAd(collection.id);
       //TODO: show modal
     } else {
@@ -283,54 +306,84 @@ export function MovieCollectionList() {
 watch together with your friends"
       title="Movie Collections"
     >
-      <AnimatedSectionList
-        className="-mx-8"
-        showsVerticalScrollIndicator={false}
-        contentInset={{ top: 16 }}
-        sections={sections}
-        stickySectionHeadersEnabled={false}
-        onScroll={handler}
-        renderSectionFooter={({ section }: any) => (
-          <View className="pb-8">
-            {section.id === "recommended" && (
-              <CustomFilters onPress={onOpenCustomFilters} className="mt-3" />
-            )}
-          </View>
-        )}
-        renderSectionHeader={({ section }: any) => (
-          <View className="space-y-1 mb-3">
-            <Text className="font-primary-bold text-neutral-1 dark:text-white text-xl">
-              {section.title}
-            </Text>
-            <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
-              {section.description}
-            </Text>
+      {collectionData.isLoading ? (
+        <Animated.View
+          entering={FadeIn}
+          exiting={FadeOut}
+          className="flex-1 justify-center items-center"
+        >
+          <LoadingIndicator />
+        </Animated.View>
+      ) : (
+        <AnimatedSectionList
+          className="-mx-8"
+          entering={FadeIn}
+          exiting={FadeOut}
+          showsVerticalScrollIndicator={false}
+          contentInset={{ top: 16 }}
+          sections={sections}
+          stickySectionHeadersEnabled={false}
+          onScroll={handler}
+          renderSectionFooter={({ section }: any) => (
+            <View className="pb-8 space-y-3">
+              {section.id === "recommended" && (
+                <CustomFilters onPress={onOpenCustomFilters} className="mt-3" />
+              )}
 
-            {section.id === "UPGRADE_PROMPT" && (
-              <View className="pt-3">
-                <UpgradeSection
-                  isPurchasingPremium={isPurchasingPremium}
-                  isRestoringPurchases={isRestoringPurchases}
-                  onPurchasePremium={onPurchasePremium}
-                  onInvitePeople={onInvitePeople}
-                  onRestorePurchases={onRestorePurchases}
-                />
-              </View>
-            )}
-          </View>
-        )}
-        ItemSeparatorComponent={() => <View className="h-3" />}
-        renderItem={({ item, section }: any) =>
-          section.id === "UPGRADE_PROMPT" ? null : (
-            <MovieCollection
-              isLoading={loadingAdFor === item.id}
-              onPress={onCollectionPress}
-              key={`${section.id}_${item.id}`}
-              collection={item}
-            />
-          )
-        }
-      />
+              {!section.expandByDefault &&
+                !section.expanded &&
+                section.data.length <= 4 && (
+                  <TouchableScale
+                    onPress={() => {
+                      setExpandedCollections((prev) => [...prev, section.id]);
+                    }}
+                    className="flex-row space-x-3 items-center py-3"
+                  >
+                    <NavArrowDown
+                      color={colorScheme === "dark" ? "#9CA3AF" : "#717070"}
+                    />
+                    <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
+                      See more
+                    </Text>
+                  </TouchableScale>
+                )}
+            </View>
+          )}
+          renderSectionHeader={({ section }: any) => (
+            <View className="space-y-1 mb-6">
+              <Text className="font-primary-bold text-neutral-1 dark:text-white text-xl">
+                {section.title}
+              </Text>
+              <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
+                {section.description}
+              </Text>
+
+              {section.id === "UPGRADE_PROMPT" && (
+                <View className="pt-3">
+                  <UpgradeSection
+                    isPurchasingPremium={isPurchasingPremium}
+                    isRestoringPurchases={isRestoringPurchases}
+                    onPurchasePremium={onPurchasePremium}
+                    onInvitePeople={onInvitePeople}
+                    onRestorePurchases={onRestorePurchases}
+                  />
+                </View>
+              )}
+            </View>
+          )}
+          ItemSeparatorComponent={() => <View className="h-3" />}
+          renderItem={({ item, section }: any) =>
+            section.id === "UPGRADE_PROMPT" ? null : (
+              <MovieCollection
+                isLoading={loadingAdFor === item.id}
+                onPress={onCollectionPress}
+                key={`${section.id}_${item.id}`}
+                collection={item}
+              />
+            )
+          }
+        />
+      )}
     </TabLayout>
   );
 }
@@ -426,10 +479,10 @@ function _MovieCollection({
         )}
 
         {newlyAdded && (
-        <View className="bg-brand-1 absolute self-center -top-3 rounded-full px-2 py-1">
-          <Text className="text-white font-primary-bold text-xs">New</Text>
-        </View>
-      )}
+          <View className="bg-brand-1 absolute self-center -top-2.5 rounded-full px-2 py-1">
+            <Text className="text-white font-primary-bold text-xs">New</Text>
+          </View>
+        )}
       </View>
 
       <View className="space-y-1 flex-1">

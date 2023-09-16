@@ -18,12 +18,14 @@ export type MovieCollectionGroup = {
   title: string;
   description: string;
   collections: MovieCollection[];
+  expandByDefault?: boolean;
 };
 
 export const collections: MovieCollectionGroup[] = [
   {
     id: "recommended",
     title: "Recommended",
+    expandByDefault: true,
     description: "These should bring a lot of fun to your movie night 🍿",
     collections: [
       {
@@ -53,6 +55,16 @@ export const collections: MovieCollectionGroup[] = [
         }),
       },
       {
+        id: "tarantino",
+        image: "https://moviepals.io/images/collections/tarantino.jpeg",
+        title: "Tarantino's Thrills",
+        description: "Tune in to the mind-bending world of Tarantino",
+
+        filters: createFilters({
+          directors: [138],
+        }),
+      },
+      {
         id: "fresh-flicks",
         title: "Fresh Flicks",
         image: "https://moviepals.io/images/collections/new-flicks.jpeg",
@@ -70,7 +82,7 @@ export const collections: MovieCollectionGroup[] = [
     id: "worlds-best-directors",
     title: "World's Best Directors",
     description:
-      "There are a lot, and we’re not even close to having everyone on it! 😅 ",
+      "There are a lot, and we’re not even close to having everyone on this list! 😅 ",
     collections: [
       {
         id: "tarantino",
@@ -132,6 +144,8 @@ export const collections: MovieCollectionGroup[] = [
         image: "https://moviepals.io/images/collections/terrence-malick.jpeg",
         title: "Terrence Malick",
         description: "Terrence's visual verse.",
+
+        newlyAdded: true,
 
         filters: createFilters({
           directors: [30715],
