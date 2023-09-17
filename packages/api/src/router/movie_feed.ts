@@ -550,6 +550,7 @@ async function getMoviePage({
 
   logger.info(
     {
+      removeApiParams: params,
       leftToFetch,
       responseTotalMovieCount,
       randomFriendSwipes: randomFriendSwipes.length,
