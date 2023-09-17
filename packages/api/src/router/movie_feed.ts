@@ -558,9 +558,11 @@ async function getMoviePage({
     "Left to fetch",
   );
 
+  /*
   logger.info({
     removeApiParams: params,
   }, "Remote API params");
+  */
 
   let noMoreMovies = false;
 
