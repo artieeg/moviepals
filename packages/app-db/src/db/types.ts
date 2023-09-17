@@ -35,6 +35,7 @@ export type SharedPremium = {
   purchaseId: string | null;
 };
 export type UnlockedCategory = {
+  id: string;
   categoryId: string;
   userId: string;
   createdAt: Generated<Timestamp>;

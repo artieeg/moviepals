@@ -1,3 +1,4 @@
+import {createId} from "@paralleldrive/cuid2";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
@@ -101,6 +102,7 @@ export const collections = createTRPCRouter({
         await ctx.appDb
           .insertInto("UnlockedCategory")
           .values({
+            id: createId(),
             userId: ctx.user,
             categoryId: collectionId,
           })
