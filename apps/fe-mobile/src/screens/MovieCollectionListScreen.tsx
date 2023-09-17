@@ -265,6 +265,7 @@ export function MovieCollectionList() {
         director: undefined,
         castData: [],
         ...collection.filters,
+        collection_id: collection.id,
       });
 
       navigation.navigate(SCREEN_SWIPE);
@@ -494,7 +495,7 @@ function _MovieCollection({
       </View>
 
       <View className="space-y-1 flex-1">
-        <Text className="font-primary-bold text-neutral-1 dark:text-white text-xl">
+        <Text className="font-primary-bold text-neutral-1 dark:text-white text-lg">
           {title}
         </Text>
         <Text className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base">
