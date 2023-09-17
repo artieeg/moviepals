@@ -28,12 +28,18 @@
     "typescript": "^5.1.6"
   },
   "packageManager": "yarn@1.22.19",
-  "workspaces": [
-    "packages/movie-filters",
-    "apps/*",
-    "packages/movie-swipe-db",
-    "packages/app-db",
-    "packages/api",
-    "packages/config/*"
-  ]
+  "workspaces": {
+    "nohoist": [
+      "**/react-native-code-push/**",
+      "**/react-native-code-push"
+    ],
+    "packages": [
+      "packages/movie-filters",
+      "apps/*",
+      "packages/movie-swipe-db",
+      "packages/app-db",
+      "packages/api",
+      "packages/config/*"
+    ]
+  }
 }
