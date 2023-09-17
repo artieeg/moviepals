@@ -44,7 +44,10 @@ model User {
 }
 
 model UnlockedCategory {
-  categoryId String @id
+  id String @id @default(cuid())
+
+  categoryId String 
+
   userId     String
   User       User   @relation(fields: [userId], references: [id])
 
