@@ -550,7 +550,6 @@ async function getMoviePage({
 
   logger.info(
     {
-      removeApiParams: params,
       leftToFetch,
       responseTotalMovieCount,
       randomFriendSwipes: randomFriendSwipes.length,
@@ -558,6 +557,10 @@ async function getMoviePage({
     },
     "Left to fetch",
   );
+
+  logger.info({
+    removeApiParams: params,
+  }, "Remote API params");
 
   let noMoreMovies = false;
 
