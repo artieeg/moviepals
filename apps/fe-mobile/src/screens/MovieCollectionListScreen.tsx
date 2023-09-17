@@ -188,8 +188,8 @@ export function MovieCollectionList() {
 
   const [loadingAdFor, setLoadingAdFor] = React.useState<string | null>(null);
 
-  async function onWatchRewardedAd(collectionId: string) {
-    setLoadingAdFor(collectionId);
+  async function onWatchRewardedAd(collection: Collection) {
+    setLoadingAdFor(collection.id);
     const consentInfo = await AdsConsent.requestInfoUpdate();
 
     if (
@@ -227,10 +227,24 @@ export function MovieCollectionList() {
 
     const watchedUnsub = rewarded.addAdEventListener(
       RewardedAdEventType.EARNED_REWARD,
-      () => {
+      async () => {
         watchedUnsub();
 
-        unlockCollection.mutate({ collectionId });
+        await unlockCollection.mutateAsync({ collectionId: collection.id });
+
+        Alert.alert(
+          "Collection unlocked!",
+          `You can now swipe through the ${collection.title} collection!`,
+          [
+            {
+              text: "Open Collection",
+              onPress: () => {
+                onCollectionPress(collection);
+              },
+            },
+          ],
+          { cancelable: true },
+        );
       },
     );
 
@@ -252,7 +266,7 @@ export function MovieCollectionList() {
     if (collection.locked) {
       sendEvent("unlock_collection");
 
-      onWatchRewardedAd(collection.id);
+      onWatchRewardedAd(collection);
       //TODO: show modal
     } else {
       useFilterStore.setState({
@@ -311,8 +325,7 @@ export function MovieCollectionList() {
     <TabLayout
       edges={{ bottom: "off" }}
       borderTweenerValue={tweener}
-      subtitle="Select a collection and find movies to
-watch together with your friends"
+      subtitle="Select a collection and find movies to watch together with your friends 👇"
       title="Movie Collections"
     >
       {collectionData.isLoading ? (
@@ -329,7 +342,7 @@ watch together with your friends"
           entering={FadeIn}
           exiting={FadeOut}
           showsVerticalScrollIndicator={false}
-          contentInset={{ top: 16 }}
+          contentContainerStyle={{ paddingTop: 16 }}
           sections={sections}
           stickySectionHeadersEnabled={false}
           onScroll={handler}

@@ -9,7 +9,7 @@ import {
   View,
   ViewProps,
 } from "react-native";
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import Animated, { FadeIn, FadeOut, Layout } from "react-native-reanimated";
 import { useFocusEffect } from "@react-navigation/native";
 import { MoreHoriz, NavArrowRight, Search } from "iconoir-react-native";
 import { produce } from "immer";
@@ -19,7 +19,10 @@ import { useDebounce } from "use-debounce";
 import { api } from "~/utils/api";
 import { Input, ListItem, Prompt } from "~/components";
 import { useNavigation } from "~/hooks";
-import { SCREEN_FRIEND_REQUEST_LIST, SCREEN_USER_INFO } from "~/navigators/FriendsNavigator";
+import {
+  SCREEN_FRIEND_REQUEST_LIST,
+  SCREEN_USER_INFO,
+} from "~/navigators/FriendsNavigator";
 import { SCREEN_INVITE } from "./InviteScreen";
 import { MainLayout } from "./layouts/MainLayout";
 
@@ -221,24 +224,23 @@ export function FriendsListScreen() {
             connectionRequestsCount.isSuccess &&
             connectionRequestsCount.data.count === 0 &&
             friends.data.connections.length === 0 && (
-              <Animated.View
-                entering={FadeIn.duration(400)}
-                exiting={FadeOut.duration(400)}
-                className="flex-1"
-              >
-                <Prompt
-                  icon={<Text className="text-3xl">👀</Text>}
-                  title={`So empty, let's try to fix that!`}
-                  subtitle="Try the search or send invites to your friends. If you get at least 3 friends on MoviePals, you all are getting a free premium!"
-                  buttons={[
-                    {
-                      kind: "primary",
-                      title: "Send Invites",
-                      onPress: onSendInvites,
-                    },
-                  ]}
-                />
-              </Animated.View>
+                <Animated.View
+                  className="h-full"
+                  exiting={FadeOut.duration(400)}
+                >
+                  <Prompt
+                    icon={<Text className="text-3xl">👀</Text>}
+                    title={`So empty, let's try to fix that!`}
+                    subtitle="Try the search or send invites to your friends. If you get at least 2 friends on MoviePals, you all are getting a free premium!"
+                    buttons={[
+                      {
+                        kind: "primary",
+                        title: "Send Invites",
+                        onPress: onSendInvites,
+                      },
+                    ]}
+                  />
+                </Animated.View>
             )}
 
           {(friends.isLoading || userSearch.isFetching) && (

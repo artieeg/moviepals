@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { Platform, StatusBar } from "react-native";
+import codePush from "react-native-code-push";
 import {
   SafeAreaProvider,
   useSafeAreaInsets,
@@ -106,7 +107,7 @@ function AppContent() {
   );
 }
 
-export function App({ isHeadless }: { isHeadless?: boolean }) {
+function AppContainer({ isHeadless }: { isHeadless?: boolean }) {
   if (isHeadless) {
     return null;
   }
@@ -117,3 +118,7 @@ export function App({ isHeadless }: { isHeadless?: boolean }) {
     </SafeAreaProvider>
   );
 }
+export const App = codePush({
+  checkFrequency: codePush.CheckFrequency.MANUAL,
+  installMode: codePush.InstallMode.IMMEDIATE,
+})(AppContainer);
