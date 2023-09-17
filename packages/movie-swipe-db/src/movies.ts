@@ -22,8 +22,8 @@ const base = {
 export const movieSchema = z.object(base).strip();
 
 /**
-* Used in movie feed responses
-* */
+ * Used in movie feed responses
+ * */
 export const movieSchemaWithLikes = z
   .object({ likedByFriends: z.boolean() })
   .extend(base);
