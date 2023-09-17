@@ -8,6 +8,7 @@ const reviewStateSchema = z
     id: z.string(),
     userId: z.string(),
     directors: z.array(z.number()),
+    collection_id: z.string().optional().default("custom_filters"),
     start_year: z.number().optional(),
     end_year: z.number().optional(),
     remoteApiPage: z.number(),
@@ -23,10 +24,10 @@ const reviewStateSchema = z
 export type ReviewState = z.infer<typeof reviewStateSchema>;
 
 /**
-* The primarily purpose of this collection is to keep track of
-* the remote api page per user per genre and watch provider
-* to avoid as much unnecessary api calls as possible.
-* */
+ * The primarily purpose of this collection is to keep track of
+ * the remote api page per user per genre and watch provider
+ * to avoid as much unnecessary api calls as possible.
+ * */
 export const reviewState = db.collection<ReviewState>(
   env.MOVIE_SWIPE_REVIEW_STATE_COLLECTION_NAME,
 );

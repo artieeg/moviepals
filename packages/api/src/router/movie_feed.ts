@@ -73,7 +73,6 @@ export const movie_feed = createTRPCRouter({
           return { user, unlockedCollection, connections };
         });
 
-
       const [
         { user, connections, unlockedCollection },
         watchedAdsCount,
@@ -333,6 +332,7 @@ async function getOrCreateReviewState(
   ctx: Context,
 ) {
   const {
+    collection_id,
     watchProviderIds,
     genres,
     directors,
@@ -344,6 +344,7 @@ async function getOrCreateReviewState(
   } = input;
 
   const reviewState = await ctx.dbMovieSwipe.reviewState.findOne({
+    collection_id,
     userId: user,
     start_year,
     end_year,
@@ -365,6 +366,7 @@ async function getOrCreateReviewState(
       watch_providers: watchProviderIds,
       cast,
       start_year,
+      collection_id,
       order_by,
       min_vote_count,
       end_year,
