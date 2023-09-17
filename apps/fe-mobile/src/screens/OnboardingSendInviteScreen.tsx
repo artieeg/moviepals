@@ -67,7 +67,7 @@ export function OnboardingSendInviteScreen() {
               entering={FadeIn.duration(400).delay(400)}
               className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-base"
             >
-              If at least 3 people accept your invite,
+              If at least 2 people accept your invite,
               <Text className="font-primary-bold text-neutral-2 dark:text-neutral-5 text-base">
                 {" "}
                 all of you{" "}
