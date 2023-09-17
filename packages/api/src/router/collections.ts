@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import {
   collections as collectionsData,
-  MovieCollectionGroup,
+  MovieCollection,
 } from "../collections";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
@@ -49,22 +49,26 @@ export const collections = createTRPCRouter({
     //Users on free plans should have a separate group for available collections
     //These collections will will be duplicated
     if (!user.fullAccessPurchaseId) {
+      const collections: (MovieCollection & { locked: false })[] = [];
+
+      /** Populate with unlocked or free collections, avoid having duplicates */
+      for (const collection of groups.flatMap((g) => g.collections)) {
+        if (
+          !collections.some((c) => c.id === collection.id) &&
+          (collection.free ||
+            unlockedCollections.some((i) => i.categoryId === collection.id))
+        ) {
+          collections.push({ ...collection, locked: false });
+        }
+      }
+
       groups.splice(0, 0, {
         id: "available",
         title: "Available Collections",
         expandByDefault: true,
         description:
           "Unlock more collections by watching ads, inviting friends or upgrading",
-        collections: collectionsData
-          .flatMap((c) => c.collections)
-          .filter(
-            (c) =>
-              c.free || unlockedCollections.some((i) => i.categoryId === c.id),
-          )
-          .map((c) => ({
-            ...c,
-            locked: false,
-          })),
+        collections,
       });
     }
 
