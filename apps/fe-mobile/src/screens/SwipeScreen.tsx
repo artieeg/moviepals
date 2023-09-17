@@ -36,6 +36,7 @@ export function SwipeScreen() {
 
   const result = api.movie_feed.getMovieFeed.useInfiniteQuery(
     {
+      collection_id: filters.collection_id,
       start_year: filters.start_year,
       end_year: filters.end_year,
       genres: filters.genres,
