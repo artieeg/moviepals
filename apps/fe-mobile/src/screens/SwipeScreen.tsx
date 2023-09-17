@@ -245,23 +245,25 @@ export function SwipeScreen() {
 
         {displayMode === "loading" && (
           <Animated.View
+            layout={Layout}
             entering={FadeIn}
             exiting={FadeOut}
             className="flex-1 items-center justify-center pb-8"
           >
-            <View>
+            <Animated.View layout={Layout}>
               <ActivityIndicator
                 size="large"
                 color={colorScheme === "dark" ? "white" : "black"}
               />
 
               <Animated.Text
+                layout={Layout}
                 entering={FadeIn.delay(600)}
                 className="font-primary-regular text-neutral-2 dark:text-neutral-5 text-center text-base mt-3"
               >
                 give us a short second 😄🐢
               </Animated.Text>
-            </View>
+            </Animated.View>
           </Animated.View>
         )}
 

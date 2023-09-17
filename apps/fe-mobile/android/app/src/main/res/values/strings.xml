@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">MoviePals</string>
+    <string moduleConfig="true" name="CodePushDeploymentKey">IhxSr81rHLgBxb8mdKVD3zy9iTDag1u2QScp_</string>
 </resources>
