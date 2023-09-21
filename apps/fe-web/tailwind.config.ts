@@ -24,9 +24,9 @@ const config: Config = {
         "neutral-4": "#C7C5DA",
         "neutral-5": "#9CA3AF",
         "red-1": "#FC7B71",
-        "brand-1": "#6867AA",
-        "brand-1-10": "rgba(104, 103, 170, 0.10)",
-        "brand-1-20": "rgba(104, 103, 170, 0.20)", 
+        "brand-1": "#EA7436",
+        "brand-1-10": "rgba(234, 116, 54, 0.10)", 
+        "brand-1-20": "rgba(234, 116, 54, 0.20)",
       },
 
       fontFamily: {

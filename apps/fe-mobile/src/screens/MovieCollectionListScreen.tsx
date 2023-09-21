@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import FastImage from "react-native-fast-image";
 import {
+  AdEventType,
   AdsConsent,
   AdsConsentStatus,
   RewardedAd,
@@ -225,26 +226,31 @@ export function MovieCollectionList() {
       },
     });
 
-    const watchedUnsub = rewarded.addAdEventListener(
-      RewardedAdEventType.EARNED_REWARD,
+    const closedUnsub = rewarded.addAdEventListener(
+      AdEventType.CLOSED,
       async () => {
-        watchedUnsub();
-
-        await unlockCollection.mutateAsync({ collectionId: collection.id });
+        closedUnsub();
 
         Alert.alert(
           "Collection unlocked!",
           `You can now swipe through the ${collection.title} collection!`,
           [
             {
-              text: "Open Collection",
-              onPress: () => {
-                onCollectionPress(collection);
-              },
+              text: "See Collections",
+              onPress: () => {},
             },
           ],
           { cancelable: true },
         );
+      },
+    );
+
+    const watchedUnsub = rewarded.addAdEventListener(
+      RewardedAdEventType.EARNED_REWARD,
+      async () => {
+        watchedUnsub();
+
+        await unlockCollection.mutateAsync({ collectionId: collection.id });
       },
     );
 
