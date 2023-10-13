@@ -2,7 +2,6 @@ import { z } from "zod";
 
 const envSchema = z.object({
   REDIS_URL: z.string(),
-
   HOST: z.string(),
   PORT: z
     .string()
