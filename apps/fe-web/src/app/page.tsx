@@ -1,63 +1,99 @@
+"use client";
+
 import React from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { motion } from "framer-motion";
 
 import { PlatformButtons } from "./PlatformButtons";
 
-export default async function Home({ params }: { params: any }) {
-  const invite_id = params.invite_id;
+export default function Home() {
+  const [android, setAndroid] = React.useState(false);
+
+  const width = typeof window !== "undefined" ? window.innerWidth * 0.4 : 300;
+  const height = width * 2.16;
 
   return (
     <div className="flex flex-col">
-      <div className="flex flex-col px-8">
-        <h1 className="font-primary text-neutral-1 dark:text-white text-2xl">
-          Hey, join MoviePals! 👋🍿
+      <div className="h-[80%] flex items-center justify-center flex-col">
+        <div className="bg-brand-1-20 px-3 py-2 rounded-full">
+          <p className="font-secondary text-center text-brand-1 text-base mt-1">
+            Open beta
+          </p>
+        </div>
+        <h1 className="font-primary text-neutral-1 dark:text-white mt-8 text-3xl">
+          MoviePals
         </h1>
-
-        <p className="font-secondary mt-2 text-neutral-2 dark:text-neutral-5 text-base">
-          App for you and friends to discover a ton of movies to watch together!
+        <p className="font-secondary text-center text-neutral-2 dark:text-neutral-5 text-base mt-1">
+          swipe and find a movie
+          <br />
+          to watch together
         </p>
 
-        <div className="mt-8">
+        <div className="mt-4">
           <PlatformButtons />
         </div>
 
-        <div className="mt-8 space-y-2">
-          <h3 className="font-secondary text-neutral-2 dark:text-white text-lg">
-            Okay, but how does it work? 🤔
-          </h3>
-
-          <p className="font-secondary text-neutral-2 dark:text-neutral-5 text-base">
-            Swipe on movies, view the matches later, that’s so simple
-          </p>
-        </div>
-
-        <div className="mt-8 space-y-2">
-          <h3 className="font-secondary text-neutral-2 dark:text-white text-lg">
-            Yo, this is so cool,
-            <br />
-            anything else?
-          </h3>
-
-          <p className="font-secondary text-neutral-2 dark:text-neutral-5 text-base">
-            Yes! Filter by cast, directors, genres, and streaming services, view
-            matches for groups up to 6 people & more!
-          </p>
-        </div>
-
-        <div className="mt-8 space-y-2">
-          <h3 className="font-secondary text-neutral-2 dark:text-white text-lg">
-            Yeah, count me in! 🤩
-          </h3>
-
-          <div className="space-y-1">
-            <p className="font-secondary text-neutral-2 dark:text-neutral-5 text-base">
-              Sweet! Just press the button and we'll do the rest! 🚀
+        {android && (
+          <div className="space-y-3 px-8 mt-12">
+            <p className="font-secondary text-center text-neutral-2 dark:text-neutral-5 text-base mt-1">
+              Are you an Android user?
             </p>
+
+            <p className="font-secondary text-center text-neutral-2 dark:text-neutral-5 text-base mt-1">
+              We're still waiting for Google to approve open beta build for our
+              app.
+            </p>
+            <p className="font-secondary text-center text-neutral-2 dark:text-neutral-5 text-base mt-1">
+              Currently, you can either download an APK file or ask us to invite
+              you to the closed beta.
+            </p>
+
+            <div className="flex flex-col mt-8 space-y-3">
+              <Link
+                className="font-secondary text-center text-brand-1 underline dark:text-neutral-5 text-base mt-1"
+                href="mailto:hey@moviepals.io"
+              >
+                Email us to join closed beta
+              </Link>
+
+              <Link
+                className="font-secondary text-center text-brand-1 underline dark:text-neutral-5 text-base mt-1"
+                href="/moviepals.apk"
+              >
+                Download APK and install manually
+              </Link>
+
+              <Link
+                className="font-secondary text-center text-brand-1 underline dark:text-neutral-5 text-base mt-1"
+                href="https://testflight.apple.com/join/riAOMve5"
+              >
+                I'm on IOS, give me TestFlight link
+              </Link>
+            </div>
           </div>
-        </div>
-        <div className="mt-8">
-          <PlatformButtons />
-        </div>
+        )}
       </div>
+
+      <motion.div
+        className="mt-16 pl-8 w-full flex space-x-3 overflow-x-scroll no-scrollbar"
+        animate={{ opacity: 1 }}
+        initial={{ opacity: 0 }}
+        transition={{ delay: 0.5, duration: 0.4 }}
+        style={{ height }}
+      >
+        {[1, 2, 3, 4, 5].map((i) => (
+          <Image
+            key={i}
+            alt={`${i}`}
+            src={`/${i}.png`}
+            width={width}
+            height={height}
+            objectFit="contain"
+            className="rounded-2xl"
+          />
+        ))}
+      </motion.div>
 
       <div className="flex flex-col space-y-3 my-16 items-center">
         <a
@@ -68,14 +104,14 @@ export default async function Home({ params }: { params: any }) {
         </a>
 
         <a
-          href="/privacy-policy"
+          href="/privacy"
           className="text-neutral-2 underline dark:text-neutral-5"
         >
           Privacy Policy
         </a>
 
         <a
-          href="/terms-of-service"
+          href="/terms"
           className="text-neutral-2 underline dark:text-neutral-5"
         >
           Terms of Service

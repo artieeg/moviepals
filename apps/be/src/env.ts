@@ -2,7 +2,6 @@ import { z } from "zod";
 
 const envSchema = z.object({
   USER_DELIVERY_CACHE_REDIS_URL: z.string(),
-  LATEST_FEED_RESPONSE_CACHE_REDIS_URL: z.string(),
 
   HOST: z.string(),
   PORT: z
