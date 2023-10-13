@@ -33,7 +33,7 @@ export default function RootLayout({
           "bg-white dark:bg-neutral-1 flex flex-col",
         ].join(" ")}
       >
-        <div className="sm:max-w-[440px] sm:self-center">
+        <div className="sm:self-center">
           <div className="flex justify-center py-8 ">
             <Logo />
           </div>
