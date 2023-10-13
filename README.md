@@ -20,3 +20,28 @@ Swipe on movies together and find a bunch of stuff to watch!
 
 https://github.com/artieeg/moviepals/assets/60566430/72d9dd25-6d35-49c6-bd07-b6690636f8e9
 
+## Running the project
+
+1. Setup .env file based on .env.example
+You'll at least need to provide your [themoviedb.org](https://themoviedb.org/) api token
+
+2. Install dependencies
+```
+yarn install
+```
+
+3. Install Pods
+```
+cd apps/fe-mobile && npx pod-install
+```
+
+4. Spin-up PostgreSQL, Redis and MongoDB instances using Docker Compose:
+```
+docker compose up -d
+```
+
+5. Run the project
+```
+yarn dev
+```
+or `yarn fe:dev`, `yarn be:dev`, `yarn db:dev`
