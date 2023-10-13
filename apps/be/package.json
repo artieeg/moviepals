@@ -6,7 +6,7 @@
     "be:check": "tsc --noEmit",
     "be:fly": "flyctl deploy ../../ --remote-only",
     "be:debug": "yarn with-env ts-node-dev -r tsconfig-paths/register --inspect=9229 --transpile-only src/index.ts",
-    "be:dev": "yarn with-env ts-node-dev -r tsconfig-paths/register --transpile-only src/index.ts",
+    "dev": "yarn with-env ts-node-dev -r tsconfig-paths/register --transpile-only src/index.ts",
     "be:prod": "ts-node -r tsconfig-paths/register --transpile-only src/index.ts",
     "with-env": "npx dotenv -e ../../.env --"
   },

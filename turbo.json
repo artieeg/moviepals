@@ -21,6 +21,10 @@
     "be:fly": {
       "dependsOn": ["mdb:index", "^be:check", "^db:generate", "^db:push"]
     },
+    "start": {
+      "persistent": true,
+      "cache": false
+    },
     "dev": {
       "persistent": true,
       "cache": false
