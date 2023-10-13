@@ -2,6 +2,7 @@ import "./globals.css";
 
 import type { Metadata } from "next";
 import { Montserrat, Poppins } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
 
 const montserrat = Montserrat({
   weight: "800",
@@ -38,6 +39,8 @@ export default function RootLayout({
             <Logo />
           </div>
           {children}
+
+          <Analytics />
         </div>
       </body>
     </html>
