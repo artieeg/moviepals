@@ -52,7 +52,6 @@ export function SharePremiumScreen() {
   const canShare = idsToShare.length + (sharedList.data?.length ?? 0) < 4;
 
   function onToggleShare(id: string, enabled: boolean) {
-    console.log(id, enabled, canShare);
     if (!canShare || sharedList.data?.some((u) => u.id === id)) {
       return;
     }

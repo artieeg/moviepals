@@ -80,8 +80,6 @@ export async function getMovies(params: Record<string, unknown>) {
 
     return movies;
   } catch (e) {
-    console.log(e);
-
     throw e;
   }
 }
@@ -123,7 +121,6 @@ export async function searchCast(query: string) {
 export async function searchDirectors(query: string) {
   const r = await tmdb.get("search/person", { params: { query } });
 
-  console.log(r.data);
   const { results } = castFetchResultSchema.parse(r.data);
 
   return results.filter((r) => r.known_for_department === "Directing");

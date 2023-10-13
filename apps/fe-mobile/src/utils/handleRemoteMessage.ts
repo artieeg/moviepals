@@ -1,6 +1,5 @@
 import { Linking } from "react-native";
 import PushNotification, {
-  ChannelObject,
   Importance,
 } from "react-native-push-notification";
 import PushNotificationIOS from "@react-native-community/push-notification-ios";
@@ -22,7 +21,6 @@ export async function handleRemoteMessage(
   message: FirebaseMessagingTypes.RemoteMessage,
 ) {
   const data = zRemoteMessageDataSchema.parse(message.data);
-  console.log(data);
 
   PushNotification.createChannel(
     {

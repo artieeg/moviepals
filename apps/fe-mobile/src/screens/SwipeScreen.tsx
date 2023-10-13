@@ -200,8 +200,6 @@ export function SwipeScreen() {
     result.isRefetching,
   ]);
 
-  console.log(displayMode);
-
   return (
     <>
       <MainLayout goBackCloseIcon title="Swipe" canGoBack>

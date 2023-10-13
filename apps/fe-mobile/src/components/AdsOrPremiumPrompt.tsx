@@ -100,7 +100,6 @@ export function AdsOrPremiumPrompt({
     try {
       const r = await Purchases.restorePurchases();
 
-      console.log(r);
       if (!r.entitlements.active.go_pro) {
         return;
       }

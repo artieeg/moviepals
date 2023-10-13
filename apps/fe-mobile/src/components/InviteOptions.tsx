@@ -33,7 +33,6 @@ export function InviteOptions({
       return;
     }
 
-    console.log(inviteUrl.data.link);
     sendEvent("send_invite_text");
 
     SendSMS.send(
@@ -42,9 +41,7 @@ export function InviteOptions({
         recipients: [],
         body: `Hey, let's pick a movie to watch together with MoviePals! ${inviteUrl.data.link}`,
       },
-      (completed, cancelled, error) => {
-        console.log(completed, cancelled, error);
-
+      (_completed, _cancelled, error) => {
         if (error) {
           Toast.show({
             type: "error",
