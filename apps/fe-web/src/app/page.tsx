@@ -16,11 +16,6 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       <div className="h-[80%] flex items-center justify-center flex-col">
-        <div className="bg-brand-1-20 px-3 py-2 rounded-full">
-          <p className="font-secondary text-center text-brand-1 text-base mt-1">
-            Open beta
-          </p>
-        </div>
         <h1 className="font-primary text-neutral-1 dark:text-white mt-8 text-3xl">
           MoviePals
         </h1>
