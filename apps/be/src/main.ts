@@ -34,7 +34,7 @@ const revenueCatSchema = z
 
 export async function main() {
   const redis = new Redis(
-    env.USER_DELIVERY_CACHE_REDIS_URL,
+    env.REDIS_URL,
     process.env.NODE_ENV === "development"
       ? {
           lazyConnect: true,
@@ -125,6 +125,7 @@ export async function main() {
 
   server.post("/revcat/callback", async (msg, reply) => {
     logger.info(msg.body, "revenue cat");
+
     try {
       const { event } = revenueCatSchema.parse(msg.body);
 
@@ -139,6 +140,30 @@ export async function main() {
       });
 
       reply.status(200).send();
+    } catch (e) {
+      logger.error(e);
+
+      reply.status(400).send();
+    }
+  });
+
+  server.get("/invite", async (msg, reply) => {
+    logger.info(msg.query, "invite");
+    try {
+      const { code } = msg.query as { code: string };
+
+      const result = await appDb
+        .selectFrom("UserInviteLink")
+        .where("slug", "=", code)
+        .leftJoin("User", "User.userInviteSlugId", "UserInviteLink.slug")
+        .select("User.name")
+        .executeTakeFirst();
+
+      if (!result?.name) {
+        reply.status(404).send();
+      } else {
+        reply.status(200).send({ name: result.name });
+      }
     } catch (e) {
       logger.error(e);
       reply.status(500).send();
