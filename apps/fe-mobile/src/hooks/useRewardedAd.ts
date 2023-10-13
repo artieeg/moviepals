@@ -40,7 +40,6 @@ export function useRewardedAd() {
       const loadedUnsub = rewarded.addAdEventListener(
         RewardedAdEventType.LOADED,
         () => {
-          console.log("loaded");
           loadedUnsub();
 
           resolve(rewarded);

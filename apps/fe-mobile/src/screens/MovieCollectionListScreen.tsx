@@ -257,7 +257,6 @@ export function MovieCollectionList() {
     const loadedUnsub = rewarded.addAdEventListener(
       RewardedAdEventType.LOADED,
       () => {
-        console.log("loaded");
         loadedUnsub();
         setLoadingAdFor(null);
 

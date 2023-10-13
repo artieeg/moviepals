@@ -9,6 +9,7 @@ const montserrat = Montserrat({
   subsets: ["latin"],
   variable: "--font-primary-bold",
 });
+
 const poppins = Poppins({
   weight: "500",
   subsets: ["latin"],

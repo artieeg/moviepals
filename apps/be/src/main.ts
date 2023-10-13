@@ -171,7 +171,6 @@ export async function main() {
   server.get("/admob/callback", async (msg, reply) => {
     logger.info(msg.query, "admob callback");
 
-    console.log(msg.query);
     try {
       await verifyRewardedAdCallback({
         data: msg.query,

@@ -42,7 +42,6 @@ export const connection_requests = createTRPCRouter({
         .returningAll()
         .execute();
 
-      console.log(allowPushNotifications, fcmToken);
       if (allowPushNotifications && fcmToken) {
         sendNotification({
           token: fcmToken,

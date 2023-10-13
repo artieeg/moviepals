@@ -12,6 +12,7 @@ export async function createIndexes() {
   const movieTitleTextIndex = "movie_title_text_index";
   if (!(await movies.indexExists(moviesIndex))) {
     console.log(`Creating index ${moviesIndex}`);
+
     await movies.createIndex(
       {
         id: 1,
@@ -22,6 +23,7 @@ export async function createIndexes() {
 
   if (!(await movies.indexExists(movieTitleTextIndex))) {
     console.log(`Creating index ${movieTitleTextIndex}`);
+
     await movies.createIndex(
       {
         original_title: "text",
@@ -37,6 +39,7 @@ export async function createIndexes() {
 
   if (!(await swipes.indexExists(swipesIndex))) {
     console.log(`Creating index ${swipesIndex}`);
+
     await swipes.createIndex(
       {
         id: 1,

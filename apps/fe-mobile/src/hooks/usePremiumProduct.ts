@@ -2,7 +2,6 @@ import Purchases from "react-native-purchases";
 import { useQuery } from "@tanstack/react-query";
 
 import { REVCAT_API_KEY } from "~/utils/consts";
-import { env } from "~/utils/env";
 import {api} from "~/utils/api";
 
 export function usePremiumProduct() {
@@ -15,15 +14,7 @@ export function usePremiumProduct() {
     });
 
     const offerings = await Purchases.getOfferings()
-
     const premium = offerings.all.go_pro_offering.lifetime?.product;
-    /*
-    const products = await Purchases.getProducts([
-      env.REVCAT_GO_PRO_PRODUCT_ID,
-    ]);
-
-    console.log(products)
-     * */
 
     return {
       product: premium!,

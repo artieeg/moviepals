@@ -60,8 +60,6 @@ async function verifySignature(payload: z.infer<typeof admobSchema>) {
 
   const verified = verifier.verify(key.pem, Buffer.from(signature, "base64"));
 
-  console.log("verified", verified);
-
   if (!verified) {
     throw new Error("Not verified");
   }

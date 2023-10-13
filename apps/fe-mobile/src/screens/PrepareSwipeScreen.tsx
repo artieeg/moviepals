@@ -135,7 +135,6 @@ function ResetFilters(props: ViewProps) {
       [
         {
           text: "Cancel",
-          onPress: () => console.log("Cancel Pressed"),
           style: "cancel",
         },
         {
