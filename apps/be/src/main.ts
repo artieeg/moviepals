@@ -124,8 +124,6 @@ export async function main() {
   });
 
   server.post("/revcat/callback", async (msg, reply) => {
-    logger.info(msg.body, "revenue cat");
-
     try {
       const { event } = revenueCatSchema.parse(msg.body);
 
@@ -141,8 +139,6 @@ export async function main() {
 
       reply.status(200).send();
     } catch (e) {
-      logger.error(e);
-
       reply.status(400).send();
     }
   });
