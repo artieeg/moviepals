@@ -229,6 +229,150 @@ export const collections: MovieCollectionGroup[] = [
       },
     ],
   },
+
+  {
+    id: "actors",
+    title: "Actors",
+    description:
+      "Actor collections are a great way to explore the work of your favorite actors.",
+    collections: [
+      {
+      id: "christian_bale",
+      image: "https://moviepals.io/images/collections/christian_bale.jpeg",
+      title: "Christian Bale",
+      description: "Explore the versatile performances of Christian Bale",
+      filters: createFilters({
+        cast: [3894]
+      })
+    },
+    {
+      id: "ryan_gosling",
+      image: "https://moviepals.io/images/collections/ryan_goslin.jpeg",
+      title: "Ryan Gosling",
+      description: "Get charmed by Ryan Gosling's top roles",
+      filters: createFilters({
+        cast: [30614]
+      })
+    },
+    {
+      id: "johnny_depp",
+      image: "https://moviepals.io/images/collections/johnny_depp.jpeg",
+      title: "Johnny Depp",
+      description: "Step into Johnny Depp's iconic characters",
+      filters: createFilters({
+        cast: [85]
+      })
+    },
+    {
+      id: "brad_pitt",
+      image: "https://moviepals.io/images/collections/brad_pitt.jpeg",
+      title: "Brad Pitt",
+      description: "Experience the world of Brad Pitt's blockbusters",
+      filters: createFilters({
+        cast: [287]
+      })
+    },
+    {
+      id: "dicaprio",
+      image: "https://moviepals.io/images/collections/dicaprio.jpeg",
+      title: "Leonardo DiCaprio",
+      description: "Join Leonardo DiCaprio on his cinematic journey",
+      filters: createFilters({
+        cast: [6193]
+      })
+    },
+    {
+      id: "clint_eastwood",
+      image: "https://moviepals.io/images/collections/clint_eastwood.jpeg",
+      title: "Clint Eastwood",
+      description: "Explore the timeless legacy of Clint Eastwood",
+      filters: createFilters({
+        cast: [190]
+      })
+    },
+    {
+      id: "robin_williams",
+      image: "https://moviepals.io/images/collections/robin_williams.jpeg",
+      title: "Robin Williams",
+      description: "Experience the magic of Robin Williams",
+      filters: createFilters({
+        cast: [2157]
+      })
+    },
+    {
+      id: "al_pacino",
+      image: "https://moviepals.io/images/collections/al_pacino.jpeg",
+      title: "Al Pacino",
+      description: "Experience the classics with Al Pacino",
+      filters: createFilters({
+        cast: [1158]
+      })
+    },
+    {
+      id: "keanu_reeves",
+      image: "https://moviepals.io/images/collections/keanu_reeves.jpeg",
+      title: "Keanu Reeves",
+      description: "Dive into the action-packed world of Keanu Reeves",
+      filters: createFilters({
+        cast: [6384]
+      })
+    },
+    {
+      id: "ryan_reynolds",
+      image: "https://moviepals.io/images/collections/ryan_reynolds.jpeg",
+      title: "Ryan Reynolds",
+      description: "Enjoy the wit and humor of Ryan Reynolds",
+      filters: createFilters({
+        cast: [10859]
+      })
+    },
+    {
+      id: "anthony_hopkins",
+      image: "https://moviepals.io/images/collections/anthony_hopkins.jpeg",
+      title: "Anthony Hopkins' Excellence",
+      description: "Experience the excellence of Anthony Hopkins",
+      filters: createFilters({
+        cast: [4173]
+      })
+    },
+    {
+      id: "harrison_ford",
+      image: "https://moviepals.io/images/collections/harrison_ford.jpeg",
+      title: "Harrison Ford",
+      description: "Embark on adventures with Harrison Ford",
+      filters: createFilters({
+        cast: [3]
+      })
+    },
+    {
+      id: "samual_l_jackson",
+      image: "https://moviepals.io/images/collections/samual_l_jackson.jpeg",
+      title: "Samuel L. Jackson",
+      description: "Witness the impact of Samuel L. Jackson on screen",
+      filters: createFilters({
+        cast: [2231]
+      })
+    },
+    {
+      id: "tom_hanks",
+      image: "https://moviepals.io/images/collections/tom_hanks.jpeg",
+      title: "Tom Hanks",
+      description: "Feel the warmth of Tom Hanks' heartfelt performances",
+      filters: createFilters({
+        cast: [31]
+      })
+    },
+    {
+      id: "morgan_freeman",
+      image: "https://moviepals.io/images/collections/morgan_freeman.jpeg",
+      title: "Morgan Freeman",
+      description: "Listen to the captivating narration of Morgan Freeman",
+      filters: createFilters({
+        cast: [192]
+      })
+    },
+    ],
+  },
 ];
 
 function createFilters(params: Partial<MovieBaseFilter>): MovieBaseFilter {
