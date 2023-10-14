@@ -41,10 +41,12 @@ export async function main() {
         }
       : {
           lazyConnect: true,
+          /*
           family: 6,
           reconnectOnError: () => true,
           retryStrategy: () => 100,
           keepAlive: 1,
+           * /
         },
   );
 
@@ -139,7 +141,9 @@ export async function main() {
 
       reply.status(200).send();
     } catch (e) {
-      reply.status(400).send();
+      console.error(e);
+
+      reply.status(400).send({message: e.message});
     }
   });
 
