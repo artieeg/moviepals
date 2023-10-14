@@ -329,7 +329,7 @@ export const collections: MovieCollectionGroup[] = [
     {
       id: "anthony_hopkins",
       image: "https://moviepals.io/images/collections/anthony_hopkins.jpeg",
-      title: "Anthony Hopkins' Excellence",
+      title: "Anthony Hopkins",
       description: "Experience the excellence of Anthony Hopkins",
       filters: createFilters({
         cast: [4173]
