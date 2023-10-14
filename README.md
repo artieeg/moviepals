@@ -23,7 +23,8 @@ https://github.com/artieeg/moviepals/assets/60566430/72d9dd25-6d35-49c6-bd07-b66
 ## Running the project
 
 1. Setup .env file based on .env.example
-You'll at least need to provide your [themoviedb.org](https://themoviedb.org/) api token
+
+You'll at least need to provide your [themoviedb.org](https://themoviedb.org/) api token.
 
 2. Install dependencies
 ```
