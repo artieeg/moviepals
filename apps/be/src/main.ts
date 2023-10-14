@@ -35,19 +35,21 @@ const revenueCatSchema = z
 export async function main() {
   const redis = new Redis(
     env.REDIS_URL,
+    /*
     process.env.NODE_ENV === "development"
       ? {
           lazyConnect: true,
         }
       : {
           lazyConnect: true,
+          retryStrategy: null,
           /*
           family: 6,
           reconnectOnError: () => true,
           retryStrategy: () => 100,
           keepAlive: 1,
-           * /
         },
+           */
   );
 
   redis.on("error", (err) => {
@@ -71,7 +73,7 @@ export async function main() {
     logger.warn("Redis end");
   });
 
-  await Promise.all([connectAppDb(), dbMovieSwipe.connect(), redis.connect()]);
+  await Promise.all([connectAppDb(), dbMovieSwipe.connect(), /*redis.connect()*/]);
 
   setInterval(() => {
     redis.set("user-delivery-cache", Math.random());
