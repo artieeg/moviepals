@@ -1,6 +1,8 @@
 # MoviePals 🍿🤩
 Swipe on movies together and find a bunch of stuff to watch! 
 
+Powered by [themoviedb.org](https://themoviedb.org/)'s API
+
 ## Download
 [App Store](https://apps.apple.com/us/app/moviepals-watch-together/id6461212763)
 
@@ -8,7 +10,7 @@ Swipe on movies together and find a bunch of stuff to watch!
 
 ## Structure
 
-| directory | description |
+| Directory | Description |
 | --- | --- |
 | [apps/fe-mobile](https://github.com/artieeg/moviepals/tree/main/apps/fe-mobile) | React Native App |
 | [apps/fe-web](https://github.com/artieeg/moviepals/tree/main/apps/fe-web) | Landing & Invites NextJS App |
