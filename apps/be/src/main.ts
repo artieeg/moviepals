@@ -41,10 +41,12 @@ export async function main() {
         }
       : {
           lazyConnect: true,
+          /*
           family: 6,
           reconnectOnError: () => true,
           retryStrategy: () => 100,
           keepAlive: 1,
+           * /
         },
   );
 
