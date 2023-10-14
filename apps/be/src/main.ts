@@ -139,7 +139,9 @@ export async function main() {
 
       reply.status(200).send();
     } catch (e) {
-      reply.status(400).send();
+      console.error(e);
+
+      reply.status(400).send({message: e.message});
     }
   });
 
