@@ -18,6 +18,9 @@
       "cache": false,
       "dependsOn": ["^db:generate"]
     },
+    "be:prod": {
+      "dependsOn": ["mdb:index", "^be:check", "^db:generate", "^db:push"]
+    },
     "be:fly": {
       "dependsOn": ["mdb:index", "^be:check", "^db:generate", "^db:push"]
     },

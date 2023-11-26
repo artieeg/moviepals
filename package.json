@@ -15,6 +15,7 @@
     "db:dev": "turbo dev --filter @moviepals/app-db",
     "fe:dev": "turbo dev --filter @moviepals/app",
     "be:dev": "turbo dev --filter @moviepals/be",
+    "be:prod": "turbo be:prod",
     "dev": "turbo dev --parallel",
     "format": "prettier --write \"**/*.{js,cjs,mjs,ts,tsx,md,json}\" --ignore-path .gitignore",
     "lint": "turbo lint && manypkg check",
